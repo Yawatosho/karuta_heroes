@@ -14,14 +14,14 @@
       "correctRate": 0.8
     },
     "digital": {
-      "reactionMinMs": 1000,
-      "reactionMaxMs": 2000,
+      "reactionMinMs": 1200,
+      "reactionMaxMs": 2400,
       "mistakeRate": 0.15,
       "correctRate": 0.85
     },
     "supreme": {
-      "reactionMinMs": 800,
-      "reactionMaxMs": 1600,
+      "reactionMinMs": 1000,
+      "reactionMaxMs": 2000,
       "mistakeRate": 0.1,
       "correctRate": 0.9
     }
