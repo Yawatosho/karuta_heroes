@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "enemies": {
+    "wind": {
+      "reactionMinMs": 3800,
+      "reactionMaxMs": 5900,
+      "mistakeRate": 0.3,
+      "correctRate": 0.7
+    },
+    "magician": {
+      "reactionMinMs": 2100,
+      "reactionMaxMs": 3900,
+      "mistakeRate": 0.2,
+      "correctRate": 0.8
+    },
+    "digital": {
+      "reactionMinMs": 800,
+      "reactionMaxMs": 1900,
+      "mistakeRate": 0.15,
+      "correctRate": 0.85
+    },
+    "supreme": {
+      "reactionMinMs": 540,
+      "reactionMaxMs": 1450,
+      "mistakeRate": 0.1,
+      "correctRate": 0.9
+    }
+  },
+  "damage": {
+    "base": 14,
+    "comboStep": 4,
+    "max": 34
+  },
+  "gauge": {
+    "correctBase": 25,
+    "fastBonus": 26,
+    "min": 10,
+    "max": 40,
+    "opponentHit": 10,
+    "playerMiss": 0,
+    "enemyMiss": 0
+  },
+  "lines": {
+    "librarian": {
+      "wind": {
+        "win": "静かに、でも確実に勝利です。",
+        "lose": "まだ、分類の棚は読み切れていませんね。"
+      },
+      "magician": {
+        "win": "静かに、でも確実に勝利です。",
+        "lose": "まだ、分類の棚は読み切れていませんね。"
+      },
+      "digital": {
+        "win": "静かに、でも確実に勝利です。",
+        "lose": "トウゼンデス アルゴリズム ガ チガイマスカラ"
+      },
+      "supreme": {
+        "win": "知の座標は、あなたとともに次の棚へ。",
+        "lose": "まだ、分類の棚は読み切れていませんね。"
+      }
+    },
+    "detective": {
+      "wind": {
+        "win": "謎は全て解けた。勝利の分類番号もね。",
+        "lose": "むむ、次の事件では必ず見抜くよ。"
+      },
+      "magician": {
+        "win": "謎は全て解けた。勝利の分類番号もね。",
+        "lose": "むむ、次の事件では必ず見抜くよ。"
+      },
+      "digital": {
+        "win": "謎は全て解けた。勝利の分類番号もね。",
+        "lose": "トウゼンデス アルゴリズム ガ チガイマスカラ"
+      },
+      "supreme": {
+        "win": "知の座標は、あなたとともに次の棚へ。",
+        "lose": "むむ、次の事件では必ず見抜くよ。"
+      }
+    },
+    "lily": {
+      "wind": {
+        "win": "みんなの声が、正しい棚まで導いてくれました。",
+        "lose": "本の声を、もっとちゃんと聞けるようになります。"
+      },
+      "magician": {
+        "win": "なんだろう…とても懐かしい感じ…",
+        "lose": "本の声を、もっとちゃんと聞けるようになります。"
+      },
+      "digital": {
+        "win": "みんなの声が、正しい棚まで導いてくれました。",
+        "lose": "トウゼンデス アルゴリズム ガ チガイマスカラ"
+      },
+      "supreme": {
+        "win": "知の座標は、あなたとともに次の棚へ。",
+        "lose": "本の声を、もっとちゃんと聞けるようになります。"
+      }
+    }
+  }
+}
