@@ -1612,6 +1612,10 @@ body[data-mode="cpu"].fighter-playing .round-win-screen img {
   animation: roundWinImageIn 0.62s cubic-bezier(.16,.9,.2,1) both;
 }
 
+body[data-mode="cpu"].fighter-smartphone.fighter-playing .round-win-screen {
+  --round-win-image-y: -58px;
+}
+
 body[data-mode="cpu"].fighter-playing .round-win-screen.enemy img {
   filter:
     drop-shadow(0 0 24px rgba(227, 95, 116, 0.34))
@@ -4266,6 +4270,10 @@ body[data-mode="cpu"].fighter-playing .card {
   line-height: 1.18;
 }
 
+body[data-mode="cpu"].fighter-smartphone.fighter-playing .card {
+  font-size: 1rem;
+}
+
 body[data-mode="cpu"].fighter-playing #message {
   border-color: rgba(17, 24, 39, 0.28);
   background: #fff4c8;
@@ -5501,11 +5509,11 @@ body.fighter-reversed[data-mode="cpu"].fighter-playing #reading .digit {
 @keyframes roundWinImageIn {
   from {
     opacity: 0;
-    transform: translateY(18px) scale(0.94);
+    transform: translateY(calc(var(--round-win-image-y, 0px) + 18px)) scale(0.94);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(var(--round-win-image-y, 0px)) scale(1);
   }
 }
 

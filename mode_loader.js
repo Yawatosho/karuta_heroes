@@ -22,9 +22,13 @@
     const scale = Math.min(width / FIXED_STAGE_WIDTH, height / FIXED_STAGE_HEIGHT);
     const left = (width - FIXED_STAGE_WIDTH * scale) / 2 + (viewport?.offsetLeft || 0);
     const top = (height - FIXED_STAGE_HEIGHT * scale) / 2 + (viewport?.offsetTop || 0);
+    const hasCoarsePointer = typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
+    const isTouchDevice = (navigator.maxTouchPoints || 0) > 0 || hasCoarsePointer;
+    const isSmartphoneStage = isTouchDevice && Math.min(width, height) <= 540;
     document.documentElement.style.setProperty('--stage-scale-runtime', String(scale));
     document.documentElement.style.setProperty('--stage-left', `${left}px`);
     document.documentElement.style.setProperty('--stage-top', `${top}px`);
+    document.body?.classList.toggle('fighter-smartphone', isSmartphoneStage);
   }
 
   function setupFixedStageScale() {
@@ -103,7 +107,7 @@
   function loadScript(src) {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = `${src}?v=fighters84`;
+      script.src = `${src}?v=fighters85`;
       script.async = false;
       script.addEventListener('load', resolve, { once: true });
       script.addEventListener('error', reject, { once: true });
