@@ -4,13 +4,14 @@
   const ROUND_TIME_MS = 15000;
   const EARLY_WINDOW_MS = 6000;
   const CPU_CLICK_ANIM_MS = 230;
+  const SKILL_CUTIN_DURATION_MS = 1160;
   const MAX_GAUGE = 100;
   const BASE_DAMAGE = 14;
   const OPPONENT_HIT_GAUGE = 18;
   const NDC_JSON_URL = 'https://raw.githubusercontent.com/Yawatosho/karuta/refs/heads/main/ndc.json';
   const LOCAL_NDC_JSON_URL = 'ndc.json';
   const NDC_CACHE_KEY = 'ndc_json_cache_v2';
-  const SELECT_ASSET_VERSION = 'fighters77';
+  const SELECT_ASSET_VERSION = 'fighters84';
   const karutaAudio = window.karutaAudio || null;
 
   const PLAYERS = [
@@ -65,7 +66,7 @@
       selectImage: 'character/lily_select.png',
       cutin: 'cutin/cutin_lily.png',
       skillName: 'みんな、お願いっ！',
-      skillEffect: '次の問題で相手の解答権を封じる',
+      skillEffect: '次の2ターン、相手の解答権を封じる',
       skillType: 'skipCpu',
       stats: { atk: 2, def: 4 },
       damageDealtMultiplier: 0.8,
@@ -80,6 +81,7 @@
     {
       id: 'wind',
       name: '風の目録使い',
+      englishName: 'The Wind Cataloger',
       image: 'reference/風の目録使い.png',
       icon: 'character/enemy1_icon.png',
       cutin: 'cutin/cutin_enemy1.png',
@@ -92,6 +94,7 @@
     {
       id: 'magician',
       name: '分類の魔術師',
+      englishName: 'The Classification Mage',
       image: 'reference/分類の魔術師.png',
       icon: 'character/enemy2_icon.png',
       cutin: 'cutin/cutin_enemy2.png',
@@ -104,6 +107,7 @@
     {
       id: 'digital',
       name: 'デジタルライブラリアン',
+      englishName: 'The Digital Librarian',
       image: 'reference/デジタルライブラリアン.png',
       icon: 'character/enemy3_icon.png',
       cutin: 'cutin/cutin_enemy3.png',
@@ -116,6 +120,7 @@
     {
       id: 'supreme',
       name: '至高の司書',
+      englishName: 'The Supreme Librarian',
       image: 'reference/至高の司書.png',
       icon: 'character/enemy4_icon.png',
       cutin: 'cutin/cutin_enemy4.png',
@@ -142,6 +147,12 @@
   const ROUND_READING_DELAY_MS = 1000;
   const INTRO_READING_DELAY_MS = 1700;
   const KO_RESULT_DELAY_MS = 1400;
+  const TIME_UP_RESULT_DELAY_MS = 1700;
+  const PERFECT_RESULT_DELAY_MS = 1500;
+  const TURNS_PER_BATTLE_ROUND = 10;
+  const ROUNDS_TO_WIN = 2;
+  const MAX_BATTLE_ROUNDS = 3;
+  const ROUND_WIN_DISPLAY_MS = 2400;
   const DEFAULT_FIELD_SLOT_COUNT = 11;
 
   const DEV_TUNING_KEY = 'karutaDevTuning';
@@ -185,6 +196,8 @@
   const startSound = document.getElementById('startSound');
   const roundCallSound = document.getElementById('roundCallSound');
   const koSound = document.getElementById('koSound');
+  const timeUpSound = document.getElementById('timeUpSound');
+  const perfectSound = document.getElementById('perfectSound');
   const victorySound = document.getElementById('victorySound');
   const resultSound = document.getElementById('resultSound');
   const startButton = document.getElementById('startButton');
@@ -235,6 +248,9 @@
   let decoyCard = null;
   let currentReadingCard = null;
   let round = 0;
+  let battleRound = 1;
+  let playerRoundWins = 0;
+  let enemyRoundWins = 0;
   let roundId = 0;
   let playerHp = 100;
   let enemyHp = 100;
@@ -247,7 +263,7 @@
   let roundActive = false;
   let answered = false;
   let pendingReveal = false;
-  let cpuSkipNextRound = false;
+  let cpuSkipTurnsRemaining = 0;
   let playerDisabledThisRound = false;
   let cpuDisabledThisRound = false;
   let reverseReading = false;
@@ -258,11 +274,15 @@
   let roundTimer = null;
   let roundResultTimeout = null;
   let battleFinishDelayTimer = 0;
+  let roundWinDisplayTimer = 0;
   let timeDisplayInterval = null;
   let readingTimeouts = [];
   let countdownTimeouts = [];
   let pendingRoundMessage = null;
   let skillCutinTimer = 0;
+  let skillCutinPauseTimer = 0;
+  let battlePausedForCutin = false;
+  let pausedRoundRemainingMs = 0;
   let comboCutinTimer = 0;
   let battleFinishing = false;
   let cpuActionTimer = null;
@@ -650,7 +670,7 @@
   function playSoundEffect(name, playbackRate = 1) {
     if (!soundEnabled) return;
     if (karutaAudio && karutaAudio.playEffect(name, { playbackRate })) return;
-    const fallbackMap = { correct: correctSound, ng: ngSound, start: startSound, roundcall: roundCallSound, ko: koSound, victory: victorySound, result: resultSound };
+    const fallbackMap = { correct: correctSound, ng: ngSound, start: startSound, roundcall: roundCallSound, ko: koSound, timeup: timeUpSound, perfect: perfectSound, victory: victorySound, result: resultSound };
     playFallbackAudio(fallbackMap[name], playbackRate);
   }
 
@@ -783,6 +803,7 @@
 
   function showSkillCutin(character, side = 'player') {
     if (!character?.cutin || !karutaEl) return;
+    pauseBattleForSkillCutin(SKILL_CUTIN_DURATION_MS);
     karutaEl.querySelectorAll('.skill-cutin').forEach(cutin => cutin.remove());
     clearTimeout(skillCutinTimer);
 
@@ -798,7 +819,46 @@
     skillCutinTimer = setTimeout(() => {
       cutin.remove();
       if (skillCutinTimer) skillCutinTimer = 0;
-    }, 1160);
+    }, SKILL_CUTIN_DURATION_MS);
+  }
+
+  function pauseBattleForSkillCutin(durationMs) {
+    if (!roundActive || answered || battleFinishing) return;
+    if (!battlePausedForCutin) {
+      const elapsed = Date.now() - roundStartTime;
+      pausedRoundRemainingMs = clamp(ROUND_TIME_MS - elapsed, 0, ROUND_TIME_MS);
+      battlePausedForCutin = true;
+    }
+    clearTimeout(roundTimer);
+    clearInterval(timeDisplayInterval);
+    pauseReadingTimeouts();
+    clearCpuTimers();
+    disableCardClicks();
+    updateTimeDisplay(pausedRoundRemainingMs / 1000);
+    clearTimeout(skillCutinPauseTimer);
+    skillCutinPauseTimer = setTimeout(resumeBattleAfterSkillCutin, durationMs);
+  }
+
+  function resumeBattleAfterSkillCutin() {
+    clearTimeout(skillCutinPauseTimer);
+    skillCutinPauseTimer = 0;
+    if (!battlePausedForCutin) return;
+    battlePausedForCutin = false;
+    if (!roundActive || answered || battleFinishing) return;
+
+    const remainingMs = Math.max(0, pausedRoundRemainingMs);
+    pausedRoundRemainingMs = 0;
+    if (remainingMs <= 0) {
+      roundTimeout();
+      return;
+    }
+
+    roundStartTime = Date.now() - (ROUND_TIME_MS - remainingMs);
+    roundTimer = setTimeout(roundTimeout, remainingMs);
+    startTimeDisplayInterval();
+    resumeReadingTimeouts();
+    refreshPlayerCardInteractivity();
+    maybeTriggerCpu(getCurrentPrefixLength());
   }
 
   function showComboCutin(owner, count) {
@@ -923,6 +983,28 @@
     if (outcome === 'lose') return `victory/win_enemy${enemyNumber}.png`;
     const code = player?.vsCode || 'lib';
     return `victory/win_${code}.png`;
+  }
+
+  function getRoundWinImagePath(outcome) {
+    if (outcome === 'lose') return `round/round_enemy${stageIndex + 1}.png`;
+    const code = selectedPlayer?.vsCode || 'lib';
+    return `round/round_${code}.png`;
+  }
+
+  function getRoundWinSoundKey(outcome) {
+    if (outcome === 'lose') return 'winEnemy';
+    const code = selectedPlayer?.vsCode || 'lib';
+    if (code === 'det') return 'winDet';
+    if (code === 'lily') return 'winLily';
+    return 'winLib';
+  }
+
+  function renderRoundMarkers(side) {
+    const wins = side === 'enemy' ? enemyRoundWins : playerRoundWins;
+    return `
+      <div class="round-markers ${esc(side)}" aria-label="${esc(side === 'enemy' ? currentEnemy.name : selectedPlayer.name)} 獲得ラウンド ${wins}">
+        ${Array.from({ length: ROUNDS_TO_WIN }, (_, index) => `<span class="${index < wins ? 'is-won' : ''}"></span>`).join('')}
+      </div>`;
   }
 
   function getEndingImagePath(player, sceneNumber = 1) {
@@ -1163,7 +1245,6 @@
             ${Object.entries(DIFFICULTIES).map(([key, diff]) => `
               <button type="button" data-difficulty="${key}" class="${key === selectedDifficulty ? 'active' : ''}">
                 <strong>${esc(diff.label)}</strong>
-                <span>HP ${diff.playerHp}</span>
               </button>
             `).join('')}
           </div>
@@ -1382,6 +1463,8 @@
               <strong>Suno</strong>
               <p>SE/VOICE</p>
               <strong>効果音ラボ<br>ElevenLabs</strong>
+              <p>NDC</p>
+              <strong>日本図書館協会</strong>
               <p>PRODUCE</p>
               <strong>やわらか図書館学</strong>
             </div>
@@ -1423,47 +1506,70 @@
 
   function initBattle(fetchedCards, runId = gameRunId) {
     screen = 'battle';
-    cards = fetchedCards;
-    cards.forEach((card, index) => { card.index = index; card.used = false; });
-    const shuffledDeck = shuffle(cards.slice());
-    roundDeck = shuffledDeck.slice(0, 10);
-    decoyCard = shuffledDeck[10] || null;
+    cards = fetchedCards || [];
+    playerRoundWins = 0;
+    enemyRoundWins = 0;
+    battleRound = 1;
+    playerGauge = 0;
+    enemyGauge = 0;
+    if (resultDisplayEl) resultDisplayEl.style.display = 'none';
+    if (battleResultEl) battleResultEl.innerHTML = '';
+    startBattleRound(runId);
+  }
+
+  function dealBattleRoundCards() {
+    const sourcePool = allCardPool.length ? allCardPool : (cards.length ? cards : FALLBACK_CARDS);
+    const selected = pickUniqueByPrefix(shuffle(sourcePool.slice()), DEFAULT_FIELD_SLOT_COUNT, 2);
+    cards = selected.map((card, index) => ({
+      ...card,
+      ndc: pad3(card.ndc),
+      subject: String(card.subject || '').trim(),
+      used: false,
+      index
+    }));
+    roundDeck = cards.slice(0, TURNS_PER_BATTLE_ROUND);
+    decoyCard = cards[TURNS_PER_BATTLE_ROUND] || null;
 
     cardGrid.innerHTML = '';
     cardGrid.style.display = 'grid';
-    cards.forEach((card, index) => {
-      card.index = index;
+    shuffle(cards.slice()).forEach(card => {
       cardGrid.appendChild(createBattleCardElement(card));
     });
+  }
+
+  function startBattleRound(runId = gameRunId) {
+    if (runId !== gameRunId) return;
+    screen = 'battle';
+    battleFinishing = false;
+    removeRoundWinScreen();
+    hideCountdown();
+    dealBattleRoundCards();
 
     const difficulty = DIFFICULTIES[selectedDifficulty] || DIFFICULTIES.normal;
     round = 0;
     roundId = 0;
     playerHp = difficulty.playerHp;
     enemyHp = 100;
-    playerGauge = 0;
-    enemyGauge = 0;
     playerCombo = 0;
     enemyCombo = 0;
     lastComboOwner = null;
     pendingReveal = false;
-    cpuSkipNextRound = false;
+    cpuSkipTurnsRemaining = 0;
     playerDisabledThisRound = false;
     cpuDisabledThisRound = false;
     setReverseReading(false);
     supremeSkillUsed = false;
-    battleFinishing = false;
     roundActive = false;
     answered = false;
     resetDigits();
     resetTimeDisplay();
     updateComboDisplay();
     updateBattleHud();
-    resultDisplayEl.style.display = 'none';
+    if (resultDisplayEl) resultDisplayEl.style.display = 'none';
     if (battleResultEl) battleResultEl.innerHTML = '';
     disableCardClicks();
     hideCpuCursor();
-    setMessage('ready', `STAGE ${stageIndex + 1}`, currentEnemy.name);
+    setMessage('ready', `ROUND ${battleRound}`, currentEnemy.name);
     startCountdown(runId);
   }
 
@@ -1495,6 +1601,15 @@
     }
   }
 
+  function startTimeDisplayInterval() {
+    clearInterval(timeDisplayInterval);
+    timeDisplayInterval = setInterval(() => {
+      const elapsed = (Date.now() - roundStartTime) / 1000;
+      const remaining = Math.max(0, (ROUND_TIME_MS / 1000) - elapsed);
+      updateTimeDisplay(remaining);
+    }, 100);
+  }
+
   function startCountdown(runId) {
     cancelCountdown();
     cancelReadingTimeouts();
@@ -1522,7 +1637,7 @@
 
   function showCountdownLabel(label, className = '') {
     if (!countdownEl) return;
-    countdownEl.classList.remove('active', 'round-call', 'round-call-ready', 'round-call-fight', 'ko-call');
+    countdownEl.classList.remove('active', 'round-call', 'round-call-ready', 'round-call-fight', 'ko-call', 'time-up-call', 'perfect-call');
     void countdownEl.offsetWidth;
     countdownEl.textContent = label;
     countdownEl.classList.add('active', 'round-call');
@@ -1531,7 +1646,7 @@
 
   function hideCountdown() {
     if (!countdownEl) return;
-    countdownEl.classList.remove('active', 'round-call', 'round-call-ready', 'round-call-fight', 'ko-call');
+    countdownEl.classList.remove('active', 'round-call', 'round-call-ready', 'round-call-fight', 'ko-call', 'time-up-call', 'perfect-call');
     countdownEl.textContent = '';
   }
 
@@ -1569,7 +1684,7 @@
 
   function nextRound(options = {}) {
     advanceReverseReadingRound();
-    if (playerHp <= 0 || enemyHp <= 0 || round >= 10) {
+    if (playerHp <= 0 || enemyHp <= 0 || round >= TURNS_PER_BATTLE_ROUND) {
       finishBattle();
       return;
     }
@@ -1595,33 +1710,28 @@
     currentReadingCard.used = true;
 
     let sub = `${currentEnemy.name}`;
-    if (cpuSkipNextRound) {
+    if (cpuSkipTurnsRemaining > 0) {
       cpuDisabledThisRound = true;
-      cpuSkipNextRound = false;
-      sub = `${currentEnemy.name}はこの問題に参加できない`;
+      cpuSkipTurnsRemaining = Math.max(0, cpuSkipTurnsRemaining - 1);
+      sub = `${currentEnemy.name}はこのターンに参加できない`;
     }
 
     if (options.deferMessage) {
-      pendingRoundMessage = { main: `ROUND ${round}`, sub };
+      pendingRoundMessage = { main: `TURN ${round}`, sub };
     } else {
-      setMessage('round', `ROUND ${round}`, sub);
+      setMessage('round', `TURN ${round}`, sub);
     }
+    roundStartTime = Date.now();
+    roundTimer = setTimeout(roundTimeout, ROUND_TIME_MS);
+    startTimeDisplayInterval();
+
+    const readingDelay = options.deferReadingHud ? INTRO_READING_DELAY_MS : ROUND_READING_DELAY_MS;
+    scheduleReadingTimeout(() => readDigits(currentReadingCard.ndc.toString()), readingDelay);
     maybeActivateEnemySkill();
     if (pendingReveal) {
       pendingReveal = false;
-      setTimeout(revealCorrectCard, 420);
+      scheduleReadingTimeout(revealCorrectCard, 420);
     }
-
-    roundStartTime = Date.now();
-    roundTimer = setTimeout(roundTimeout, ROUND_TIME_MS);
-    timeDisplayInterval = setInterval(() => {
-      const elapsed = (Date.now() - roundStartTime) / 1000;
-      const remaining = Math.max(0, (ROUND_TIME_MS / 1000) - elapsed);
-      updateTimeDisplay(remaining);
-    }, 100);
-
-    const readingDelay = options.deferReadingHud ? INTRO_READING_DELAY_MS : ROUND_READING_DELAY_MS;
-    readingTimeouts.push(setTimeout(() => readDigits(currentReadingCard.ndc.toString()), readingDelay));
     updateBattleHud();
   }
 
@@ -1664,9 +1774,9 @@
     cancelReadingTimeouts();
     const digits = reverseReading ? ndc.split('').reverse() : ndc.split('');
     const targets = reverseReading ? [digit3Num, digit2Num, digit1Num] : [digit1Num, digit2Num, digit3Num];
-    readingTimeouts.push(setTimeout(() => showDigit(targets[0], digits[0], 1), 0));
-    readingTimeouts.push(setTimeout(() => showDigit(targets[1], digits[1], 2), 2000));
-    readingTimeouts.push(setTimeout(() => showDigit(targets[2], digits[2], 3), 4000));
+    scheduleReadingTimeout(() => showDigit(targets[0], digits[0], 1), 0);
+    scheduleReadingTimeout(() => showDigit(targets[1], digits[1], 2), 2000);
+    scheduleReadingTimeout(() => showDigit(targets[2], digits[2], 3), 4000);
   }
 
   function showDigit(target, digit, prefixLen) {
@@ -1678,8 +1788,47 @@
     maybeTriggerCpu(prefixLen);
   }
 
+  function scheduleReadingTimeout(callback, delay) {
+    const task = {
+      callback,
+      dueAt: Date.now() + delay,
+      remaining: delay,
+      active: true,
+      timer: 0
+    };
+    task.timer = setTimeout(() => {
+      task.active = false;
+      task.remaining = 0;
+      callback();
+    }, delay);
+    readingTimeouts.push(task);
+    return task;
+  }
+
+  function pauseReadingTimeouts() {
+    const now = Date.now();
+    readingTimeouts.forEach(task => {
+      if (!task?.active) return;
+      clearTimeout(task.timer);
+      task.timer = 0;
+      task.remaining = Math.max(0, task.dueAt - now);
+    });
+  }
+
+  function resumeReadingTimeouts() {
+    readingTimeouts.forEach(task => {
+      if (!task?.active || task.timer) return;
+      task.dueAt = Date.now() + task.remaining;
+      task.timer = setTimeout(() => {
+        task.active = false;
+        task.remaining = 0;
+        task.callback();
+      }, task.remaining);
+    });
+  }
+
   function cancelReadingTimeouts() {
-    readingTimeouts.forEach(timer => clearTimeout(timer));
+    readingTimeouts.forEach(task => clearTimeout(task.timer));
     readingTimeouts = [];
   }
 
@@ -1687,13 +1836,27 @@
     clearTimeout(roundTimer);
     clearTimeout(roundResultTimeout);
     clearTimeout(battleFinishDelayTimer);
+    clearTimeout(roundWinDisplayTimer);
+    clearTimeout(skillCutinTimer);
+    clearTimeout(skillCutinPauseTimer);
     clearTimeout(comboCutinTimer);
     battleFinishDelayTimer = 0;
+    roundWinDisplayTimer = 0;
+    skillCutinTimer = 0;
+    skillCutinPauseTimer = 0;
+    battlePausedForCutin = false;
+    pausedRoundRemainingMs = 0;
     comboCutinTimer = 0;
     clearInterval(timeDisplayInterval);
     cancelReadingTimeouts();
     clearCpuTimers();
+    karutaEl?.querySelectorAll('.skill-cutin').forEach(cutin => cutin.remove());
     karutaEl?.querySelectorAll('.combo-cutin').forEach(cutin => cutin.remove());
+    removeRoundWinScreen();
+  }
+
+  function removeRoundWinScreen() {
+    karutaEl?.querySelectorAll('.round-win-screen').forEach(screenEl => screenEl.remove());
   }
 
   function disableCardClicks() {
@@ -1702,7 +1865,7 @@
 
   function refreshPlayerCardInteractivity() {
     document.querySelectorAll('.card').forEach(card => {
-      const canPlayerAnswer = roundActive && !answered && !playerDisabledThisRound && card.style.visibility !== 'hidden';
+      const canPlayerAnswer = roundActive && !answered && !battlePausedForCutin && !playerDisabledThisRound && card.style.visibility !== 'hidden';
       card.style.pointerEvents = canPlayerAnswer ? 'auto' : 'none';
     });
   }
@@ -1712,7 +1875,7 @@
   }
 
   function selectCard(e) {
-    if (!roundActive || answered) return;
+    if (!roundActive || answered || battlePausedForCutin) return;
     const isCPU = !!(e && e.isCPU);
     if (isCPU ? cpuDisabledThisRound : playerDisabledThisRound) return;
     const hitCardEl = isCPU ? e.currentTarget : (getCardFromPointerEvent(e) || e.currentTarget);
@@ -1813,7 +1976,7 @@
     updateBattleHud();
     refreshPlayerCardInteractivity();
     const actor = isCPU ? currentEnemy.name : selectedPlayer.name;
-    setMessage('warning', isCPU ? `${currentEnemy.name} MISS` : 'MISS', `${actor}はこのラウンドの解答権を失った`);
+    setMessage('warning', isCPU ? `${currentEnemy.name} MISS` : 'MISS', `${actor}はこのターンの解答権を失った`);
     burstFromElement(cardEl, '#9d4f58', 10);
     popText(isCPU ? 'MISS' : 'MISS', cardEl, '#9d4f58');
     cardEl.classList.remove('shake');
@@ -1878,15 +2041,18 @@
 
     battleHud.innerHTML = `
       <div class="fighter-combatant player" data-side="P1">
-        <div class="fighter-face"><img src="${esc(playerIcon)}" alt="${esc(selectedPlayer.name)}"></div>
+        <div class="fighter-portrait">
+          <div class="fighter-face"><img src="${esc(playerIcon)}" alt="${esc(selectedPlayer.name)}"></div>
+          ${renderRoundMarkers('player')}
+        </div>
         <div class="fighter-bars">
           <div class="fighter-label"><span>P1</span><strong>${esc(selectedPlayer.name)}</strong><em>HP</em></div>
           <div class="hp-track"><span style="width:${playerHpPercent}%"></span></div>
         </div>
       </div>
       <div class="fight-clock">
-        <span>STAGE ${stageIndex + 1}</span>
-        <strong>ROUND ${Math.min(round + (roundActive ? 0 : 1), 10)}</strong>
+        <span>STAGE ${stageIndex + 1} / ROUND ${battleRound}</span>
+        <strong>TURN ${Math.min(round + (roundActive ? 0 : 1), TURNS_PER_BATTLE_ROUND)}</strong>
         <em id="fightHudClock">${(ROUND_TIME_MS / 1000).toFixed(1)}</em>
       </div>
       <div class="fighter-combatant enemy" data-side="P2">
@@ -1894,7 +2060,10 @@
           <div class="fighter-label"><em>HP</em><strong>${esc(currentEnemy.name)}</strong><span>P2</span></div>
           <div class="hp-track enemy"><span style="width:${enemyHpPercent}%"></span></div>
         </div>
-        <div class="fighter-face"><img src="${esc(enemyIcon)}" alt="${esc(currentEnemy.name)}"></div>
+        <div class="fighter-portrait">
+          <div class="fighter-face"><img src="${esc(enemyIcon)}" alt="${esc(currentEnemy.name)}"></div>
+          ${renderRoundMarkers('enemy')}
+        </div>
       </div>`;
 
     skillStrip.innerHTML = `
@@ -1914,7 +2083,7 @@
   }
 
   function usePlayerSkill() {
-    if (screen !== 'battle' || playerGauge < MAX_GAUGE) return;
+    if (screen !== 'battle' || playerGauge < MAX_GAUGE || battlePausedForCutin || battleFinishing) return;
     let activated = false;
     if (selectedPlayer.skillType === 'revealNext') {
       pendingReveal = true;
@@ -1932,9 +2101,9 @@
       setMessage('success', selectedPlayer.skillName, '使われない札を除外した');
       activated = true;
     } else if (selectedPlayer.skillType === 'skipCpu') {
-      cpuSkipNextRound = true;
+      cpuSkipTurnsRemaining = Math.max(cpuSkipTurnsRemaining, 2);
       playerGauge = 0;
-      setMessage('success', selectedPlayer.skillName, '次の問題で相手の解答権を封じる');
+      setMessage('success', selectedPlayer.skillName, '次の2ターン、相手の解答権を封じる');
       activated = true;
     }
     if (!activated) return;
@@ -2001,12 +2170,16 @@
   }
 
   function addDecimalIllusionCards() {
+    const visibleCount = getVisibleCardElements().length;
+    const addCount = Math.min(3, Math.max(0, DEFAULT_FIELD_SLOT_COUNT - visibleCount));
+    if (addCount <= 0) return 0;
     const protectedPrefixes = new Set(getRemainingRoundCards().map(card => pad3(card.ndc).slice(0, 2)));
-    const picked = pickCardsFromPool(3, {
+    const picked = pickCardsFromPool(addCount, {
       excluded: getExistingNdcs(),
       forbiddenPrefixes: protectedPrefixes,
       uniquePrefixes: true
     });
+    if (!picked.length) return 0;
 
     const addedEls = [];
     picked.forEach(source => {
@@ -2076,7 +2249,7 @@
       enemyGauge = 0;
       supremeSkillUsed = true;
       reverseReadingQueuedRounds = 2;
-      setMessage('warning', currentEnemy.skillName, '次の2ラウンド、読み上げが右から逆順になる');
+      setMessage('warning', currentEnemy.skillName, '次の2ターン、読み上げが右から逆順になる');
       showSkillCutin(currentEnemy, 'enemy');
       pulseBody('enemy-skill-flash', 900);
     }
@@ -2221,12 +2394,67 @@
   }
 
   function determineOutcome() {
-    if (enemyHp <= 0 && playerHp <= 0) return 'draw';
+    if (round >= TURNS_PER_BATTLE_ROUND && playerHp > 0 && enemyHp > 0) {
+      return playerHp >= enemyHp ? 'win' : 'lose';
+    }
+    if (enemyHp <= 0 && playerHp <= 0) return 'win';
     if (enemyHp <= 0) return 'win';
     if (playerHp <= 0) return 'lose';
     if (playerHp > enemyHp) return 'win';
     if (playerHp < enemyHp) return 'lose';
-    return 'draw';
+    return 'win';
+  }
+
+  function getMatchOutcome() {
+    if (playerRoundWins >= enemyRoundWins) return 'win';
+    return 'lose';
+  }
+
+  function awardBattleRound(outcome) {
+    if (outcome === 'lose') enemyRoundWins = clamp(enemyRoundWins + 1, 0, ROUNDS_TO_WIN);
+    else playerRoundWins = clamp(playerRoundWins + 1, 0, ROUNDS_TO_WIN);
+    updateBattleHud();
+  }
+
+  function isMatchFinished() {
+    return playerRoundWins >= ROUNDS_TO_WIN || enemyRoundWins >= ROUNDS_TO_WIN || battleRound >= MAX_BATTLE_ROUNDS;
+  }
+
+  function completeBattleRound(outcome) {
+    hideCountdown();
+    awardBattleRound(outcome);
+    if (isMatchFinished()) {
+      showBattleResult(getMatchOutcome());
+      return;
+    }
+    showRoundWinScreen(outcome);
+  }
+
+  function showRoundWinScreen(outcome) {
+    removeRoundWinScreen();
+    setReadingHudVisible(false);
+    cardGrid.style.display = 'none';
+    setMessage('', '', '');
+    const winnerName = outcome === 'lose' ? currentEnemy.name : selectedPlayer.name;
+    const winnerDisplayName = outcome === 'lose' ? (currentEnemy.englishName || currentEnemy.name) : (selectedPlayer.englishName || selectedPlayer.name);
+    const imagePath = versionedSelectAsset(getRoundWinImagePath(outcome));
+    playSoundEffect(getRoundWinSoundKey(outcome));
+    const roundScreen = document.createElement('section');
+    roundScreen.className = `round-win-screen ${outcome === 'lose' ? 'enemy' : 'player'}`;
+    roundScreen.setAttribute('aria-label', `ROUND ${battleRound} WIN: ${winnerName}`);
+    roundScreen.innerHTML = `
+      <div class="round-win-copy" aria-hidden="true">
+        <span>ROUND ${battleRound}</span>
+        <strong>${esc(winnerDisplayName)} WINS</strong>
+      </div>
+      <img src="${esc(imagePath)}" alt="${esc(winnerName)} round win">`;
+    karutaEl?.appendChild(roundScreen);
+    roundWinDisplayTimer = setTimeout(() => {
+      roundWinDisplayTimer = 0;
+      removeRoundWinScreen();
+      battleRound = clamp(battleRound + 1, 1, MAX_BATTLE_ROUNDS);
+      startBattleRound(gameRunId);
+    }, ROUND_WIN_DISPLAY_MS);
   }
 
   function finishBattle() {
@@ -2241,6 +2469,7 @@
     timeEl.classList.remove('danger');
 
     const isKoFinish = playerHp <= 0 || enemyHp <= 0;
+    const isPerfectFinish = enemyHp <= 0 && playerHp === (DIFFICULTIES[selectedDifficulty] || DIFFICULTIES.normal).playerHp;
     if (isKoFinish) {
       playSoundEffect('ko');
       pulseBody('finish-flash', 900);
@@ -2249,23 +2478,47 @@
       showCountdownLabel('K.O.', 'ko-call');
       battleFinishDelayTimer = setTimeout(() => {
         battleFinishDelayTimer = 0;
-        showBattleResult();
+        if (isPerfectFinish) {
+          playSoundEffect('perfect');
+          showCountdownLabel('PERFECT', 'perfect-call');
+          battleFinishDelayTimer = setTimeout(() => {
+            battleFinishDelayTimer = 0;
+            completeBattleRound(determineOutcome());
+          }, PERFECT_RESULT_DELAY_MS);
+          return;
+        }
+        completeBattleRound(determineOutcome());
       }, KO_RESULT_DELAY_MS);
       return;
     }
 
-    showBattleResult();
+    if (round >= TURNS_PER_BATTLE_ROUND && playerHp > 0 && enemyHp > 0) {
+      playSoundEffect('timeup');
+      pulseBody('finish-flash', 900);
+      setReadingHudVisible(false);
+      setMessage('', '', '');
+      showCountdownLabel('TIME UP', 'time-up-call');
+      battleFinishDelayTimer = setTimeout(() => {
+        battleFinishDelayTimer = 0;
+        completeBattleRound(determineOutcome());
+      }, TIME_UP_RESULT_DELAY_MS);
+      return;
+    }
+
+    completeBattleRound(determineOutcome());
   }
 
-  function showBattleResult() {
+  function showBattleResult(outcomeOverride = null) {
     hideCountdown();
     pulseBody('finish-flash', 900);
     setReadingHudVisible(false);
     cardGrid.style.display = 'none';
     timeEl.classList.remove('danger');
+    playerGauge = 0;
+    enemyGauge = 0;
     setResultControls();
 
-    const outcome = determineOutcome();
+    const outcome = outcomeOverride || getMatchOutcome();
     const isFinal = outcome === 'win' && stageIndex >= ENEMIES.length - 1;
     playMusicTrack('victory');
     const resultMain = isFinal ? 'GAME CLEAR' : outcome === 'win' ? 'WINNER' : outcome === 'lose' ? 'DEFEATED' : 'DRAW';
@@ -2343,8 +2596,14 @@
     roundDeck = [];
     currentReadingCard = null;
     round = 0;
+    battleRound = 1;
+    playerRoundWins = 0;
+    enemyRoundWins = 0;
+    playerGauge = 0;
+    enemyGauge = 0;
     roundActive = false;
     answered = false;
+    cpuSkipTurnsRemaining = 0;
     playerDisabledThisRound = false;
     cpuDisabledThisRound = false;
     playerCombo = 0;

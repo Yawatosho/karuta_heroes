@@ -9,7 +9,7 @@
     rules: [
       ['1. キャラを選ぶ', '3人のファイターから1人を選び、4人の敵に順番に挑みます。'],
       ['2. 札で攻撃する', '3桁のNDCが順に表示されます。対応する分類カードを相手より先に選ぶとダメージを与えます。'],
-      ['3. 必殺技を使う', '札を早く取るほどゲージが増えます。100になるとキャラクターごとの必殺技を発動できます。']
+      ['3. 2ラウンド先取', '1回の読み上げをTURN、10TURNを1ROUNDとして、先に2ROUNDを取った方が勝利です。']
     ]
   };
   const FIXED_STAGE_WIDTH = 1366;
@@ -103,7 +103,7 @@
   function loadScript(src) {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = `${src}?v=fighters77`;
+      script.src = `${src}?v=fighters84`;
       script.async = false;
       script.addEventListener('load', resolve, { once: true });
       script.addEventListener('error', reject, { once: true });

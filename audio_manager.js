@@ -8,6 +8,12 @@
     start: 'sound/start.mp3',
     roundcall: 'sound/roundcall.mp3',
     ko: 'sound/KO.mp3',
+    timeup: 'sound/timeup.mp3',
+    perfect: 'sound/perfect.mp3',
+    winLib: 'sound/win_lib.mp3',
+    winDet: 'sound/win_det.mp3',
+    winLily: 'sound/win_lily.mp3',
+    winEnemy: 'sound/win_enemy.mp3',
     victory: 'sound/victory.mp3',
     result: 'sound/result.mp3'
   };
@@ -46,6 +52,12 @@
     start: 'startSound',
     roundcall: 'roundCallSound',
     ko: 'koSound',
+    timeup: 'timeUpSound',
+    perfect: 'perfectSound',
+    winLib: 'winLibSound',
+    winDet: 'winDetSound',
+    winLily: 'winLilySound',
+    winEnemy: 'winEnemySound',
     victory: 'victorySound',
     result: 'resultSound'
   };

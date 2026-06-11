@@ -1,4 +1,4 @@
-const CACHE_NAME = 'karuta-audio-v5';
+const CACHE_NAME = 'karuta-audio-v7';
 const AUDIO_ASSETS = [
   './sound/0.mp3',
   './sound/1.mp3',
@@ -25,6 +25,15 @@ const AUDIO_ASSETS = [
   './sound/correct.mp3',
   './sound/ng.mp3',
   './sound/start.mp3',
+  './sound/roundcall.mp3',
+  './sound/KO.mp3',
+  './sound/timeup.mp3',
+  './sound/perfect.mp3',
+  './sound/win_lib.mp3',
+  './sound/win_det.mp3',
+  './sound/win_lily.mp3',
+  './sound/win_enemy.mp3',
+  './sound/victory.mp3',
   './sound/result.mp3',
   './sound/select.mp3',
   './sound/battle1.mp3',

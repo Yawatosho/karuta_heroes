@@ -8,15 +8,15 @@
   <meta property="og:title" content="NDC Karuta Heroes">
   <meta property="og:description" content="分類コードを読み解き、NDC Karuta Heroesの頂点へ。">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://yawatosho.github.io/karuta2/logo.png?v=2">
+  <meta property="og:image" content="image/ogp.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="NDC Karuta Heroes">
   <meta name="twitter:description" content="分類コードを読み解き、NDC Karuta Heroesの頂点へ。">
-  <meta name="twitter:image" content="https://yawatosho.github.io/karuta2/logo.png?v=2">
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="twitter:image" content="image/ogp.png">
+  <link rel="icon" href="image/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="image/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
@@ -55,6 +55,12 @@
   <link rel="preload" href="sound/start.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/roundcall.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/KO.mp3" as="audio" type="audio/mpeg">
+  <link rel="preload" href="sound/timeup.mp3" as="audio" type="audio/mpeg">
+  <link rel="preload" href="sound/perfect.mp3" as="audio" type="audio/mpeg">
+  <link rel="preload" href="sound/win_lib.mp3" as="audio" type="audio/mpeg">
+  <link rel="preload" href="sound/win_det.mp3" as="audio" type="audio/mpeg">
+  <link rel="preload" href="sound/win_lily.mp3" as="audio" type="audio/mpeg">
+  <link rel="preload" href="sound/win_enemy.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/victory.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/ending.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/result.mp3" as="audio" type="audio/mpeg">
@@ -62,9 +68,9 @@
   <link rel="preload" href="sound/vs.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/battle1.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/battle2.mp3" as="audio" type="audio/mpeg">
-  <link rel="stylesheet" href="styles.css?v=fighters77">
-  <script src="audio_manager.js?v=fighters77" defer></script>
-  <script src="mode_loader.js?v=fighters77" defer></script>
+  <link rel="stylesheet" href="styles.css?v=fighters84">
+  <script src="audio_manager.js?v=fighters84" defer></script>
+  <script src="mode_loader.js?v=fighters84" defer></script>
 </head>
 <body data-mode="cpu">
   <main id="main" class="arena">
@@ -152,6 +158,24 @@
         <audio id="koSound" preload="auto" playsinline>
           <source src="sound/KO.mp3" type="audio/mpeg">
         </audio>
+        <audio id="timeUpSound" preload="auto" playsinline>
+          <source src="sound/timeup.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="perfectSound" preload="auto" playsinline>
+          <source src="sound/perfect.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="winLibSound" preload="auto" playsinline>
+          <source src="sound/win_lib.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="winDetSound" preload="auto" playsinline>
+          <source src="sound/win_det.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="winLilySound" preload="auto" playsinline>
+          <source src="sound/win_lily.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="winEnemySound" preload="auto" playsinline>
+          <source src="sound/win_enemy.mp3" type="audio/mpeg">
+        </audio>
         <audio id="victorySound" preload="auto" playsinline>
           <source src="sound/victory.mp3" type="audio/mpeg">
         </audio>
@@ -177,8 +201,8 @@
             <p id="ruleText2">6秒以内の正解で決まり字ボーナス。連続成功でコンボが伸びます。</p>
           </section>
           <section>
-            <h3 id="ruleTitle3">3. 全10ラウンド</h3>
-            <p id="ruleText3">1ラウンド15秒。不正解は-500pt、パーフェクトなら最後にスコア2倍。</p>
+            <h3 id="ruleTitle3">3. 2ラウンド先取</h3>
+            <p id="ruleText3">1回の読み上げをTURN、10TURNを1ROUNDとして、先に2ROUNDを取った方が勝利です。</p>
           </section>
         </div>
       </div>
@@ -201,8 +225,7 @@
     </dialog>
 
     <footer class="credits">
-      <p>日本十進分類法のデータは<a href="https://www.jla.or.jp/committees/bunrui/ndc-data/" target="_blank" rel="noopener">日本図書館協会NDC9</a>（CC BY）を使用しています。</p>
-      <p>NDC Karuta Heroes produced by <a href="https://yawatosho.hateblo.jp/" target="_blank" rel="noopener">やわらか図書館学</a></p>
+      <p>NDC9：日本図書館協会 / 作成：やわらか図書館学</p>
     </footer>
   </main>
 </body>
