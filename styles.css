@@ -1613,7 +1613,14 @@ body[data-mode="cpu"].fighter-playing .round-win-screen img {
 }
 
 body[data-mode="cpu"].fighter-smartphone.fighter-playing .round-win-screen {
-  --round-win-image-y: -58px;
+  --round-win-image-y: -76px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-playing .round-win-screen img {
+  width: auto;
+  height: 118%;
+  max-width: none;
+  max-height: none;
 }
 
 body[data-mode="cpu"].fighter-playing .round-win-screen.enemy img {
