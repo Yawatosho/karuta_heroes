@@ -4,6 +4,7 @@
   const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
   const EFFECT_SOURCES = {
     correct: 'sound/correct.mp3',
+    character: 'sound/character.mp3',
     ng: 'sound/ng.mp3',
     start: 'sound/start.mp3',
     roundcall: 'sound/roundcall.mp3',
@@ -48,6 +49,7 @@
   const SOURCES = { ...EFFECT_SOURCES, ...DIGIT_SOURCES, ...VOICE_SAMPLE_SOURCES };
   const EFFECT_ELEMENT_IDS = {
     correct: 'correctSound',
+    character: 'characterSound',
     ng: 'ngSound',
     start: 'startSound',
     roundcall: 'roundCallSound',
@@ -393,7 +395,7 @@
     if (!('serviceWorker' in navigator)) return;
     if (location.protocol === 'file:') return;
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=bgm2').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=bgm3').catch(() => {});
     });
   }
 

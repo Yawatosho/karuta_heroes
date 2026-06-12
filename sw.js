@@ -1,4 +1,4 @@
-const CACHE_NAME = 'karuta-audio-v7';
+const CACHE_NAME = 'karuta-audio-v8';
 const AUDIO_ASSETS = [
   './sound/0.mp3',
   './sound/1.mp3',
@@ -22,6 +22,7 @@ const AUDIO_ASSETS = [
   './sound/q_9.mp3',
   './sound/voice.mp3',
   './sound/q_voice.mp3',
+  './sound/character.mp3',
   './sound/correct.mp3',
   './sound/ng.mp3',
   './sound/start.mp3',
