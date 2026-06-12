@@ -3947,6 +3947,20 @@ body[data-mode="cpu"] .credits {
   grid-area: 1 / 1;
 }
 
+body[data-mode="cpu"] #fxLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+body[data-mode="cpu"] .spark,
+body[data-mode="cpu"] .pop-text {
+  position: absolute;
+}
+
 body[data-mode="cpu"] .credits {
   display: none;
 }

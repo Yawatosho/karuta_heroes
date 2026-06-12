@@ -50,6 +50,7 @@
   <link rel="preload" href="sound/q_9.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/voice.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/q_voice.mp3" as="audio" type="audio/mpeg">
+  <link rel="preload" href="sound/character.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/correct.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/ng.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/start.mp3" as="audio" type="audio/mpeg">
@@ -68,9 +69,9 @@
   <link rel="preload" href="sound/vs.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/battle1.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/battle2.mp3" as="audio" type="audio/mpeg">
-  <link rel="stylesheet" href="styles.css?v=fighters86">
-  <script src="audio_manager.js?v=fighters86" defer></script>
-  <script src="mode_loader.js?v=fighters86" defer></script>
+  <link rel="stylesheet" href="styles.css?v=fighters89">
+  <script src="audio_manager.js?v=fighters89" defer></script>
+  <script src="mode_loader.js?v=fighters89" defer></script>
 </head>
 <body data-mode="cpu">
   <main id="main" class="arena">
@@ -145,6 +146,9 @@
 
         <audio id="correctSound" preload="auto" playsinline>
           <source src="sound/correct.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="characterSound" preload="auto" playsinline>
+          <source src="sound/character.mp3" type="audio/mpeg">
         </audio>
         <audio id="ngSound" preload="auto" playsinline>
           <source src="sound/ng.mp3" type="audio/mpeg">

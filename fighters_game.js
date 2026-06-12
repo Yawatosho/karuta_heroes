@@ -5,13 +5,14 @@
   const EARLY_WINDOW_MS = 6000;
   const CPU_CLICK_ANIM_MS = 230;
   const SKILL_CUTIN_DURATION_MS = 1160;
+  const CHARACTER_SELECT_SOUND_DELAY_MS = 500;
   const MAX_GAUGE = 100;
   const BASE_DAMAGE = 14;
   const OPPONENT_HIT_GAUGE = 18;
   const NDC_JSON_URL = 'https://raw.githubusercontent.com/Yawatosho/karuta/refs/heads/main/ndc.json';
   const LOCAL_NDC_JSON_URL = 'ndc.json';
   const NDC_CACHE_KEY = 'ndc_json_cache_v2';
-  const SELECT_ASSET_VERSION = 'fighters86';
+  const SELECT_ASSET_VERSION = 'fighters89';
   const karutaAudio = window.karutaAudio || null;
 
   const PLAYERS = [
@@ -242,6 +243,7 @@
   let currentEnemy = ENEMIES[0];
   let selectVsTransitionTimer = 0;
   let vsAutoStartTimer = 0;
+  let characterSelectSoundTimer = 0;
   let allCardPool = [];
   let cards = [];
   let roundDeck = [];
@@ -670,7 +672,7 @@
   function playSoundEffect(name, playbackRate = 1) {
     if (!soundEnabled) return;
     if (karutaAudio && karutaAudio.playEffect(name, { playbackRate })) return;
-    const fallbackMap = { correct: correctSound, ng: ngSound, start: startSound, roundcall: roundCallSound, ko: koSound, timeup: timeUpSound, perfect: perfectSound, victory: victorySound, result: resultSound };
+    const fallbackMap = { correct: correctSound, character: characterSound, ng: ngSound, start: startSound, roundcall: roundCallSound, ko: koSound, timeup: timeUpSound, perfect: perfectSound, victory: victorySound, result: resultSound };
     playFallbackAudio(fallbackMap[name], playbackRate);
   }
 
@@ -699,7 +701,7 @@
     return stageIndex >= 3 ? 'battle2' : 'battle1';
   }
 
-  function clearSelectVsTransition() {
+  function clearSelectVsTransition(options = {}) {
     if (selectVsTransitionTimer) {
       clearTimeout(selectVsTransitionTimer);
       selectVsTransitionTimer = 0;
@@ -707,6 +709,10 @@
     if (vsAutoStartTimer) {
       clearTimeout(vsAutoStartTimer);
       vsAutoStartTimer = 0;
+    }
+    if (!options.keepCharacterSound && characterSelectSoundTimer) {
+      clearTimeout(characterSelectSoundTimer);
+      characterSelectSoundTimer = 0;
     }
     storyRoot?.querySelector('.fighter-character-select.is-exiting-to-vs')?.classList.remove('is-exiting-to-vs');
   }
@@ -888,11 +894,25 @@
     setTimeout(() => document.body.classList.remove(className), duration);
   }
 
+  function viewportPointToLocal(container, clientX, clientY) {
+    if (!container) return { x: clientX, y: clientY };
+    const rect = container.getBoundingClientRect();
+    const scaleX = rect.width / (container.offsetWidth || rect.width || 1) || 1;
+    const scaleY = rect.height / (container.offsetHeight || rect.height || 1) || scaleX;
+    return {
+      x: (clientX - rect.left) / scaleX,
+      y: (clientY - rect.top) / scaleY
+    };
+  }
+
+  function elementCenterInLocal(el, container) {
+    const rect = el.getBoundingClientRect();
+    return viewportPointToLocal(container, rect.left + rect.width / 2, rect.top + rect.height / 2);
+  }
+
   function burstFromElement(el, color = '#d8a444', count = 18) {
     if (!el || !fxLayer) return;
-    const rect = el.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
+    const { x, y } = elementCenterInLocal(el, fxLayer);
     for (let i = 0; i < count; i++) {
       const spark = document.createElement('span');
       const angle = (Math.PI * 2 * i) / count;
@@ -911,11 +931,13 @@
   function popText(text, el, color = '#d8a444') {
     if (!el || !fxLayer) return;
     const rect = el.getBoundingClientRect();
+    const topLeft = viewportPointToLocal(fxLayer, rect.left, rect.top);
+    const center = viewportPointToLocal(fxLayer, rect.left + rect.width / 2, rect.top + rect.height / 2);
     const label = document.createElement('span');
     label.className = 'pop-text';
     label.textContent = text;
-    label.style.left = `${rect.left + rect.width / 2 - 44}px`;
-    label.style.top = `${rect.top + 4}px`;
+    label.style.left = `${center.x - 44}px`;
+    label.style.top = `${topLeft.y + 4}px`;
     label.style.color = color;
     fxLayer.appendChild(label);
     setTimeout(() => label.remove(), 920);
@@ -1270,8 +1292,15 @@
 
   function renderCharacterSelect() {
     ensureStoryUi();
-    clearSelectVsTransition();
+    const enteringSelect = screen !== 'select';
+    clearSelectVsTransition({ keepCharacterSound: !enteringSelect });
     playMusicTrack('select');
+    if (enteringSelect) {
+      characterSelectSoundTimer = setTimeout(() => {
+        characterSelectSoundTimer = 0;
+        if (screen === 'select') playSoundEffect('character');
+      }, CHARACTER_SELECT_SOUND_DELAY_MS);
+    }
     screen = 'select';
     setFlowControls();
     document.body.classList.add('fighter-selecting');
@@ -2365,10 +2394,10 @@
 
   function placeCpuCursorAt(el) {
     if (!el || !cpuCursorEl) return;
-    const base = document.getElementById('karuta').getBoundingClientRect();
-    const rect = el.getBoundingClientRect();
-    cpuCursorEl.style.left = `${rect.left + rect.width / 2 - base.left}px`;
-    cpuCursorEl.style.top = `${rect.top + rect.height / 2 - base.top}px`;
+    const karuta = document.getElementById('karuta');
+    const { x, y } = elementCenterInLocal(el, karuta);
+    cpuCursorEl.style.left = `${x}px`;
+    cpuCursorEl.style.top = `${y}px`;
   }
 
   function moveCpuCursorTo(el) {
