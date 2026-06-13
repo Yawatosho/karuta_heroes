@@ -12,7 +12,7 @@
   const NDC_JSON_URL = 'https://raw.githubusercontent.com/Yawatosho/karuta/refs/heads/main/ndc.json';
   const LOCAL_NDC_JSON_URL = 'ndc.json';
   const NDC_CACHE_KEY = 'ndc_json_cache_v2';
-  const SELECT_ASSET_VERSION = 'fighters89';
+  const SELECT_ASSET_VERSION = 'fighters90';
   const karutaAudio = window.karutaAudio || null;
 
   const PLAYERS = [
@@ -155,6 +155,52 @@
   const MAX_BATTLE_ROUNDS = 3;
   const ROUND_WIN_DISPLAY_MS = 2400;
   const DEFAULT_FIELD_SLOT_COUNT = 11;
+  const TWO_PLAYER_CONTROL_ORDER = ['mouse', 'keyboardA', 'keyboardB'];
+  const TWO_PLAYER_CONTROL_TYPES = {
+    mouse: { label: 'マウス', shortLabel: 'MOUSE' },
+    keyboardA: { label: 'キーボードA', shortLabel: 'KEY A' },
+    keyboardB: { label: 'キーボードB', shortLabel: 'KEY B' }
+  };
+  const TWO_PLAYER_KEYBOARD_LAYOUTS = {
+    keyboardA: [
+      { label: '1', keys: ['1'], codes: ['Digit1'] },
+      { label: '2', keys: ['2'], codes: ['Digit2'] },
+      { label: '3', keys: ['3'], codes: ['Digit3'] },
+      { label: '4', keys: ['4'], codes: ['Digit4'] },
+      { label: '5', keys: ['5'], codes: ['Digit5'] },
+      { label: '6', keys: ['6'], codes: ['Digit6'] },
+      { label: 'Q', keys: ['q'], codes: ['KeyQ'] },
+      { label: 'W', keys: ['w'], codes: ['KeyW'] },
+      { label: 'E', keys: ['e'], codes: ['KeyE'] },
+      { label: 'R', keys: ['r'], codes: ['KeyR'] },
+      { label: 'T', keys: ['t'], codes: ['KeyT'] }
+    ],
+    keyboardB: [
+      { label: '8', keys: ['8'], codes: ['Digit8'] },
+      { label: '9', keys: ['9'], codes: ['Digit9'] },
+      { label: '0', keys: ['0'], codes: ['Digit0'] },
+      { label: '-', keys: ['-'], codes: ['Minus'] },
+      { label: '^', keys: ['^'], codes: ['Equal'] },
+      { label: '¥', keys: ['¥', '￥', '\\'], codes: ['IntlYen', 'Backslash'] },
+      { label: 'I', keys: ['i'], codes: ['KeyI'] },
+      { label: 'O', keys: ['o'], codes: ['KeyO'] },
+      { label: 'P', keys: ['p'], codes: ['KeyP'] },
+      { label: '@', keys: ['@'], codes: ['BracketLeft', 'Quote'] },
+      { label: '[', keys: ['['], codes: ['BracketRight'] }
+    ]
+  };
+  const TWO_PLAYER_VICTORY_LINES = {
+    player: [
+      'ふふ、今日は私のほうが少しだけ早く本を見つけられましたね',
+      '推理中の本も、返却期限だけは忘れないでくださいね',
+      '探偵さんと勝負すると、いつもの図書館が少し冒険みたいですね'
+    ],
+    enemy: [
+      'やった、司書さんに勝てたなら今日の調査は大成功です',
+      '司書さんのおすすめ本で鍛えた推理力、ちゃんと役に立ちました',
+      '事件解決、ついでに勝利もいただきました'
+    ]
+  };
 
   const DEV_TUNING_KEY = 'karutaDevTuning';
   const DEV_TUNING_VERSION = 1;
@@ -202,6 +248,7 @@
   const victorySound = document.getElementById('victorySound');
   const resultSound = document.getElementById('resultSound');
   const startButton = document.getElementById('startButton');
+  const twoPlayerButton = document.getElementById('twoPlayerButton');
   const quitButton = document.getElementById('quitButton');
   const restartButton = document.getElementById('restartButton');
   const postButton = document.getElementById('postButton');
@@ -237,6 +284,8 @@
   let fighterContinueButton = null;
   let fighterResultAction = null;
   let screen = 'title';
+  let playMode = 'story';
+  let twoPlayerControls = { player: 'mouse', enemy: 'keyboardA' };
   let selectedDifficulty = 'normal';
   let selectedPlayer = PLAYERS[0];
   let stageIndex = 0;
@@ -258,6 +307,7 @@
   let enemyHp = 100;
   let playerGauge = 0;
   let enemyGauge = 0;
+  let fighterIconStates = { player: 'default', enemy: 'default' };
   let playerCombo = 0;
   let enemyCombo = 0;
   let lastComboOwner = null;
@@ -306,6 +356,102 @@
     return Math.max(min, Math.min(max, value));
   }
 
+  function isTwoPlayerMode() {
+    return playMode === 'twoPlayer';
+  }
+
+  function getTwoPlayerOne() {
+    return PLAYERS[0];
+  }
+
+  function getTwoPlayerTwo() {
+    return PLAYERS[1];
+  }
+
+  function getPlayerMaxHp() {
+    if (isTwoPlayerMode()) return 100;
+    const difficulty = DIFFICULTIES[selectedDifficulty] || DIFFICULTIES.normal;
+    return difficulty.playerHp;
+  }
+
+  function isSmartphoneOnlyViewport() {
+    const viewport = window.visualViewport;
+    const width = viewport?.width || window.innerWidth || 0;
+    const height = viewport?.height || window.innerHeight || 0;
+    const shortSide = Math.min(width || 0, height || 0);
+    const longSide = Math.max(width || 0, height || 0);
+    const coarsePointer = typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
+    const finePointer = typeof window.matchMedia === 'function' && window.matchMedia('(pointer: fine)').matches;
+    const touchDevice = (navigator.maxTouchPoints || 0) > 0 || coarsePointer;
+    const mobileUserAgent = /Android|iPhone|iPod|Windows Phone|Mobile/i.test(navigator.userAgent || '');
+    const compactTouchViewport = touchDevice && (shortSide <= 620 || longSide <= 940);
+    const likelyNoPhysicalKeyboard = touchDevice && coarsePointer && !finePointer;
+    return document.body.classList.contains('fighter-smartphone')
+      || mobileUserAgent
+      || compactTouchViewport
+      || likelyNoPhysicalKeyboard;
+  }
+
+  function getOtherTwoPlayerSide(side) {
+    return side === 'enemy' ? 'player' : 'enemy';
+  }
+
+  function getControlLabel(controlId) {
+    return TWO_PLAYER_CONTROL_TYPES[controlId]?.label || controlId;
+  }
+
+  function getControlShortLabel(controlId) {
+    return TWO_PLAYER_CONTROL_TYPES[controlId]?.shortLabel || controlId;
+  }
+
+  function normalizeKeyboardKey(key) {
+    if (key === '￥') return '¥';
+    return String(key || '').toLowerCase();
+  }
+
+  function getKeyboardSlotFromEvent(controlId, event) {
+    const layout = TWO_PLAYER_KEYBOARD_LAYOUTS[controlId];
+    if (!layout || !event) return -1;
+    const key = normalizeKeyboardKey(event.key);
+    return layout.findIndex(item => {
+      const keyMatch = item.keys.some(candidate => normalizeKeyboardKey(candidate) === key);
+      const codeMatch = item.codes.includes(event.code);
+      return keyMatch || codeMatch;
+    });
+  }
+
+  function getKeyboardSlotLabel(controlId, slotIndex) {
+    return TWO_PLAYER_KEYBOARD_LAYOUTS[controlId]?.[slotIndex]?.label || '';
+  }
+
+  function getMouseAnswerOwner() {
+    if (!isTwoPlayerMode()) return 'player';
+    if (twoPlayerControls.player === 'mouse') return 'player';
+    if (twoPlayerControls.enemy === 'mouse') return 'enemy';
+    return null;
+  }
+
+  function isPointerCardEvent(event) {
+    return !!event && typeof event.clientX === 'number' && typeof event.clientY === 'number';
+  }
+
+  function resolveAnswerOwner(event) {
+    if (event?.owner === 'enemy' || event?.isCPU) return 'enemy';
+    if (event?.owner === 'player') return 'player';
+    if (isTwoPlayerMode() && isPointerCardEvent(event)) return getMouseAnswerOwner();
+    return 'player';
+  }
+
+  function isOwnerDisabled(owner) {
+    return owner === 'enemy' ? cpuDisabledThisRound : playerDisabledThisRound;
+  }
+
+  function canMouseOwnerInteract() {
+    const owner = getMouseAnswerOwner();
+    if (!owner) return false;
+    return roundActive && !answered && !battlePausedForCutin && !isOwnerDisabled(owner);
+  }
+
   function renderStatBar(label, value) {
     const normalized = clamp(Number(value) || 0, 0, 5);
     const percent = Math.round((normalized / 5) * 100);
@@ -318,9 +464,114 @@
       </div>`;
   }
 
+  function renderControlLineArt(controlId) {
+    if (controlId === 'mouse') {
+      return `
+        <div class="control-line-art mouse-art" aria-hidden="true">
+          <span class="mouse-body"><i></i></span>
+          <span class="mouse-cord"></span>
+        </div>`;
+    }
+    const layout = TWO_PLAYER_KEYBOARD_LAYOUTS[controlId] || [];
+    return `
+      <div class="control-line-art keyboard-art" aria-hidden="true">
+        <span class="keyboard-row">
+          ${layout.slice(0, 6).map(key => `<i>${esc(key.label)}</i>`).join('')}
+        </span>
+        <span class="keyboard-row is-offset">
+          ${layout.slice(6).map(key => `<i>${esc(key.label)}</i>`).join('')}
+        </span>
+      </div>`;
+  }
+
+  function renderKeyboardMap(controlId, sideLabel = '') {
+    const layout = TWO_PLAYER_KEYBOARD_LAYOUTS[controlId];
+    if (!layout) {
+      return '<p class="control-map-note">札をクリック</p>';
+    }
+    const renderKey = (item, index) => `
+      <span class="control-map-key">
+        <b>${esc(item.label)}</b>
+        <small>${esc(sideLabel)}${index + 1}</small>
+      </span>`;
+    return `
+      <div class="control-key-map" aria-label="${esc(getControlLabel(controlId))} キー対応">
+        <div class="control-map-row">${layout.slice(0, 6).map(renderKey).join('')}</div>
+        <div class="control-map-row is-offset">${layout.slice(6).map((item, index) => renderKey(item, index + 6)).join('')}</div>
+      </div>`;
+  }
+
+  function renderControlOptionButton(side, controlId) {
+    const otherSide = getOtherTwoPlayerSide(side);
+    const isActive = twoPlayerControls[side] === controlId;
+    const isTaken = twoPlayerControls[otherSide] === controlId;
+    const disabled = isTaken && !isActive;
+    const sideLabel = side === 'enemy' ? 'P2-' : 'P1-';
+    return `
+      <button type="button"
+        class="two-player-control-option ${isActive ? 'is-active' : ''}"
+        data-assign-side="${esc(side)}"
+        data-control-option="${esc(controlId)}"
+        ${disabled ? 'disabled' : ''}
+        aria-pressed="${isActive ? 'true' : 'false'}">
+        <span class="control-option-head">
+          <strong>${esc(getControlLabel(controlId))}</strong>
+          ${disabled ? '<em>使用中</em>' : isActive ? '<em>選択中</em>' : '<em>選択</em>'}
+        </span>
+        ${renderControlLineArt(controlId)}
+        ${controlId === 'mouse'
+          ? '<p class="control-map-note">札をクリック</p>'
+          : renderKeyboardMap(controlId, sideLabel)}
+      </button>`;
+  }
+
+  function renderTwoPlayerCardKeyBadges(slotIndex) {
+    if (!isTwoPlayerMode()) return '';
+    const badges = [];
+    const p1Label = getKeyboardSlotLabel(twoPlayerControls.player, slotIndex);
+    const p2Label = getKeyboardSlotLabel(twoPlayerControls.enemy, slotIndex);
+    if (p1Label) badges.push(`<span class="card-key-badge p1"><b>P1</b>${esc(p1Label)}</span>`);
+    if (p2Label) badges.push(`<span class="card-key-badge p2"><b>P2</b>${esc(p2Label)}</span>`);
+    return badges.length ? `<span class="card-key-badges">${badges.join('')}</span>` : '';
+  }
+
+  function renderCardFace(card, slotIndex = -1) {
+    const keyBadges = slotIndex >= 0 ? renderTwoPlayerCardKeyBadges(slotIndex) : '';
+    return `<span class="card-subject">${esc(card.subject)}</span>${keyBadges}`;
+  }
+
   function versionedSelectAsset(src) {
     const joiner = String(src).includes('?') ? '&' : '?';
     return `${src}${joiner}v=${SELECT_ASSET_VERSION}`;
+  }
+
+  function getFighterIconVariant(src, state) {
+    const source = String(src || '');
+    if (!source || !state || state === 'default') return source;
+    const suffix = state === 'get' ? 'get' : state === 'damage' ? 'damage' : '';
+    if (!suffix) return source;
+    return source.replace(/_icon(\.[^./?#]+)([?#].*)?$/, `_icon_${suffix}$1$2`);
+  }
+
+  function getFighterIconForSide(side) {
+    const character = side === 'enemy' ? currentEnemy : selectedPlayer;
+    const baseIcon = character?.icon || character?.image || '';
+    if (!baseIcon) return '';
+    return versionedSelectAsset(getFighterIconVariant(baseIcon, fighterIconStates[side]));
+  }
+
+  function resetFighterIconStates() {
+    fighterIconStates = { player: 'default', enemy: 'default' };
+  }
+
+  function setFighterIconStatesForCardTake(owner) {
+    fighterIconStates = owner === 'enemy'
+      ? { player: 'damage', enemy: 'get' }
+      : { player: 'get', enemy: 'damage' };
+  }
+
+  function setFighterIconStateForMiss(owner) {
+    fighterIconStates = { ...fighterIconStates, [owner]: 'damage' };
   }
 
   function getEndingPlayerIdFromHeader(header) {
@@ -586,7 +837,18 @@
       .then(action);
   }
 
+  function pickRandomLine(lines, fallback = '') {
+    if (!Array.isArray(lines) || !lines.length) return fallback;
+    return lines[randInt(0, lines.length - 1)] || fallback;
+  }
+
   function getBattleLine(outcome, isFinal) {
+    if (isTwoPlayerMode()) {
+      if (outcome === 'lose') {
+        return pickRandomLine(TWO_PLAYER_VICTORY_LINES.enemy, '探偵さんが分類の謎を先に解き明かしました。');
+      }
+      return pickRandomLine(TWO_PLAYER_VICTORY_LINES.player, '司書さんが静かに分類の棚を制しました。');
+    }
     if (outcome === 'win') {
       return devTuning.lines?.[selectedPlayer.id]?.[currentEnemy.id]?.win
         || (isFinal ? '知の座標は、あなたとともに次の棚へ。' : selectedPlayer.winLine || currentEnemy.loseLine);
@@ -994,6 +1256,7 @@
   }
 
   function getVsImagePath(player, enemyIndex) {
+    if (isTwoPlayerMode()) return 'vs/vs.png';
     const enemyNumber = enemyIndex + 1;
     const code = player?.vsCode || 'lib';
     if (enemyNumber === 3 && code === 'det') return 'vs/vs3_det.png';
@@ -1001,6 +1264,10 @@
   }
 
   function getVictoryImagePath(player, enemyIndex, outcome) {
+    if (isTwoPlayerMode()) {
+      const winner = outcome === 'lose' ? getTwoPlayerTwo() : getTwoPlayerOne();
+      return `victory/win_${winner?.vsCode || 'lib'}.png`;
+    }
     const enemyNumber = enemyIndex + 1;
     if (outcome === 'lose') return `victory/win_enemy${enemyNumber}.png`;
     const code = player?.vsCode || 'lib';
@@ -1008,12 +1275,19 @@
   }
 
   function getRoundWinImagePath(outcome) {
+    if (isTwoPlayerMode()) {
+      const winner = outcome === 'lose' ? getTwoPlayerTwo() : getTwoPlayerOne();
+      return `round/round_${winner?.vsCode || 'lib'}.png`;
+    }
     if (outcome === 'lose') return `round/round_enemy${stageIndex + 1}.png`;
     const code = selectedPlayer?.vsCode || 'lib';
     return `round/round_${code}.png`;
   }
 
   function getRoundWinSoundKey(outcome) {
+    if (isTwoPlayerMode()) {
+      return outcome === 'lose' ? 'winDet' : 'winLib';
+    }
     if (outcome === 'lose') return 'winEnemy';
     const code = selectedPlayer?.vsCode || 'lib';
     if (code === 'det') return 'winDet';
@@ -1087,16 +1361,18 @@
     return selected;
   }
 
-  function createBattleCardElement(card) {
+  function createBattleCardElement(card, slotIndex = -1) {
     const div = document.createElement('div');
     div.className = 'card fighter-card';
     div.dataset.index = card.index;
     div.dataset.ndc = card.ndc;
-    div.innerText = card.subject;
+    if (slotIndex >= 0) div.dataset.slot = String(slotIndex);
+    div.innerHTML = renderCardFace(card, slotIndex);
     div.setAttribute('role', 'button');
     div.tabIndex = 0;
     div.addEventListener('click', selectCard);
     div.addEventListener('keydown', ev => {
+      if (isTwoPlayerMode()) return;
       if (ev.key === 'Enter' || ev.key === ' ') {
         ev.preventDefault();
         selectCard({ currentTarget: div });
@@ -1109,10 +1385,11 @@
     if (!el || !card) return;
     el.dataset.index = card.index;
     el.dataset.ndc = card.ndc;
-    el.innerText = card.subject;
+    const slotIndex = Number(el.dataset.slot);
+    el.innerHTML = renderCardFace(card, Number.isFinite(slotIndex) ? slotIndex : -1);
     el.style.display = '';
     el.style.visibility = '';
-    el.style.pointerEvents = roundActive && !playerDisabledThisRound ? 'auto' : 'none';
+    el.style.pointerEvents = canMouseOwnerInteract() ? 'auto' : 'none';
     el.className = `card fighter-card${effectClass ? ` ${effectClass}` : ''}`;
   }
 
@@ -1186,15 +1463,28 @@
     if (button) button.style.display = visible ? display : 'none';
   }
 
+  function updateTwoPlayerTitleButtonState() {
+    if (!twoPlayerButton) return;
+    const unavailable = isSmartphoneOnlyViewport();
+    twoPlayerButton.disabled = unavailable;
+    twoPlayerButton.textContent = unavailable ? '2P BATTLE PC ONLY' : '2P BATTLE';
+    twoPlayerButton.setAttribute('aria-disabled', unavailable ? 'true' : 'false');
+    twoPlayerButton.setAttribute('aria-label', unavailable ? '2P BATTLEはPCとキーボード接続時のみ選択できます' : '2P BATTLE');
+    twoPlayerButton.title = unavailable ? '2P BATTLEはPCとキーボード接続時のみ選択できます' : '';
+  }
+
   function setTitleControls() {
     document.body.classList.remove('game-playing', 'fighter-flow', 'fighter-playing', 'fighter-result');
     document.body.classList.remove('fighter-selecting', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
+    document.body.classList.remove('fighter-two-player', 'fighter-two-player-setup');
     document.body.classList.add('fighter-title');
     hideGameArea();
     if (battleHud) battleHud.classList.add('is-hidden');
     if (skillStrip) skillStrip.classList.add('is-hidden');
     setButtonVisible(startButton, true);
+    setButtonVisible(twoPlayerButton, true);
     if (startButton) startButton.textContent = 'START';
+    updateTwoPlayerTitleButtonState();
     if (howToButton) howToButton.textContent = 'HOW TO PLAY';
     setButtonVisible(howToButton, true);
     setButtonVisible(quitButton, false);
@@ -1207,11 +1497,13 @@
   function setFlowControls() {
     document.body.classList.remove('game-playing', 'fighter-playing', 'fighter-result', 'fighter-title');
     document.body.classList.remove('fighter-selecting', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
+    document.body.classList.remove('fighter-two-player', 'fighter-two-player-setup');
     document.body.classList.add('fighter-flow');
     hideGameArea();
     if (battleHud) battleHud.classList.add('is-hidden');
     if (skillStrip) skillStrip.classList.add('is-hidden');
     setButtonVisible(startButton, false);
+    setButtonVisible(twoPlayerButton, false);
     setButtonVisible(howToButton, false);
     setButtonVisible(quitButton, false);
     setButtonVisible(restartButton, false);
@@ -1222,12 +1514,15 @@
   function setPlayingControls() {
     document.body.classList.remove('fighter-flow', 'fighter-result', 'fighter-title');
     document.body.classList.remove('fighter-selecting', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
+    document.body.classList.remove('fighter-two-player-setup');
     document.body.classList.add('game-playing', 'fighter-playing');
+    document.body.classList.toggle('fighter-two-player', isTwoPlayerMode());
     if (storyRoot) storyRoot.hidden = true;
     if (battleHud) battleHud.classList.remove('is-hidden');
-    if (skillStrip) skillStrip.classList.remove('is-hidden');
+    if (skillStrip) skillStrip.classList.toggle('is-hidden', isTwoPlayerMode());
     showReaderPanel();
     setButtonVisible(startButton, false);
+    setButtonVisible(twoPlayerButton, false);
     setButtonVisible(howToButton, false);
     setButtonVisible(quitButton, false);
     setButtonVisible(restartButton, false);
@@ -1238,11 +1533,14 @@
   function setResultControls() {
     document.body.classList.remove('game-playing', 'fighter-flow', 'fighter-playing', 'fighter-title');
     document.body.classList.remove('fighter-selecting', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
+    document.body.classList.remove('fighter-two-player-setup');
     document.body.classList.add('fighter-result');
+    document.body.classList.toggle('fighter-two-player', isTwoPlayerMode());
     hideGameArea();
     if (battleHud) battleHud.classList.add('is-hidden');
     if (skillStrip) skillStrip.classList.add('is-hidden');
     setButtonVisible(startButton, false);
+    setButtonVisible(twoPlayerButton, false);
     setButtonVisible(howToButton, false);
     setButtonVisible(quitButton, false);
     setButtonVisible(restartButton, false);
@@ -1251,6 +1549,7 @@
 
   function renderTitleScreen() {
     ensureStoryUi();
+    playMode = 'story';
     clearSelectVsTransition();
     stopMusicTrack();
     clearRoundTimers();
@@ -1290,8 +1589,99 @@
     });
   }
 
+  function renderTwoPlayerSetup() {
+    ensureStoryUi();
+    if (isSmartphoneOnlyViewport()) {
+      updateTwoPlayerTitleButtonState();
+      renderTitleScreen();
+      return;
+    }
+
+    playMode = 'twoPlayer';
+    selectedPlayer = getTwoPlayerOne();
+    currentEnemy = getTwoPlayerTwo();
+    stageIndex = 0;
+    clearSelectVsTransition();
+    clearRoundTimers();
+    cancelCountdown();
+    closeModal(howToModal);
+    closeModal(resultModal);
+    hideCpuCursor();
+    playMusicTrack('select');
+    screen = 'twoPlayerSetup';
+    setFlowControls();
+    document.body.classList.add('fighter-two-player', 'fighter-two-player-setup');
+    setMessage('', '', '');
+    resetDigits();
+    resetTimeDisplay();
+
+    if (storyRoot) {
+      storyRoot.hidden = false;
+      storyRoot.innerHTML = `
+        <section class="two-player-setup-screen" aria-label="2P対戦設定">
+          <div class="fighter-screen-head">
+            <h2>2P BATTLE SETTINGS</h2>
+          </div>
+          <div class="two-player-fixed-fighters" aria-label="使用キャラクター">
+            <article class="two-player-fighter-card p1">
+              <span>P1</span>
+              <img src="${esc(versionedSelectAsset(getTwoPlayerOne().icon))}" alt="${esc(getTwoPlayerOne().name)}">
+              <strong>${esc(getTwoPlayerOne().name)}</strong>
+            </article>
+            <div class="two-player-vs-mark">VS</div>
+            <article class="two-player-fighter-card p2">
+              <span>P2</span>
+              <img src="${esc(versionedSelectAsset(getTwoPlayerTwo().icon))}" alt="${esc(getTwoPlayerTwo().name)}">
+              <strong>${esc(getTwoPlayerTwo().name)}</strong>
+            </article>
+          </div>
+          <div class="two-player-control-grid">
+            <section class="two-player-control-panel">
+              <h3><span>1P</span>${esc(getTwoPlayerOne().name)}</h3>
+              <div class="two-player-control-options">
+                ${TWO_PLAYER_CONTROL_ORDER.map(controlId => renderControlOptionButton('player', controlId)).join('')}
+              </div>
+            </section>
+            <section class="two-player-control-panel is-p2">
+              <h3><span>2P</span>${esc(getTwoPlayerTwo().name)}</h3>
+              <div class="two-player-control-options">
+                ${TWO_PLAYER_CONTROL_ORDER.map(controlId => renderControlOptionButton('enemy', controlId)).join('')}
+              </div>
+            </section>
+          </div>
+          <p class="fighter-flow-actions two-player-setup-actions">
+            <button type="button" data-two-player-back>BACK</button>
+            <button type="button" data-two-player-start>START BATTLE</button>
+          </p>
+        </section>`;
+    }
+
+    bindTwoPlayerSetupControls();
+  }
+
+  function bindTwoPlayerSetupControls() {
+    storyRoot?.querySelectorAll('[data-control-option]').forEach(button => {
+      button.addEventListener('click', event => {
+        const side = event.currentTarget.dataset.assignSide;
+        const controlId = event.currentTarget.dataset.controlOption;
+        if (!side || !controlId || event.currentTarget.disabled) return;
+        twoPlayerControls = { ...twoPlayerControls, [side]: controlId };
+        renderTwoPlayerSetup();
+      });
+    });
+    storyRoot?.querySelector('[data-two-player-back]')?.addEventListener('click', renderTitleScreen);
+    storyRoot?.querySelector('[data-two-player-start]')?.addEventListener('click', () => {
+      if (twoPlayerControls.player === twoPlayerControls.enemy) return;
+      selectedPlayer = getTwoPlayerOne();
+      currentEnemy = getTwoPlayerTwo();
+      stageIndex = 0;
+      renderVsScreen();
+    });
+  }
+
   function renderCharacterSelect() {
     ensureStoryUi();
+    playMode = 'story';
     const enteringSelect = screen !== 'select';
     clearSelectVsTransition({ keepCharacterSound: !enteringSelect });
     playMusicTrack('select');
@@ -1367,17 +1757,18 @@
     clearSelectVsTransition();
     if (!options.musicAlreadyFading) stopMusicTrack();
     screen = 'vs';
-    currentEnemy = ENEMIES[stageIndex] || ENEMIES[0];
+    currentEnemy = isTwoPlayerMode() ? getTwoPlayerTwo() : (ENEMIES[stageIndex] || ENEMIES[0]);
     setFlowControls();
+    document.body.classList.toggle('fighter-two-player', isTwoPlayerMode());
     document.body.classList.add('fighter-vs-ready');
     document.body.classList.remove('fighter-selecting');
     const vsImagePath = getVsImagePath(selectedPlayer, stageIndex);
     if (storyRoot) {
       storyRoot.hidden = false;
       storyRoot.innerHTML = `
-        <div class="fighter-vs-screen reference-vs-screen vs-art-screen" aria-label="STAGE ${stageIndex + 1}: ${esc(selectedPlayer.name)} VS ${esc(currentEnemy.name)}">
+        <div class="fighter-vs-screen reference-vs-screen vs-art-screen" aria-label="${isTwoPlayerMode() ? '2P BATTLE' : `STAGE ${stageIndex + 1}`}: ${esc(selectedPlayer.name)} VS ${esc(currentEnemy.name)}">
           <img class="vs-full-art" src="${esc(vsImagePath)}" alt="${esc(selectedPlayer.name)} VS ${esc(currentEnemy.name)}">
-          <div class="vs-screen-meta" aria-hidden="true">STAGE ${stageIndex + 1} / ${ENEMIES.length}</div>
+          <div class="vs-screen-meta" aria-hidden="true">${isTwoPlayerMode() ? '2P BATTLE' : `STAGE ${stageIndex + 1} / ${ENEMIES.length}`}</div>
         </div>
         `;
     }
@@ -1515,7 +1906,7 @@
     closeModal(howToModal);
     closeModal(resultModal);
     const runId = ++gameRunId;
-    currentEnemy = ENEMIES[stageIndex] || ENEMIES[0];
+    currentEnemy = isTwoPlayerMode() ? getTwoPlayerTwo() : (ENEMIES[stageIndex] || ENEMIES[0]);
     playMusicTrack(getBattleMusicTrack());
     setPlayingControls();
     setMessage('ready', 'LOADOUT', currentEnemy.name);
@@ -1561,8 +1952,8 @@
 
     cardGrid.innerHTML = '';
     cardGrid.style.display = 'grid';
-    shuffle(cards.slice()).forEach(card => {
-      cardGrid.appendChild(createBattleCardElement(card));
+    shuffle(cards.slice()).forEach((card, slotIndex) => {
+      cardGrid.appendChild(createBattleCardElement(card, slotIndex));
     });
   }
 
@@ -1574,14 +1965,14 @@
     hideCountdown();
     dealBattleRoundCards();
 
-    const difficulty = DIFFICULTIES[selectedDifficulty] || DIFFICULTIES.normal;
     round = 0;
     roundId = 0;
-    playerHp = difficulty.playerHp;
+    playerHp = getPlayerMaxHp();
     enemyHp = 100;
     playerCombo = 0;
     enemyCombo = 0;
     lastComboOwner = null;
+    resetFighterIconStates();
     pendingReveal = false;
     cpuSkipTurnsRemaining = 0;
     playerDisabledThisRound = false;
@@ -1728,6 +2119,7 @@
     answered = false;
     playerDisabledThisRound = false;
     cpuDisabledThisRound = false;
+    resetFighterIconStates();
     if (cpuCursorEl && cpuCursorEl.dataset) delete cpuCursorEl.dataset.initialVis;
     setReadingHudVisible(!options.deferReadingHud);
     enableCardClicks();
@@ -1773,8 +2165,10 @@
       playerCombo = 0;
       enemyCombo = 0;
       lastComboOwner = null;
+      resetFighterIconStates();
       clearInterval(timeDisplayInterval);
       updateComboDisplay();
+      updateBattleHud();
       updateTimeDisplay(0);
       setMessage('warning', 'TIME OUT', 'ダメージなし');
       roundResultTimeout = setTimeout(nextRound, 1500);
@@ -1794,7 +2188,9 @@
     playerCombo = 0;
     enemyCombo = 0;
     lastComboOwner = null;
+    resetFighterIconStates();
     updateComboDisplay();
+    updateBattleHud();
     setMessage('warning', main, sub);
     roundResultTimeout = setTimeout(nextRound, 1300);
   }
@@ -1894,7 +2290,7 @@
 
   function refreshPlayerCardInteractivity() {
     document.querySelectorAll('.card').forEach(card => {
-      const canPlayerAnswer = roundActive && !answered && !battlePausedForCutin && !playerDisabledThisRound && card.style.visibility !== 'hidden';
+      const canPlayerAnswer = canMouseOwnerInteract() && card.style.visibility !== 'hidden';
       card.style.pointerEvents = canPlayerAnswer ? 'auto' : 'none';
     });
   }
@@ -1905,8 +2301,10 @@
 
   function selectCard(e) {
     if (!roundActive || answered || battlePausedForCutin) return;
-    const isCPU = !!(e && e.isCPU);
-    if (isCPU ? cpuDisabledThisRound : playerDisabledThisRound) return;
+    const owner = resolveAnswerOwner(e);
+    if (!owner) return;
+    const isCPU = owner === 'enemy';
+    if (isOwnerDisabled(owner)) return;
     const hitCardEl = isCPU ? e.currentTarget : (getCardFromPointerEvent(e) || e.currentTarget);
     if (!hitCardEl || hitCardEl.style.visibility === 'hidden') return;
 
@@ -1920,6 +2318,39 @@
       handleCorrect(hitCardEl, isCPU, elapsed);
     } else {
       handleMiss(hitCardEl, isCPU);
+    }
+  }
+
+  function getFieldCardElementBySlot(slotIndex) {
+    if (!cardGrid || slotIndex < 0) return null;
+    return cardGrid.children[slotIndex] || null;
+  }
+
+  function selectFieldSlotForOwner(slotIndex, owner) {
+    const cardEl = getFieldCardElementBySlot(slotIndex);
+    if (!cardEl || cardEl.style.visibility === 'hidden') return false;
+    selectCard({ currentTarget: cardEl, owner });
+    return true;
+  }
+
+  function handleTwoPlayerKeydown(event) {
+    if (!isTwoPlayerMode() || screen !== 'battle' || event.repeat) return;
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    const target = event.target;
+    const tagName = target?.tagName;
+    if (target?.isContentEditable || tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') return;
+
+    const p1Slot = getKeyboardSlotFromEvent(twoPlayerControls.player, event);
+    if (p1Slot >= 0) {
+      event.preventDefault();
+      selectFieldSlotForOwner(p1Slot, 'player');
+      return;
+    }
+
+    const p2Slot = getKeyboardSlotFromEvent(twoPlayerControls.enemy, event);
+    if (p2Slot >= 0) {
+      event.preventDefault();
+      selectFieldSlotForOwner(p2Slot, 'enemy');
     }
   }
 
@@ -1941,10 +2372,13 @@
       playerCombo = 0;
     }
     lastComboOwner = owner;
+    setFighterIconStatesForCardTake(owner);
 
     const combo = owner === 'player' ? playerCombo : enemyCombo;
     const baseDamage = calcDamage(combo);
-    const damageMultiplier = isCPU
+    const damageMultiplier = isTwoPlayerMode()
+      ? 1
+      : isCPU
       ? (selectedPlayer.damageTakenMultiplier || 1)
       : (selectedPlayer.damageDealtMultiplier || 1);
     const damage = Math.max(1, Math.round(baseDamage * damageMultiplier));
@@ -1953,12 +2387,16 @@
 
     if (isCPU) {
       playerHp = clamp(playerHp - damage, 0, 999);
-      enemyGauge = clamp(enemyGauge + Math.round(gaugeGain * difficulty.cpuGauge), 0, MAX_GAUGE);
-      playerGauge = clamp(playerGauge + devTuning.gauge.opponentHit, 0, MAX_GAUGE);
+      if (!isTwoPlayerMode()) {
+        enemyGauge = clamp(enemyGauge + Math.round(gaugeGain * difficulty.cpuGauge), 0, MAX_GAUGE);
+        playerGauge = clamp(playerGauge + devTuning.gauge.opponentHit, 0, MAX_GAUGE);
+      }
     } else {
       enemyHp = clamp(enemyHp - damage, 0, 999);
-      playerGauge = clamp(playerGauge + gaugeGain, 0, MAX_GAUGE);
-      enemyGauge = clamp(enemyGauge + Math.round(devTuning.gauge.opponentHit * difficulty.cpuGauge), 0, MAX_GAUGE);
+      if (!isTwoPlayerMode()) {
+        playerGauge = clamp(playerGauge + gaugeGain, 0, MAX_GAUGE);
+        enemyGauge = clamp(enemyGauge + Math.round(devTuning.gauge.opponentHit * difficulty.cpuGauge), 0, MAX_GAUGE);
+      }
     }
 
     playSoundEffect('correct', Math.min(1.6, 1 + Math.max(0, combo - 1) * 0.08));
@@ -1994,13 +2432,14 @@
       cpuDisabledThisRound = true;
       enemyCombo = 0;
       lastComboOwner = playerCombo > 0 ? 'player' : null;
-      playerGauge = clamp(playerGauge + devTuning.gauge.enemyMiss, 0, MAX_GAUGE);
+      if (!isTwoPlayerMode()) playerGauge = clamp(playerGauge + devTuning.gauge.enemyMiss, 0, MAX_GAUGE);
     } else {
       playerDisabledThisRound = true;
       playerCombo = 0;
       lastComboOwner = enemyCombo > 0 ? 'enemy' : null;
-      playerGauge = clamp(playerGauge + devTuning.gauge.playerMiss, 0, MAX_GAUGE);
+      if (!isTwoPlayerMode()) playerGauge = clamp(playerGauge + devTuning.gauge.playerMiss, 0, MAX_GAUGE);
     }
+    setFighterIconStateForMiss(isCPU ? 'enemy' : 'player');
     updateComboDisplay();
     updateBattleHud();
     refreshPlayerCardInteractivity();
@@ -2057,16 +2496,15 @@
 
   function updateBattleHud() {
     if (!battleHud || !skillStrip) return;
-    const difficulty = DIFFICULTIES[selectedDifficulty] || DIFFICULTIES.normal;
-    const playerMaxHp = difficulty.playerHp;
+    const playerMaxHp = getPlayerMaxHp();
     const enemyMaxHp = 100;
     const enemySkillPending = currentEnemy.skillType === 'pending';
     const playerSkillReady = playerGauge >= MAX_GAUGE;
     const enemySkillReady = enemyGauge >= MAX_GAUGE && !enemySkillPending;
     const playerHpPercent = clamp((playerHp / playerMaxHp) * 100, 0, 100);
     const enemyHpPercent = clamp((enemyHp / enemyMaxHp) * 100, 0, 100);
-    const playerIcon = versionedSelectAsset(selectedPlayer.icon || selectedPlayer.image);
-    const enemyIcon = versionedSelectAsset(currentEnemy.icon || currentEnemy.image);
+    const playerIcon = getFighterIconForSide('player');
+    const enemyIcon = getFighterIconForSide('enemy');
 
     battleHud.innerHTML = `
       <div class="fighter-combatant player" data-side="P1">
@@ -2075,18 +2513,18 @@
           ${renderRoundMarkers('player')}
         </div>
         <div class="fighter-bars">
-          <div class="fighter-label"><span>P1</span><strong>${esc(selectedPlayer.name)}</strong><em>HP</em></div>
+          <div class="fighter-label"><span>P1</span><strong>${esc(selectedPlayer.name)}</strong><em>${isTwoPlayerMode() ? esc(getControlShortLabel(twoPlayerControls.player)) : 'HP'}</em></div>
           <div class="hp-track"><span style="width:${playerHpPercent}%"></span></div>
         </div>
       </div>
       <div class="fight-clock">
-        <span>STAGE ${stageIndex + 1} / ROUND ${battleRound}</span>
+        <span>${isTwoPlayerMode() ? '2P BATTLE' : `STAGE ${stageIndex + 1}`} / ROUND ${battleRound}</span>
         <strong>TURN ${Math.min(round + (roundActive ? 0 : 1), TURNS_PER_BATTLE_ROUND)}</strong>
         <em id="fightHudClock">${(ROUND_TIME_MS / 1000).toFixed(1)}</em>
       </div>
       <div class="fighter-combatant enemy" data-side="P2">
         <div class="fighter-bars">
-          <div class="fighter-label"><em>HP</em><strong>${esc(currentEnemy.name)}</strong><span>P2</span></div>
+          <div class="fighter-label"><em>${isTwoPlayerMode() ? esc(getControlShortLabel(twoPlayerControls.enemy)) : 'HP'}</em><strong>${esc(currentEnemy.name)}</strong><span>P2</span></div>
           <div class="hp-track enemy"><span style="width:${enemyHpPercent}%"></span></div>
         </div>
         <div class="fighter-portrait">
@@ -2095,6 +2533,18 @@
         </div>
       </div>`;
 
+    if (isTwoPlayerMode()) {
+      playerGauge = 0;
+      enemyGauge = 0;
+      skillStrip.innerHTML = '';
+      skillStrip.classList.add('is-hidden');
+      skillStrip.classList.remove('is-two-player-controls');
+      if (scoreElPlayer) scoreElPlayer.textContent = `${selectedPlayer.shortName}: HP ${playerHp}`;
+      if (scoreElCPU) scoreElCPU.textContent = `${currentEnemy.shortName || currentEnemy.name}: HP ${enemyHp}`;
+      return;
+    }
+
+    skillStrip.classList.remove('is-hidden');
     skillStrip.innerHTML = `
       <div class="skill-meter player ${playerSkillReady ? 'is-ready' : ''}">
         <div class="fighter-label"><span>SUPER</span><strong>${esc(selectedPlayer.skillName)}</strong><em>CHARGE</em></div>
@@ -2112,6 +2562,7 @@
   }
 
   function usePlayerSkill() {
+    if (isTwoPlayerMode()) return;
     if (screen !== 'battle' || playerGauge < MAX_GAUGE || battlePausedForCutin || battleFinishing) return;
     let activated = false;
     if (selectedPlayer.skillType === 'revealNext') {
@@ -2253,6 +2704,7 @@
   }
 
   function maybeActivateEnemySkill() {
+    if (isTwoPlayerMode()) return;
     if (enemyGauge < MAX_GAUGE) return;
     if (currentEnemy.skillType === 'shuffle') {
       enemyGauge = 0;
@@ -2320,6 +2772,7 @@
   }
 
   function maybeTriggerCpu(prefixLen) {
+    if (isTwoPlayerMode()) return;
     if (!roundActive || answered || cpuDisabledThisRound) return;
     const visibleDigits = getVisibleDigits(prefixLen);
     const targetEl = getUniqueCandidateByVisibleDigits(visibleDigits);
@@ -2498,7 +2951,7 @@
     timeEl.classList.remove('danger');
 
     const isKoFinish = playerHp <= 0 || enemyHp <= 0;
-    const isPerfectFinish = enemyHp <= 0 && playerHp === (DIFFICULTIES[selectedDifficulty] || DIFFICULTIES.normal).playerHp;
+    const isPerfectFinish = enemyHp <= 0 && playerHp === getPlayerMaxHp();
     if (isKoFinish) {
       playSoundEffect('ko');
       pulseBody('finish-flash', 900);
@@ -2548,16 +3001,18 @@
     setResultControls();
 
     const outcome = outcomeOverride || getMatchOutcome();
-    const isFinal = outcome === 'win' && stageIndex >= ENEMIES.length - 1;
+    const isFinal = !isTwoPlayerMode() && outcome === 'win' && stageIndex >= ENEMIES.length - 1;
     playMusicTrack('victory');
-    const resultMain = isFinal ? 'GAME CLEAR' : outcome === 'win' ? 'WINNER' : outcome === 'lose' ? 'DEFEATED' : 'DRAW';
+    const resultMain = isTwoPlayerMode()
+      ? (outcome === 'lose' ? '2P WIN' : '1P WIN')
+      : isFinal ? 'GAME CLEAR' : outcome === 'win' ? 'WINNER' : outcome === 'lose' ? 'DEFEATED' : 'DRAW';
     const resultImagePath = getVictoryImagePath(selectedPlayer, stageIndex, outcome);
     const resultAltName = outcome === 'lose' ? currentEnemy.name : selectedPlayer.name;
     const resultLine = getBattleLine(outcome, isFinal);
     setMessage(outcome === 'win' ? 'finish' : 'warning', resultMain, `${selectedPlayer.name} HP ${playerHp} / ${currentEnemy.name} HP ${enemyHp}`);
     if (battleResultEl) {
       battleResultEl.innerHTML = `
-        <section class="reference-result-screen victory-art-screen outcome-${esc(outcome)} ${isFinal ? 'is-final' : ''}" aria-label="${esc(resultMain)}: ${esc(resultAltName)}">
+        <section class="reference-result-screen victory-art-screen outcome-${esc(outcome)} ${isFinal ? 'is-final' : ''} ${isTwoPlayerMode() ? 'two-player-result' : ''}" aria-label="${esc(resultMain)}: ${esc(resultAltName)}">
           <img class="victory-full-art" src="${esc(resultImagePath)}" alt="${esc(resultMain)}: ${esc(resultAltName)}">
           <div class="victory-message-window" aria-live="polite">
             <p>${esc(resultLine)}</p>
@@ -2574,7 +3029,13 @@
 
   function configureResultAction(outcome, isFinal) {
     if (!fighterContinueButton) return;
-    if (isFinal) {
+    if (isTwoPlayerMode()) {
+      fighterContinueButton.textContent = 'REMATCH';
+      fighterResultAction = () => {
+        closeModal(resultModal);
+        beginBattle();
+      };
+    } else if (isFinal) {
       fighterContinueButton.textContent = 'ENDING';
       fighterResultAction = () => {
         closeModal(resultModal);
@@ -2638,6 +3099,7 @@
     playerCombo = 0;
     enemyCombo = 0;
     lastComboOwner = null;
+    resetFighterIconStates();
     updateComboDisplay();
     resetDigits();
     if (cardGrid) {
@@ -2675,6 +3137,9 @@
     if (screen === 'title') playMusicTrack('select');
   });
 
+  twoPlayerButton?.addEventListener('click', () => runAfterTuningReady(renderTwoPlayerSetup));
+  document.addEventListener('keydown', handleTwoPlayerKeydown);
+
   window.karutaDevTuning = {
     storageKey: DEV_TUNING_KEY,
     version: DEV_TUNING_VERSION,
@@ -2690,6 +3155,7 @@
   });
 
   window.addEventListener('resize', () => {
+    if (screen === 'title') updateTwoPlayerTitleButtonState();
     if (resultModal?.open && document.querySelector('.victory-art-screen')) syncResultModalBounds();
   });
 

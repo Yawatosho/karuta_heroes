@@ -5653,19 +5653,21 @@ body[data-mode="cpu"].fighter-title .credits p {
 
 body[data-mode="cpu"].fighter-title .action-row {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 18px;
+  gap: 12px;
   width: 100%;
   margin: 0;
 }
 
 body[data-mode="cpu"].fighter-title .action-row #startButton,
+body[data-mode="cpu"].fighter-title .action-row #twoPlayerButton,
 body[data-mode="cpu"].fighter-title .action-row #howToButton {
   display: inline-grid !important;
   place-items: center;
-  width: auto;
-  min-width: 180px;
+  width: 240px;
+  min-width: 240px;
   height: 54px;
   min-height: 54px;
   padding: 0 18px;
@@ -5697,4 +5699,447 @@ body[data-mode="cpu"].fighter-title .option-panel,
 body[data-mode="cpu"].fighter-title .cpu-level-panel,
 body[data-mode="cpu"].fighter-title .reader-panel {
   display: none !important;
+}
+
+/* 2P battle mode. */
+body[data-mode="cpu"].fighter-title .action-row #twoPlayerButton {
+  display: inline-grid !important;
+  place-items: center;
+  width: 240px;
+  min-width: 240px;
+  height: 54px;
+  min-height: 54px;
+  padding: 0 18px;
+  border: 1px solid rgba(255, 224, 148, 0.74);
+  border-radius: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 230, 157, 0.95), rgba(255, 156, 45, 0.9) 52%, rgba(114, 48, 5, 0.94));
+  color: #160907;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 1.45rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+  box-shadow:
+    0 0 18px rgba(255, 153, 38, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.36);
+}
+
+body[data-mode="cpu"].fighter-title .action-row #twoPlayerButton:disabled {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(10, 12, 22, 0.76);
+  color: rgba(255, 248, 232, 0.4);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+body[data-mode="cpu"].fighter-two-player-setup .game-shell {
+  background:
+    linear-gradient(90deg, rgba(255, 156, 45, 0.18), transparent 34%, transparent 66%, rgba(177, 73, 255, 0.24)),
+    linear-gradient(180deg, rgba(4, 5, 10, 0.14), rgba(4, 5, 10, 0.86)),
+    url("image/ancient-library-bg.png") center / cover no-repeat;
+}
+
+body[data-mode="cpu"].fighter-two-player-setup .fighter-story {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+}
+
+body[data-mode="cpu"] .two-player-setup-screen {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: 82px 112px 1fr 62px;
+  gap: 10px;
+  padding: 18px 48px 16px;
+  color: #fff8e8;
+}
+
+body[data-mode="cpu"] .two-player-setup-screen .fighter-screen-head h2 {
+  font-size: 4.7rem;
+  transform: translateY(-8px);
+}
+
+body[data-mode="cpu"] .two-player-fixed-fighters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 116px minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  min-height: 0;
+}
+
+body[data-mode="cpu"] .two-player-fighter-card {
+  display: grid;
+  grid-template-columns: 68px minmax(0, auto) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 86px;
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 210, 122, 0.38);
+  background:
+    linear-gradient(90deg, rgba(255, 210, 122, 0.12), transparent),
+    rgba(5, 7, 14, 0.68);
+  box-shadow: inset 0 0 0 1px rgba(255, 248, 232, 0.06);
+}
+
+body[data-mode="cpu"] .two-player-fighter-card.p2 {
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto) 68px;
+  border-color: rgba(190, 98, 255, 0.46);
+  background:
+    linear-gradient(270deg, rgba(190, 98, 255, 0.14), transparent),
+    rgba(5, 7, 14, 0.68);
+  text-align: right;
+}
+
+body[data-mode="cpu"] .two-player-fighter-card span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 54px;
+  min-height: 34px;
+  border: 1px solid rgba(255, 210, 122, 0.5);
+  background: rgba(255, 210, 122, 0.12);
+  color: #ffd27a;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+body[data-mode="cpu"] .two-player-fighter-card.p2 span {
+  grid-column: 3;
+  grid-row: 1;
+  border-color: rgba(190, 98, 255, 0.58);
+  background: rgba(190, 98, 255, 0.14);
+  color: #e9c2ff;
+}
+
+body[data-mode="cpu"] .two-player-fighter-card img {
+  width: 68px;
+  height: 68px;
+  border: 1px solid rgba(255, 248, 232, 0.5);
+  background: #fff8e8;
+  object-fit: cover;
+  object-position: center;
+}
+
+body[data-mode="cpu"] .two-player-fighter-card.p2 img {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+body[data-mode="cpu"] .two-player-fighter-card strong {
+  min-width: 0;
+  color: #fff8e8;
+  font-size: 1.55rem;
+  text-shadow: 0 0 14px rgba(255, 159, 46, 0.42);
+  white-space: nowrap;
+}
+
+body[data-mode="cpu"] .two-player-vs-mark {
+  display: grid;
+  place-items: center;
+  color: #fff2bd;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 4rem;
+  line-height: 1;
+  text-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.86),
+    0 0 22px rgba(255, 159, 46, 0.72);
+}
+
+body[data-mode="cpu"] .two-player-control-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+  min-height: 0;
+}
+
+body[data-mode="cpu"] .two-player-control-panel {
+  display: grid;
+  grid-template-rows: 42px minmax(0, 1fr);
+  gap: 10px;
+  min-width: 0;
+  min-height: 0;
+}
+
+body[data-mode="cpu"] .two-player-control-panel h3 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0;
+  color: #fff8e8;
+  font-size: 1.45rem;
+  line-height: 1;
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.84);
+}
+
+body[data-mode="cpu"] .two-player-control-panel h3 span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 28px;
+  border: 1px solid rgba(255, 210, 122, 0.56);
+  color: #ffd27a;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+}
+
+body[data-mode="cpu"] .two-player-control-panel.is-p2 h3 span {
+  border-color: rgba(190, 98, 255, 0.62);
+  color: #e9c2ff;
+}
+
+body[data-mode="cpu"] .two-player-control-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  min-height: 0;
+}
+
+body[data-mode="cpu"] .two-player-control-option {
+  display: grid;
+  grid-template-rows: 46px 98px 1fr;
+  gap: 8px;
+  min-width: 0;
+  min-height: 0;
+  padding: 10px;
+  border: 1px solid rgba(255, 210, 122, 0.3);
+  border-radius: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 210, 122, 0.08), transparent 42%),
+    rgba(5, 7, 14, 0.7);
+  color: #fff8e8;
+  cursor: pointer;
+  font: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 248, 232, 0.05);
+}
+
+body[data-mode="cpu"] .two-player-control-option:hover,
+body[data-mode="cpu"] .two-player-control-option.is-active {
+  border-color: rgba(255, 210, 122, 0.82);
+  background:
+    linear-gradient(180deg, rgba(255, 210, 122, 0.18), rgba(190, 98, 255, 0.08)),
+    rgba(5, 7, 14, 0.78);
+  box-shadow:
+    0 0 18px rgba(255, 159, 46, 0.24),
+    inset 0 0 0 1px rgba(255, 248, 232, 0.08);
+}
+
+body[data-mode="cpu"] .two-player-control-option:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+body[data-mode="cpu"] .control-option-head {
+  display: grid;
+  gap: 3px;
+  justify-items: center;
+  line-height: 1;
+}
+
+body[data-mode="cpu"] .control-option-head strong {
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+body[data-mode="cpu"] .control-option-head em {
+  color: #ffd27a;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 0.98rem;
+  font-style: normal;
+}
+
+body[data-mode="cpu"] .control-line-art {
+  align-self: center;
+  justify-self: center;
+  color: rgba(255, 248, 232, 0.88);
+}
+
+body[data-mode="cpu"] .mouse-art {
+  position: relative;
+  width: 74px;
+  height: 94px;
+}
+
+body[data-mode="cpu"] .mouse-body {
+  position: absolute;
+  left: 50%;
+  top: 17px;
+  width: 48px;
+  height: 66px;
+  border: 3px solid currentColor;
+  border-radius: 24px;
+  transform: translateX(-50%);
+}
+
+body[data-mode="cpu"] .mouse-body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+body[data-mode="cpu"] .mouse-body i {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  width: 6px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-radius: 8px;
+  transform: translateX(-50%);
+}
+
+body[data-mode="cpu"] .mouse-cord {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 2px;
+  height: 20px;
+  background: currentColor;
+}
+
+body[data-mode="cpu"] .keyboard-art {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+  width: 174px;
+  height: 94px;
+}
+
+body[data-mode="cpu"] .keyboard-row,
+body[data-mode="cpu"] .control-map-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  width: 100%;
+}
+
+body[data-mode="cpu"] .keyboard-row.is-offset,
+body[data-mode="cpu"] .control-map-row.is-offset {
+  grid-template-columns: repeat(5, 1fr);
+  width: calc(100% - 26px);
+}
+
+body[data-mode="cpu"] .keyboard-row i {
+  display: grid;
+  place-items: center;
+  height: 28px;
+  border: 2px solid currentColor;
+  font-style: normal;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+body[data-mode="cpu"] .control-key-map {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+body[data-mode="cpu"] .control-map-key {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  height: 38px;
+  border: 1px solid rgba(255, 248, 232, 0.24);
+  background: rgba(255, 255, 255, 0.06);
+  line-height: 1;
+}
+
+body[data-mode="cpu"] .control-map-key b {
+  color: #fff8e8;
+  font-size: 0.82rem;
+}
+
+body[data-mode="cpu"] .control-map-key small {
+  color: rgba(255, 210, 122, 0.72);
+  font-size: 0.58rem;
+}
+
+body[data-mode="cpu"] .control-map-note {
+  display: grid;
+  place-items: center;
+  min-height: 74px;
+  margin: 0;
+  border: 1px solid rgba(255, 248, 232, 0.18);
+  color: rgba(255, 248, 232, 0.82);
+  font-weight: 900;
+}
+
+body[data-mode="cpu"] .two-player-setup-actions {
+  align-self: end;
+  gap: 16px;
+}
+
+body[data-mode="cpu"] .two-player-setup-actions button {
+  min-width: 190px;
+  min-height: 54px;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+body[data-mode="cpu"].fighter-two-player.fighter-playing .fighter-skill-strip {
+  display: none !important;
+}
+
+body[data-mode="cpu"].fighter-two-player.fighter-playing .card {
+  padding-top: 30px;
+}
+
+body[data-mode="cpu"] .card-subject {
+  display: block;
+  width: 100%;
+}
+
+body[data-mode="cpu"] .card-key-badges {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  left: 6px;
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  pointer-events: none;
+}
+
+body[data-mode="cpu"] .card-key-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  padding: 2px 5px;
+  border: 1px solid rgba(17, 24, 39, 0.2);
+  background: rgba(255, 232, 154, 0.92);
+  color: #17120a;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 0.82rem;
+  line-height: 1;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+}
+
+body[data-mode="cpu"] .card-key-badge b {
+  font-size: 0.64rem;
+}
+
+body[data-mode="cpu"] .card-key-badge.p2 {
+  margin-left: auto;
+  background: rgba(225, 190, 255, 0.92);
+}
+
+body[data-mode="cpu"].fighter-two-player.fighter-playing .skill-cutin.enemy .skill-cutin-frame img,
+body[data-mode="cpu"].fighter-two-player.fighter-playing .round-win-screen.enemy img {
+  scale: -1 1;
 }
