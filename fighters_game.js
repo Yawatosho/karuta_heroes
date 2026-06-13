@@ -420,6 +420,10 @@
     });
   }
 
+  function isSpaceKeyEvent(event) {
+    return event?.key === ' ' || event?.key === 'Spacebar' || event?.code === 'Space';
+  }
+
   function getKeyboardSlotLabel(controlId, slotIndex) {
     return TWO_PLAYER_KEYBOARD_LAYOUTS[controlId]?.[slotIndex]?.label || '';
   }
@@ -1373,7 +1377,7 @@
     div.addEventListener('click', selectCard);
     div.addEventListener('keydown', ev => {
       if (isTwoPlayerMode()) return;
-      if (ev.key === 'Enter' || ev.key === ' ') {
+      if (ev.key === 'Enter') {
         ev.preventDefault();
         selectCard({ currentTarget: div });
       }
@@ -2333,12 +2337,27 @@
     return true;
   }
 
-  function handleTwoPlayerKeydown(event) {
-    if (!isTwoPlayerMode() || screen !== 'battle' || event.repeat) return;
+  function handleBattleKeydown(event) {
+    if (screen !== 'battle' || event.repeat) return;
     if (event.metaKey || event.ctrlKey || event.altKey) return;
     const target = event.target;
     const tagName = target?.tagName;
     if (target?.isContentEditable || tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') return;
+
+    if (!isTwoPlayerMode()) {
+      if (isSpaceKeyEvent(event)) {
+        event.preventDefault();
+        usePlayerSkill();
+        return;
+      }
+
+      const playerSlot = getKeyboardSlotFromEvent('keyboardA', event);
+      if (playerSlot >= 0) {
+        event.preventDefault();
+        selectFieldSlotForOwner(playerSlot, 'player');
+      }
+      return;
+    }
 
     const p1Slot = getKeyboardSlotFromEvent(twoPlayerControls.player, event);
     if (p1Slot >= 0) {
@@ -3138,7 +3157,7 @@
   });
 
   twoPlayerButton?.addEventListener('click', () => runAfterTuningReady(renderTwoPlayerSetup));
-  document.addEventListener('keydown', handleTwoPlayerKeydown);
+  document.addEventListener('keydown', handleBattleKeydown);
 
   window.karutaDevTuning = {
     storageKey: DEV_TUNING_KEY,
