@@ -12,7 +12,7 @@
   const NDC_JSON_URL = 'https://raw.githubusercontent.com/Yawatosho/karuta/refs/heads/main/ndc.json';
   const LOCAL_NDC_JSON_URL = 'ndc.json';
   const NDC_CACHE_KEY = 'ndc_json_cache_v2';
-  const SELECT_ASSET_VERSION = 'fighters90';
+  const SELECT_ASSET_VERSION = 'fighters91';
   const karutaAudio = window.karutaAudio || null;
 
   const PLAYERS = [
@@ -358,6 +358,19 @@
 
   function isTwoPlayerMode() {
     return playMode === 'twoPlayer';
+  }
+
+  function isEasyStoryCardRestrictionActive() {
+    return !isTwoPlayerMode() && selectedDifficulty === 'easy';
+  }
+
+  function hasZeroOnesDigit(card) {
+    return pad3(card?.ndc || '').endsWith('0');
+  }
+
+  function getBattleCardSourcePool(sourcePool) {
+    const pool = Array.isArray(sourcePool) ? sourcePool : [];
+    return isEasyStoryCardRestrictionActive() ? pool.filter(hasZeroOnesDigit) : pool;
   }
 
   function getTwoPlayerOne() {
@@ -1359,7 +1372,7 @@
   async function fetchCards() {
     const allCards = await fetchAllCardsCached();
     allCardPool = allCards;
-    const pool = shuffle(allCards.slice());
+    const pool = shuffle(getBattleCardSourcePool(allCards).slice());
     const selected = pickUniqueByPrefix(pool, 11, 2);
     selected.forEach((card, index) => { card.used = false; card.index = index; });
     return selected;
@@ -1942,7 +1955,7 @@
   }
 
   function dealBattleRoundCards() {
-    const sourcePool = allCardPool.length ? allCardPool : (cards.length ? cards : FALLBACK_CARDS);
+    const sourcePool = getBattleCardSourcePool(allCardPool.length ? allCardPool : (cards.length ? cards : FALLBACK_CARDS));
     const selected = pickUniqueByPrefix(shuffle(sourcePool.slice()), DEFAULT_FIELD_SLOT_COUNT, 2);
     cards = selected.map((card, index) => ({
       ...card,
@@ -2653,7 +2666,7 @@
     const uniquePrefixes = options.uniquePrefixes !== false;
     const usedPrefixes = new Set(options.usedPrefixes || []);
     const picked = [];
-    const pool = shuffle((allCardPool.length ? allCardPool : FALLBACK_CARDS).slice());
+    const pool = shuffle(getBattleCardSourcePool(allCardPool.length ? allCardPool : FALLBACK_CARDS).slice());
 
     for (const source of pool) {
       const ndc = pad3(source.ndc);
