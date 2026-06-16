@@ -6440,6 +6440,23 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-selec
   font-size: 1.16rem;
 }
 
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-select-actions [data-confirm-player] {
+  order: 1;
+  background:
+    linear-gradient(180deg, rgba(255, 230, 157, 0.95), rgba(255, 156, 45, 0.9) 52%, rgba(114, 48, 5, 0.94));
+  color: #160907;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-select-actions [data-fighter-back] {
+  order: 2;
+  width: min(100%, 184px);
+  min-height: 34px;
+  font-size: 0.86rem;
+  background:
+    linear-gradient(180deg, rgba(30, 22, 37, 0.92), rgba(9, 10, 20, 0.92));
+  color: #fff8e8;
+}
+
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-vs-ready .game-shell,
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-ending .game-shell {
   padding: 0;
