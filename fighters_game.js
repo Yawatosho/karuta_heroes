@@ -12,7 +12,7 @@
   const NDC_JSON_URL = 'https://raw.githubusercontent.com/Yawatosho/karuta/refs/heads/main/ndc.json';
   const LOCAL_NDC_JSON_URL = 'ndc.json';
   const NDC_CACHE_KEY = 'ndc_json_cache_v2';
-  const SELECT_ASSET_VERSION = 'fighters101';
+  const SELECT_ASSET_VERSION = 'fighters103';
   const karutaAudio = window.karutaAudio || null;
 
   const PLAYERS = [
