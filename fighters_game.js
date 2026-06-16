@@ -12,7 +12,7 @@
   const NDC_JSON_URL = 'https://raw.githubusercontent.com/Yawatosho/karuta/refs/heads/main/ndc.json';
   const LOCAL_NDC_JSON_URL = 'ndc.json';
   const NDC_CACHE_KEY = 'ndc_json_cache_v2';
-  const SELECT_ASSET_VERSION = 'fighters91';
+  const SELECT_ASSET_VERSION = 'fighters98';
   const karutaAudio = window.karutaAudio || null;
 
   const PLAYERS = [
@@ -1031,6 +1031,21 @@
     if (!resultModal) return;
     const shell = document.querySelector('.game-shell');
     if (!shell) return;
+    if (document.body.classList.contains('fighter-portrait-stage')) {
+      const rect = shell.getBoundingClientRect();
+      resultModal.style.position = 'fixed';
+      resultModal.style.inset = 'auto';
+      resultModal.style.left = `${rect.left}px`;
+      resultModal.style.top = `${rect.top}px`;
+      resultModal.style.width = `${rect.width}px`;
+      resultModal.style.height = `${rect.height}px`;
+      resultModal.style.maxWidth = 'none';
+      resultModal.style.maxHeight = 'none';
+      resultModal.style.margin = '0';
+      resultModal.style.transform = 'none';
+      resultModal.style.transformOrigin = 'center';
+      return;
+    }
     const rootStyle = getComputedStyle(document.documentElement);
     const stageLeft = rootStyle.getPropertyValue('--stage-left').trim();
     const stageTop = rootStyle.getPropertyValue('--stage-top').trim();
@@ -1276,19 +1291,26 @@
     if (isTwoPlayerMode()) return 'vs/vs.png';
     const enemyNumber = enemyIndex + 1;
     const code = player?.vsCode || 'lib';
+    const usePortraitAsset = document.body.classList.contains('fighter-smartphone')
+      && document.body.classList.contains('fighter-portrait-stage');
+    if (usePortraitAsset) return `vs_tate/vs_${enemyNumber}_${code}_tate.png`;
     if (enemyNumber === 3 && code === 'det') return 'vs/vs3_det.png';
     return `vs/vs_${enemyNumber}_${code}.png`;
   }
 
   function getVictoryImagePath(player, enemyIndex, outcome) {
+    const usePortraitAsset = document.body.classList.contains('fighter-smartphone')
+      && document.body.classList.contains('fighter-portrait-stage');
+    const assetDir = usePortraitAsset ? 'victory_tate' : 'victory';
+    const assetSuffix = usePortraitAsset ? '_tate' : '';
     if (isTwoPlayerMode()) {
       const winner = outcome === 'lose' ? getTwoPlayerTwo() : getTwoPlayerOne();
-      return `victory/win_${winner?.vsCode || 'lib'}.png`;
+      return `${assetDir}/win_${winner?.vsCode || 'lib'}${assetSuffix}.png`;
     }
     const enemyNumber = enemyIndex + 1;
-    if (outcome === 'lose') return `victory/win_enemy${enemyNumber}.png`;
+    if (outcome === 'lose') return `${assetDir}/win_enemy${enemyNumber}${assetSuffix}.png`;
     const code = player?.vsCode || 'lib';
-    return `victory/win_${code}.png`;
+    return `${assetDir}/win_${code}${assetSuffix}.png`;
   }
 
   function getRoundWinImagePath(outcome) {

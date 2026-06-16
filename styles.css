@@ -6143,3 +6143,748 @@ body[data-mode="cpu"].fighter-two-player.fighter-playing .skill-cutin.enemy .ski
 body[data-mode="cpu"].fighter-two-player.fighter-playing .round-win-screen.enemy img {
   scale: -1 1;
 }
+
+/* Smartphone portrait stage: keep desktop fixed-stage UI intact. */
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage {
+  --mobile-edge: max(6px, env(safe-area-inset-left));
+  --mobile-bottom: max(6px, env(safe-area-inset-bottom));
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .arena {
+  position: fixed;
+  inset: 0;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  max-width: none;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right)) var(--mobile-bottom) var(--mobile-edge);
+  aspect-ratio: auto;
+  overflow: hidden;
+  transform: none;
+  transform-origin: center;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .game-shell,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-selecting .game-shell,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .game-shell,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-result .game-shell,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-vs-ready .game-shell,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-ending .game-shell {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 8px;
+  border-color: rgba(255, 210, 122, 0.38);
+  overflow: hidden;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage #karuta,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-story {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .game-shell::before {
+  inset: 6px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .game-modal {
+  width: calc(100vw - 16px);
+  max-width: none;
+  max-height: calc(100dvh - 16px);
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .modal-frame {
+  padding: 16px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .rules-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .rules-grid section {
+  padding: 12px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title #karuta {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-content: stretch;
+  justify-items: center;
+  gap: 12px;
+  padding: 18px 0 34px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .fighter-story {
+  align-content: center;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .reference-title {
+  gap: 18px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .fighter-title-main {
+  max-width: 7.4ch;
+  font-size: clamp(3.25rem, 17vw, 4.85rem);
+  line-height: 0.86;
+  text-wrap: balance;
+  transform: none;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .difficulty-select {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(100%, 336px);
+  gap: 8px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .difficulty-select button {
+  width: auto;
+  min-width: 0;
+  height: 56px;
+  min-height: 56px;
+  padding: 7px 6px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .difficulty-select strong {
+  font-size: clamp(1.08rem, 5.1vw, 1.42rem);
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .action-row {
+  gap: 9px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .action-row #startButton,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .action-row #twoPlayerButton,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .action-row #howToButton {
+  width: min(100%, 264px);
+  min-width: 0;
+  height: 50px;
+  min-height: 50px;
+  font-size: 1.28rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .action-row #twoPlayerButton:disabled {
+  font-size: 1.05rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .credits {
+  bottom: 10px;
+  padding: 0 10px;
+  font-size: 0.64rem;
+  line-height: 1.35;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-selecting .game-shell {
+  padding: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-character-select.reference-select {
+  grid-template-rows: 48px minmax(0, 1fr) 70px 98px;
+  gap: 7px;
+  padding: 8px 10px max(10px, env(safe-area-inset-bottom));
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-character-select .fighter-screen-head h2 {
+  font-size: clamp(2.45rem, 12vw, 3.35rem);
+  transform: none;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-select-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: stretch;
+  height: auto;
+  min-height: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-full-art {
+  position: relative;
+  inset: auto;
+  grid-column: 1;
+  grid-row: 1;
+  overflow: hidden;
+  clip-path: inset(0);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 1px solid rgba(255, 214, 139, 0.42);
+  background:
+    linear-gradient(180deg, rgba(255, 210, 122, 0.08), rgba(4, 5, 10, 0.76)),
+    rgba(4, 5, 10, 0.46);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 248, 232, 0.06),
+    0 0 18px rgba(255, 159, 46, 0.16);
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-full-art::after {
+  height: 42%;
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(4, 5, 10, 0.32) 48%, rgba(4, 5, 10, 0.82) 100%);
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-full-art img {
+  left: 50%;
+  bottom: -28px;
+  width: min(84vw, 315px);
+  transform: translateX(-50%);
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-select-info {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: stretch;
+  align-self: stretch;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  padding: 9px;
+  gap: 7px;
+  transform: none;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-select-info h3 {
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  font-size: clamp(1.32rem, 6.7vw, 1.82rem);
+  line-height: 1;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-name-en {
+  font-size: 0.62rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-special {
+  gap: 3px;
+  padding: 7px 8px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-special span,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-stat-heading span {
+  font-size: 0.78rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-special strong {
+  font-size: 0.9rem;
+  line-height: 1.12;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-special p {
+  font-size: 0.66rem;
+  line-height: 1.28;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-stat-panel {
+  align-self: stretch;
+  align-content: center;
+  gap: 6px;
+  padding: 7px 8px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-stat-row {
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 7px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-stat-row span {
+  font-size: 0.82rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-stat-track {
+  height: 11px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-icon-row {
+  grid-template-columns: repeat(3, 76px);
+  gap: 10px;
+  align-self: center;
+  margin: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-icon-row button {
+  width: 76px;
+  height: 66px;
+  padding: 6px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-icon-row img {
+  width: 52px;
+  height: 52px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-select-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-select-actions button,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-select-actions [data-confirm-player] {
+  width: min(100%, 304px);
+  min-width: 0;
+  min-height: 44px;
+  font-size: 1.16rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-vs-ready .game-shell,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-ending .game-shell {
+  padding: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-ending .fighter-battle-hud,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-ending .fighter-skill-strip,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-ending .reader-panel,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-ending #cardGrid {
+  display: none !important;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .reference-vs-screen.vs-art-screen {
+  inset: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .vs-full-art,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .victory-full-art,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .ending-full-art {
+  object-fit: contain;
+  background: #05070e;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .vs-screen-meta {
+  top: max(12px, env(safe-area-inset-top));
+  font-size: 0.82rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .game-shell {
+  padding: 6px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing #karuta {
+  --battle-message-height: 30px;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto var(--battle-message-height);
+  gap: 5px;
+  overflow: hidden;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .fighter-battle-hud {
+  grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr);
+  gap: 5px;
+  margin: 0;
+  padding: 5px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .fighter-combatant {
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 5px;
+  padding: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .fighter-combatant.enemy {
+  grid-template-columns: minmax(0, 1fr) 38px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .fighter-face {
+  width: 38px;
+  height: 38px;
+  border-width: 1px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .round-markers {
+  width: 38px;
+  min-height: 6px;
+  gap: 3px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .round-markers span {
+  width: 6px;
+  height: 6px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .fighter-label {
+  gap: 3px;
+  margin-bottom: 4px;
+  font-size: 0.62rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .fighter-label span {
+  min-width: 24px;
+  padding: 2px 3px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .fighter-label strong {
+  font-size: 0.72rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .fighter-label em {
+  display: none;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .hp-track {
+  height: 16px;
+  border-width: 1px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .fight-clock {
+  gap: 1px;
+  padding: 4px 3px;
+  border-width: 1px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .fight-clock span {
+  font-size: 0.58rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .fight-clock strong {
+  font-size: 0.72rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .fight-clock em {
+  width: 48px;
+  min-height: 24px;
+  font-size: 1.42rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .reader-panel {
+  --reader-stage-height: 62px;
+  height: calc(var(--reader-stage-height) + 10px);
+  min-height: 0;
+  max-height: calc(var(--reader-stage-height) + 10px);
+  margin: 0;
+  padding: 5px 4px;
+  overflow: hidden;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing #reading {
+  height: var(--reader-stage-height);
+  gap: 8px;
+  margin: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing #reading .digit {
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  border-radius: 3px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing #reading .digit .num {
+  font-size: 3.55rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .countdown-display.round-call {
+  top: 5px;
+  right: 5px;
+  left: 5px;
+  height: 62px;
+  padding: 0 8px;
+  font-size: 1.34rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .countdown-display.round-call-fight {
+  font-size: 3.55rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .countdown-display.ko-call,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .countdown-display.time-up-call,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .countdown-display.perfect-call {
+  font-size: clamp(4.4rem, 22vw, 6.2rem);
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing #message {
+  width: 100%;
+  height: var(--battle-message-height);
+  min-height: var(--battle-message-height);
+  max-height: var(--battle-message-height);
+  margin: 0;
+  padding: 3px 8px;
+  overflow: hidden;
+  font-size: 0.72rem;
+  line-height: 1.18;
+  white-space: normal;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing #message .msg-main {
+  font-size: 0.88rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing #message .msg-main + .msg-sub {
+  margin-left: 0.35em;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing #message .msg-sub {
+  font-size: 0.68rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .grid {
+  --mobile-card-gap: 6px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  align-content: stretch;
+  gap: var(--mobile-card-gap);
+  min-height: 0;
+  margin: 0;
+  padding: 6px;
+  overflow: hidden;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .card,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .card:nth-child(n) {
+  grid-column: auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 5px 6px;
+  border-bottom-width: 2px;
+  font-size: clamp(0.68rem, 3.1vw, 0.82rem);
+  line-height: 1.16;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .card:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: calc((100% - var(--mobile-card-gap)) / 2);
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .card-subject {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .fighter-skill-strip {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  grid-template-columns: minmax(0, 1fr) 78px minmax(0, 1fr);
+  gap: 5px;
+  align-items: center;
+  margin: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .skill-meter {
+  width: auto;
+  min-width: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .fighter-skill-strip .fighter-label {
+  margin-bottom: 3px;
+  font-size: 0.56rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .fighter-skill-strip .fighter-label strong {
+  display: none;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .gauge-track {
+  height: 10px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing #fighterSkillButton {
+  min-height: 34px;
+  padding: 4px 5px;
+  font-size: 0.88rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .combo-cutin {
+  top: 110px;
+  height: 72px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .combo-cutin-panel {
+  width: 246px;
+  padding: 12px 24px 13px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .combo-cutin-panel strong {
+  font-size: 3rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .skill-cutin-frame {
+  width: calc(100% - 14px);
+  max-width: 100%;
+  height: auto;
+  max-height: min(34vh, 250px);
+  aspect-ratio: 1672 / 941;
+  margin: 0 auto;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .skill-cutin.player,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .skill-cutin.enemy {
+  justify-content: center;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .skill-cutin.player .skill-cutin-frame,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .skill-cutin.enemy .skill-cutin-frame {
+  margin-left: 0;
+  margin-right: 0;
+  clip-path: inset(0);
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .skill-cutin-frame img {
+  object-fit: contain;
+  object-position: center;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .round-win-screen {
+  --round-win-image-y: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .round-win-screen img {
+  width: auto;
+  height: auto;
+  max-width: 104%;
+  max-height: 86%;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .round-win-copy {
+  top: auto;
+  bottom: max(42px, calc(env(safe-area-inset-bottom) + 34px));
+  width: calc(100% - 20px);
+  padding: 0 10px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .round-win-copy span {
+  font-size: 1.05rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .round-win-copy strong {
+  max-width: 100%;
+  font-size: clamp(2.1rem, 10vw, 2.62rem);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .result-modal {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .result-modal .modal-frame,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .result-modal .modal-frame:has(.victory-art-screen) {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .victory-message-window {
+  left: 10px;
+  right: 10px;
+  bottom: max(70px, calc(env(safe-area-inset-bottom) + 62px));
+  min-height: 0;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, rgba(5, 7, 14, 0), rgba(5, 7, 14, 0.52));
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .victory-message-window p {
+  max-width: 100%;
+  font-size: clamp(0.88rem, 4vw, 1.14rem);
+  line-height: 1.45;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .result-modal .result-actions,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .result-modal .modal-frame:has(.victory-art-screen) .result-actions {
+  right: 0;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  left: 0;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 10px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .result-modal .result-actions button,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .result-modal .modal-frame:has(.victory-art-screen) .result-actions button {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 168px;
+  min-height: 44px;
+  font-size: 1rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .result-modal .result-actions #fighterContinueButton,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .result-modal .result-actions #resultTopButton {
+  min-width: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-ending-screen:not(.ending-credit-screen) {
+  display: grid;
+  grid-template-rows: 50% 50%;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-ending-screen:not(.ending-credit-screen)::after {
+  background:
+    linear-gradient(180deg, rgba(5, 7, 14, 0.06) 0%, transparent 35%, rgba(5, 7, 14, 0.2) 50%, rgba(5, 7, 14, 0.88) 50%, rgba(5, 7, 14, 0.18) 100%);
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-ending-screen:not(.ending-credit-screen) .ending-full-art {
+  position: relative;
+  inset: auto;
+  grid-row: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .ending-message-window {
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  z-index: 5;
+  grid-row: 2;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 14px 16px max(16px, env(safe-area-inset-bottom));
+  border-width: 1px 0 0;
+  background:
+    linear-gradient(180deg, rgba(5, 7, 14, 0.9), rgba(5, 7, 14, 0.98));
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .ending-message-text p {
+  font-size: clamp(0.86rem, 3.7vw, 1rem);
+  line-height: 1.48;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .ending-continue-caret {
+  margin-top: 4px;
+  border-right-width: 10px;
+  border-left-width: 10px;
+  border-top-width: 14px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .ending-credit-roll,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .ending-credit-final {
+  width: min(100%, 330px);
+  padding-right: 18px;
+  padding-left: 18px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .ending-credit-roll h2 {
+  font-size: 3rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .ending-credit-roll strong,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .ending-credit-roll em,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .ending-credit-final strong,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .ending-credit-final em {
+  font-size: 1rem;
+}

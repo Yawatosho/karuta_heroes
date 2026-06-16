@@ -25,10 +25,12 @@
     const hasCoarsePointer = typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
     const isTouchDevice = (navigator.maxTouchPoints || 0) > 0 || hasCoarsePointer;
     const isSmartphoneStage = isTouchDevice && Math.min(width, height) <= 540;
+    const isPortraitStage = isSmartphoneStage && height >= width;
     document.documentElement.style.setProperty('--stage-scale-runtime', String(scale));
     document.documentElement.style.setProperty('--stage-left', `${left}px`);
     document.documentElement.style.setProperty('--stage-top', `${top}px`);
     document.body?.classList.toggle('fighter-smartphone', isSmartphoneStage);
+    document.body?.classList.toggle('fighter-portrait-stage', isPortraitStage);
   }
 
   function setupFixedStageScale() {
@@ -107,7 +109,7 @@
   function loadScript(src) {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = `${src}?v=fighters91`;
+      script.src = `${src}?v=fighters98`;
       script.async = false;
       script.addEventListener('load', resolve, { once: true });
       script.addEventListener('error', reject, { once: true });
