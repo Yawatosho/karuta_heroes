@@ -12,7 +12,7 @@
   const NDC_JSON_URL = 'https://raw.githubusercontent.com/Yawatosho/karuta/refs/heads/main/ndc.json';
   const LOCAL_NDC_JSON_URL = 'ndc.json';
   const NDC_CACHE_KEY = 'ndc_json_cache_v2';
-  const SELECT_ASSET_VERSION = 'fighters98';
+  const SELECT_ASSET_VERSION = 'fighters101';
   const karutaAudio = window.karutaAudio || null;
 
   const PLAYERS = [
@@ -1344,6 +1344,9 @@
 
   function getEndingImagePath(player, sceneNumber = 1) {
     const code = player?.vsCode || 'lib';
+    const usePortraitAsset = document.body.classList.contains('fighter-smartphone')
+      && document.body.classList.contains('fighter-portrait-stage');
+    if (usePortraitAsset) return `ending_tate/ending_${code}${sceneNumber}_tate.png`;
     return `ending/ending_${code}${sceneNumber}.png`;
   }
 

@@ -6337,7 +6337,7 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-full-
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-full-art img {
   left: 50%;
-  bottom: -28px;
+  bottom: -48px;
   width: min(84vw, 315px);
   transform: translateX(-50%);
 }
@@ -6678,8 +6678,13 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing 
 }
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .skill-meter {
-  width: auto;
+  justify-self: stretch;
+  width: 100%;
   min-width: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .skill-meter.enemy {
+  justify-self: stretch;
 }
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .fighter-skill-strip .fighter-label {
@@ -6692,6 +6697,7 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing 
 }
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-playing .gauge-track {
+  width: 100%;
   height: 10px;
 }
 
@@ -6824,19 +6830,19 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .result-modal .r
 }
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-ending-screen:not(.ending-credit-screen) {
-  display: grid;
-  grid-template-rows: 50% 50%;
+  position: relative;
+  display: block;
+  overflow: hidden;
 }
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-ending-screen:not(.ending-credit-screen)::after {
   background:
-    linear-gradient(180deg, rgba(5, 7, 14, 0.06) 0%, transparent 35%, rgba(5, 7, 14, 0.2) 50%, rgba(5, 7, 14, 0.88) 50%, rgba(5, 7, 14, 0.18) 100%);
+    linear-gradient(180deg, rgba(5, 7, 14, 0.04) 0%, transparent 44%, rgba(5, 7, 14, 0.28) 68%, rgba(5, 7, 14, 0.78) 100%);
 }
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-ending-screen:not(.ending-credit-screen) .ending-full-art {
-  position: relative;
-  inset: auto;
-  grid-row: 1;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -6844,19 +6850,22 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-ending-
 }
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .ending-message-window {
-  position: relative;
-  left: auto;
-  right: auto;
-  bottom: auto;
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: max(14px, env(safe-area-inset-bottom));
   z-index: 5;
-  grid-row: 2;
-  width: 100%;
-  height: 100%;
+  width: auto;
+  height: auto;
   min-height: 0;
-  padding: 14px 16px max(16px, env(safe-area-inset-bottom));
-  border-width: 1px 0 0;
+  max-height: min(42%, 280px);
+  padding: 16px 16px max(16px, calc(env(safe-area-inset-bottom) + 10px));
+  overflow: hidden;
+  border-width: 1px;
+  border-radius: 6px;
   background:
-    linear-gradient(180deg, rgba(5, 7, 14, 0.9), rgba(5, 7, 14, 0.98));
+    linear-gradient(180deg, rgba(5, 7, 14, 0.58), rgba(5, 7, 14, 0.74));
+  backdrop-filter: blur(5px);
 }
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .ending-message-text p {
