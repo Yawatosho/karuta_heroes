@@ -7487,6 +7487,8 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-full-
   left: 50%;
   bottom: -48px;
   width: min(84vw, 315px);
+  /* 縦の短い端末でも頭上に最低14pxのセーフエリアを残す。 */
+  max-height: calc(100% + 34px);
   transform: translateX(-50%);
 }
 
