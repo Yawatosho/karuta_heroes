@@ -12,132 +12,19 @@
   const NDC_JSON_URL = 'https://raw.githubusercontent.com/Yawatosho/karuta/refs/heads/main/ndc.json';
   const LOCAL_NDC_JSON_URL = 'ndc.json';
   const NDC_CACHE_KEY = 'ndc_json_cache_v2';
-  const SELECT_ASSET_VERSION = 'fighters104';
+  const SELECT_ASSET_VERSION = 'fighters129';
+  const DEBUG_MODE = new URLSearchParams(window.location.search).has('debug');
   const karutaAudio = window.karutaAudio || null;
 
-  const PLAYERS = [
-    {
-      id: 'librarian',
-      name: '司書さん',
-      englishName: 'The Librarian',
-      shortName: '司書',
-      image: 'reference/司書.png',
-      vsCode: 'lib',
-      icon: 'character/librarian_icon.png',
-      selectImage: 'character/librarian_select.png',
-      cutin: 'cutin/cutin_lib.png',
-      skillName: 'LIBRARY FREEDAM',
-      skillEffect: '次の問題で正解の札が光る',
-      skillType: 'revealNext',
-      stats: { atk: 3, def: 3 },
-      damageDealtMultiplier: 1,
-      damageTakenMultiplier: 1,
-      story: '少し天然で優しい大学図書館の司書。図書館のことが大好き。',
-      winLine: '静かに、でも確実に勝利です。',
-      loseLine: 'まだ、分類の棚は読み切れていませんね。'
-    },
-    {
-      id: 'detective',
-      name: '探偵さん',
-      englishName: 'The Detective',
-      shortName: '探偵',
-      image: 'reference/探偵.png',
-      vsCode: 'det',
-      icon: 'character/detective_icon.png',
-      selectImage: 'character/detective_select.png',
-      cutin: 'cutin/cutin_det.png',
-      skillName: '謎は全て解けたよ！',
-      skillEffect: '使われない札を1枚除外する',
-      skillType: 'removeDecoy',
-      stats: { atk: 4, def: 2 },
-      damageDealtMultiplier: 1.2,
-      damageTakenMultiplier: 1.2,
-      story: '明るく元気な大学生の探偵。司書さんと仲良し。',
-      winLine: '謎は全て解けた。勝利の分類番号もね。',
-      loseLine: 'むむ、次の事件では必ず見抜くよ。'
-    },
-    {
-      id: 'lily',
-      name: 'リリー',
-      englishName: 'Lily',
-      shortName: 'リリー',
-      image: 'reference/リリー.png',
-      vsCode: 'lily',
-      icon: 'character/lily_icon.png',
-      selectImage: 'character/lily_select.png',
-      cutin: 'cutin/cutin_lily.png',
-      skillName: 'みんな、お願いっ！',
-      skillEffect: '次の2ターン、相手の解答権を封じる',
-      skillType: 'skipCpu',
-      stats: { atk: 2, def: 4 },
-      damageDealtMultiplier: 0.8,
-      damageTakenMultiplier: 0.8,
-      story: '本の声を聞くことができる、明るく元気なひよっこ司書。',
-      winLine: 'みんなの声が、正しい棚まで導いてくれました。',
-      loseLine: '本の声を、もっとちゃんと聞けるようになります。'
-    }
-  ];
+  // ---------------------------------------------------------------------------
+  // Configuration and static data
+  // ---------------------------------------------------------------------------
+  const fightersConfig = window.karutaFightersConfig;
+  if (!fightersConfig) throw new Error("fighters_config.js must be loaded before fighters_game.js");
 
-  const ENEMIES = [
-    {
-      id: 'wind',
-      name: '風の目録使い',
-      englishName: 'The Wind Cataloger',
-      image: 'reference/風の目録使い.png',
-      icon: 'character/enemy1_icon.png',
-      cutin: 'cutin/cutin_enemy1.png',
-      skillName: '風配列',
-      skillType: 'shuffle',
-      preset: { correctRate: 0.80, reactionMinMs: 3800, reactionMaxMs: 5900 },
-      winLine: '風向きは、こちらにあります。',
-      loseLine: '見事です。あなたの索引は迷わない。'
-    },
-    {
-      id: 'magician',
-      name: '分類の魔術師',
-      englishName: 'The Classification Mage',
-      image: 'reference/分類の魔術師.png',
-      icon: 'character/enemy2_icon.png',
-      cutin: 'cutin/cutin_enemy2.png',
-      skillName: '十進幻術',
-      skillType: 'decimalIllusion',
-      preset: { correctRate: 0.90, reactionMinMs: 2100, reactionMaxMs: 3900 },
-      winLine: '分類の妙、味わっていただけましたかな。',
-      loseLine: 'その読み、魔術より鮮やかだ。'
-    },
-    {
-      id: 'digital',
-      name: 'デジタルライブラリアン',
-      englishName: 'The Digital Librarian',
-      image: 'reference/デジタルライブラリアン.png',
-      icon: 'character/enemy3_icon.png',
-      cutin: 'cutin/cutin_enemy3.png',
-      skillName: 'グリッチ・インデックス',
-      skillType: 'glitchIndex',
-      preset: { correctRate: 0.95, reactionMinMs: 800, reactionMaxMs: 1900 },
-      winLine: 'ショウリ ログヲ キロク シマシタ。',
-      loseLine: 'データ コウシン。アナタハ ツヨイ。'
-    },
-    {
-      id: 'supreme',
-      name: '至高の司書',
-      englishName: 'The Supreme Librarian',
-      image: 'reference/至高の司書.png',
-      icon: 'character/enemy4_icon.png',
-      cutin: 'cutin/cutin_enemy4.png',
-      skillName: 'Η ΑΛΗΘΕΙΑ ΕΛΕΥΘΕΡΩΣΕΙ ΥΜΑΣ',
-      skillType: 'reverseRead',
-      preset: { correctRate: 0.985, reactionMinMs: 540, reactionMaxMs: 1450 },
-      winLine: '分類は宇宙、我はその座標を知る者。',
-      loseLine: '汝の知の座標、確かに届いた。'
-    }
-  ];
-
-  const DIFFICULTIES = {
-    easy: { label: 'EASY', playerHp: 120, cpuSpeed: 1.16, cpuGauge: 0.86, cpuCorrectDelta: -0.04 },
-    normal: { label: 'NORMAL', playerHp: 100, cpuSpeed: 1, cpuGauge: 1, cpuCorrectDelta: 0 },
-    hard: { label: 'HARD', playerHp: 90, cpuSpeed: 0.86, cpuGauge: 1.18, cpuCorrectDelta: 0.025 }
-  };
+  const PLAYERS = fightersConfig.players;
+  const ENEMIES = fightersConfig.enemies;
+  const DIFFICULTIES = fightersConfig.difficulties;
 
   const SELECT_TO_VS_FADE_MS = 1800;
   const SELECT_TO_VS_SWITCH_DELAY_MS = 1650;
@@ -155,57 +42,26 @@
   const MAX_BATTLE_ROUNDS = 3;
   const ROUND_WIN_DISPLAY_MS = 2400;
   const DEFAULT_FIELD_SLOT_COUNT = 11;
-  const TWO_PLAYER_CONTROL_ORDER = ['mouse', 'keyboardA', 'keyboardB'];
-  const TWO_PLAYER_CONTROL_TYPES = {
-    mouse: { label: 'マウス', shortLabel: 'MOUSE' },
-    keyboardA: { label: 'キーボードA', shortLabel: 'KEY A' },
-    keyboardB: { label: 'キーボードB', shortLabel: 'KEY B' }
-  };
-  const TWO_PLAYER_KEYBOARD_LAYOUTS = {
-    keyboardA: [
-      { label: '1', keys: ['1'], codes: ['Digit1'] },
-      { label: '2', keys: ['2'], codes: ['Digit2'] },
-      { label: '3', keys: ['3'], codes: ['Digit3'] },
-      { label: '4', keys: ['4'], codes: ['Digit4'] },
-      { label: '5', keys: ['5'], codes: ['Digit5'] },
-      { label: '6', keys: ['6'], codes: ['Digit6'] },
-      { label: 'Q', keys: ['q'], codes: ['KeyQ'] },
-      { label: 'W', keys: ['w'], codes: ['KeyW'] },
-      { label: 'E', keys: ['e'], codes: ['KeyE'] },
-      { label: 'R', keys: ['r'], codes: ['KeyR'] },
-      { label: 'T', keys: ['t'], codes: ['KeyT'] }
-    ],
-    keyboardB: [
-      { label: '8', keys: ['8'], codes: ['Digit8'] },
-      { label: '9', keys: ['9'], codes: ['Digit9'] },
-      { label: '0', keys: ['0'], codes: ['Digit0'] },
-      { label: '-', keys: ['-'], codes: ['Minus'] },
-      { label: '^', keys: ['^'], codes: ['Equal'] },
-      { label: '¥', keys: ['¥', '￥', '\\'], codes: ['IntlYen', 'Backslash'] },
-      { label: 'I', keys: ['i'], codes: ['KeyI'] },
-      { label: 'O', keys: ['o'], codes: ['KeyO'] },
-      { label: 'P', keys: ['p'], codes: ['KeyP'] },
-      { label: '@', keys: ['@'], codes: ['BracketLeft', 'Quote'] },
-      { label: '[', keys: ['['], codes: ['BracketRight'] }
-    ]
-  };
-  const TWO_PLAYER_VICTORY_LINES = {
-    player: [
-      'ふふ、今日は私のほうが少しだけ早く本を見つけられましたね',
-      '推理中の本も、返却期限だけは忘れないでくださいね',
-      '探偵さんと勝負すると、いつもの図書館が少し冒険みたいですね'
-    ],
-    enemy: [
-      'やった、司書さんに勝てたなら今日の調査は大成功です',
-      '司書さんのおすすめ本で鍛えた推理力、ちゃんと役に立ちました',
-      '事件解決、ついでに勝利もいただきました'
-    ]
-  };
+  const TWO_PLAYER_CONTROL_ORDER = fightersConfig.twoPlayer.controlOrder;
+  const TWO_PLAYER_CONTROL_TYPES = fightersConfig.twoPlayer.controlTypes;
+  const TWO_PLAYER_KEYBOARD_LAYOUTS = fightersConfig.twoPlayer.keyboardLayouts;
+  const TWO_PLAYER_VICTORY_LINES = fightersConfig.twoPlayer.victoryLines;
 
   const DEV_TUNING_KEY = 'karutaDevTuning';
   const DEV_TUNING_VERSION = 1;
   const PRODUCTION_TUNING_URL = 'fighters_tuning.json';
   const ENDING_MD_URL = 'ending/ending.md';
+  const GALLERY_STORAGE_KEY = 'karutaGalleryProgressV1';
+  const GALLERY_TABS = ['cutins', 'victories', 'endings', 'sounds'];
+  const GALLERY_SOUND_GROUPS = [
+    {
+      label: 'BGM',
+      items: [
+        ['select', 'SELECT'], ['battle1', 'BATTLE 1'],
+        ['battle2', 'BATTLE 2'], ['victory', 'VICTORY'], ['ending', 'ENDING']
+      ].map(([id, label]) => ({ kind: 'music', id, label }))
+    }
+  ];
   const DEFAULT_DEV_TUNING = buildDefaultDevTuning();
   let devTuning = cloneTuning(DEFAULT_DEV_TUNING);
   let productionTuning = null;
@@ -214,29 +70,12 @@
   let endingCache = null;
   let endingReady = null;
 
-  const FALLBACK_CARDS = [
-    { ndc: '000', subject: '総記' },
-    { ndc: '010', subject: '図書館. 図書館情報学' },
-    { ndc: '020', subject: '図書. 書誌学' },
-    { ndc: '100', subject: '哲学' },
-    { ndc: '200', subject: '歴史' },
-    { ndc: '210', subject: '日本史' },
-    { ndc: '289', subject: '個人伝記' },
-    { ndc: '300', subject: '社会科学' },
-    { ndc: '330', subject: '経済' },
-    { ndc: '400', subject: '自然科学' },
-    { ndc: '410', subject: '数学' },
-    { ndc: '450', subject: '地球科学' },
-    { ndc: '500', subject: '技術. 工学' },
-    { ndc: '590', subject: '家政学. 生活科学' },
-    { ndc: '600', subject: '産業' },
-    { ndc: '700', subject: '芸術. 美術' },
-    { ndc: '720', subject: '絵画' },
-    { ndc: '800', subject: '言語' },
-    { ndc: '900', subject: '文学' },
-    { ndc: '913', subject: '小説. 物語' }
-  ];
+  const FALLBACK_CARDS = fightersConfig.fallbackCards;
+  const PATCH_NOTES = Array.isArray(fightersConfig.patchNotes) ? fightersConfig.patchNotes : [];
 
+  // ---------------------------------------------------------------------------
+  // DOM references
+  // ---------------------------------------------------------------------------
   const soundToggle = document.getElementById('soundToggle');
   const correctSound = document.getElementById('correctSound');
   const ngSound = document.getElementById('ngSound');
@@ -245,10 +84,17 @@
   const koSound = document.getElementById('koSound');
   const timeUpSound = document.getElementById('timeUpSound');
   const perfectSound = document.getElementById('perfectSound');
+  const winLibSound = document.getElementById('winLibSound');
+  const winDetSound = document.getElementById('winDetSound');
+  const winLilySound = document.getElementById('winLilySound');
+  const winProfSound = document.getElementById('winProfSound');
+  const winEnemySound = document.getElementById('winEnemySound');
   const victorySound = document.getElementById('victorySound');
   const resultSound = document.getElementById('resultSound');
   const startButton = document.getElementById('startButton');
   const twoPlayerButton = document.getElementById('twoPlayerButton');
+  const galleryButton = document.getElementById('galleryButton');
+  const patchNoteButton = document.getElementById('patchNoteButton');
   const quitButton = document.getElementById('quitButton');
   const restartButton = document.getElementById('restartButton');
   const postButton = document.getElementById('postButton');
@@ -277,6 +123,9 @@
   const digit2Num = document.querySelector('#digit2 .num');
   const digit3Num = document.querySelector('#digit3 .num');
 
+  // ---------------------------------------------------------------------------
+  // Runtime state
+  // ---------------------------------------------------------------------------
   let soundEnabled = true;
   let storyRoot = null;
   let battleHud = null;
@@ -290,6 +139,11 @@
   let selectedPlayer = PLAYERS[0];
   let stageIndex = 0;
   let currentEnemy = ENEMIES[0];
+  let debugPlayerIndex = 0;
+  let debugView = 'ending';
+  let debugSceneNumber = 1;
+  let debugEnemyIndex = 0;
+  let debugScreenLaunchActive = false;
   let selectVsTransitionTimer = 0;
   let vsAutoStartTimer = 0;
   let characterSelectSoundTimer = 0;
@@ -315,6 +169,7 @@
   let roundActive = false;
   let answered = false;
   let pendingReveal = false;
+  let twoCandidateRevealTurnsRemaining = 0;
   let cpuSkipTurnsRemaining = 0;
   let playerDisabledThisRound = false;
   let cpuDisabledThisRound = false;
@@ -343,7 +198,13 @@
   let cpuPlannedAt = 0;
   let cpuPlannedWait = 0;
   let digitSounds = new Map();
+  let galleryProgress = readGalleryProgress();
+  let galleryEqualizerTimer = 0;
+  let galleryEqualizerLevels = Array(12).fill(0);
 
+  // ---------------------------------------------------------------------------
+  // Shared helpers and input mapping
+  // ---------------------------------------------------------------------------
   function esc(s) {
     return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
   }
@@ -358,6 +219,79 @@
 
   function isTwoPlayerMode() {
     return playMode === 'twoPlayer';
+  }
+
+  function createEmptyGalleryProgress() {
+    return { cutins: [], victories: [], endings: [] };
+  }
+
+  function readGalleryProgress() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(GALLERY_STORAGE_KEY) || '{}');
+      const empty = createEmptyGalleryProgress();
+      Object.keys(empty).forEach(category => {
+        empty[category] = Array.isArray(saved[category])
+          ? [...new Set(saved[category]
+              .filter(value => typeof value === 'string')
+              .map(normalizeGalleryAssetId))]
+          : [];
+      });
+      return empty;
+    } catch (e) {
+      return createEmptyGalleryProgress();
+    }
+  }
+
+  function normalizeGalleryAssetId(value) {
+    return String(value || '').split('?')[0].replace(/\.png$/i, '.webp');
+  }
+
+  function unlockGalleryAsset(category, assetPath) {
+    if (!galleryProgress[category]) return;
+    const id = normalizeGalleryAssetId(assetPath);
+    if (!id || galleryProgress[category].includes(id)) return;
+    galleryProgress[category].push(id);
+    try { localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(galleryProgress)); } catch (e) {}
+  }
+
+  function isGalleryAssetUnlocked(category, assetPath) {
+    return !!galleryProgress[category]?.includes(normalizeGalleryAssetId(assetPath));
+  }
+
+  function getGalleryImageItems(category) {
+    if (category === 'cutins') {
+      return [
+        ...PLAYERS.map(player => ({ id: player.cutin, label: player.name, asset: player.cutin })),
+        ...ENEMIES.map(enemy => ({ id: enemy.cutin, label: enemy.name, asset: enemy.cutin }))
+      ];
+    }
+    if (category === 'victories') {
+      return [
+        ...PLAYERS.map(player => {
+          const asset = getVictoryImagePath(player, 0, 'win');
+          return { id: asset, label: `${player.name} WIN`, asset };
+        }),
+        ...ENEMIES.map((enemy, index) => {
+          const asset = getVictoryImagePath(PLAYERS[0], index, 'lose');
+          return { id: asset, label: `${enemy.name} WIN`, asset };
+        }),
+        ...PLAYERS.map(player => {
+          const asset = `round/round_${player.vsCode || 'lib'}.webp`;
+          return { id: asset, label: `${player.name} ROUND WIN`, asset };
+        }),
+        ...ENEMIES.map((enemy, index) => {
+          const asset = `round/round_enemy${index + 1}.webp`;
+          return { id: asset, label: `${enemy.name} ROUND WIN`, asset };
+        })
+      ];
+    }
+    if (category === 'endings') {
+      return PLAYERS.flatMap(player => [1, 2].map(sceneNumber => {
+        const asset = getEndingImagePath(player, sceneNumber);
+        return { id: asset, label: `${player.name} SCENE ${sceneNumber}`, asset, player, sceneNumber };
+      }));
+    }
+    return [];
   }
 
   function isEasyStoryCardRestrictionActive() {
@@ -597,6 +531,9 @@
     return matched?.id || null;
   }
 
+  // ---------------------------------------------------------------------------
+  // Ending and tuning data
+  // ---------------------------------------------------------------------------
   function parseEndingMarkdown(markdown) {
     const parsed = Object.fromEntries(PLAYERS.map(player => [player.id, {}]));
     let currentPlayerId = null;
@@ -933,6 +870,9 @@
     return audio;
   }
 
+  // ---------------------------------------------------------------------------
+  // Audio facade and visual effects
+  // ---------------------------------------------------------------------------
   async function prepareAudioForGameplay() {
     if (!soundEnabled || !karutaAudio) return;
     await karutaAudio.prepare();
@@ -951,7 +891,23 @@
   function playSoundEffect(name, playbackRate = 1) {
     if (!soundEnabled) return;
     if (karutaAudio && karutaAudio.playEffect(name, { playbackRate })) return;
-    const fallbackMap = { correct: correctSound, character: characterSound, ng: ngSound, start: startSound, roundcall: roundCallSound, ko: koSound, timeup: timeUpSound, perfect: perfectSound, victory: victorySound, result: resultSound };
+    const fallbackMap = {
+      correct: correctSound,
+      character: characterSound,
+      ng: ngSound,
+      start: startSound,
+      roundcall: roundCallSound,
+      ko: koSound,
+      timeup: timeUpSound,
+      perfect: perfectSound,
+      winLib: winLibSound,
+      winDet: winDetSound,
+      winLily: winLilySound,
+      winProf: winProfSound,
+      winEnemy: winEnemySound,
+      victory: victorySound,
+      result: resultSound
+    };
     playFallbackAudio(fallbackMap[name], playbackRate);
   }
 
@@ -1103,6 +1059,7 @@
 
   function showSkillCutin(character, side = 'player') {
     if (!character?.cutin || !karutaEl) return;
+    unlockGalleryAsset('cutins', character.cutin);
     pauseBattleForSkillCutin(SKILL_CUTIN_DURATION_MS);
     karutaEl.querySelectorAll('.skill-cutin').forEach(cutin => cutin.remove());
     clearTimeout(skillCutinTimer);
@@ -1237,6 +1194,9 @@
     setTimeout(() => label.remove(), 920);
   }
 
+  // ---------------------------------------------------------------------------
+  // Screen rendering and UI lifecycle
+  // ---------------------------------------------------------------------------
   function ensureStoryUi() {
     if (storyRoot) return;
     const karuta = document.getElementById('karuta');
@@ -1288,14 +1248,14 @@
   }
 
   function getVsImagePath(player, enemyIndex) {
-    if (isTwoPlayerMode()) return 'vs/vs.png';
+    if (isTwoPlayerMode()) return 'vs/vs.webp';
     const enemyNumber = enemyIndex + 1;
     const code = player?.vsCode || 'lib';
     const usePortraitAsset = document.body.classList.contains('fighter-smartphone')
       && document.body.classList.contains('fighter-portrait-stage');
-    if (usePortraitAsset) return `vs_tate/vs_${enemyNumber}_${code}_tate.png`;
-    if (enemyNumber === 3 && code === 'det') return 'vs/vs3_det.png';
-    return `vs/vs_${enemyNumber}_${code}.png`;
+    if (usePortraitAsset) return `vs_tate/vs_${enemyNumber}_${code}_tate.webp`;
+    if (enemyNumber === 3 && code === 'det') return 'vs/vs3_det.webp';
+    return `vs/vs_${enemyNumber}_${code}.webp`;
   }
 
   function getVictoryImagePath(player, enemyIndex, outcome) {
@@ -1305,22 +1265,22 @@
     const assetSuffix = usePortraitAsset ? '_tate' : '';
     if (isTwoPlayerMode()) {
       const winner = outcome === 'lose' ? getTwoPlayerTwo() : getTwoPlayerOne();
-      return `${assetDir}/win_${winner?.vsCode || 'lib'}${assetSuffix}.png`;
+      return `${assetDir}/win_${winner?.vsCode || 'lib'}${assetSuffix}.webp`;
     }
     const enemyNumber = enemyIndex + 1;
-    if (outcome === 'lose') return `${assetDir}/win_enemy${enemyNumber}${assetSuffix}.png`;
+    if (outcome === 'lose') return `${assetDir}/win_enemy${enemyNumber}${assetSuffix}.webp`;
     const code = player?.vsCode || 'lib';
-    return `${assetDir}/win_${code}${assetSuffix}.png`;
+    return `${assetDir}/win_${code}${assetSuffix}.webp`;
   }
 
   function getRoundWinImagePath(outcome) {
     if (isTwoPlayerMode()) {
       const winner = outcome === 'lose' ? getTwoPlayerTwo() : getTwoPlayerOne();
-      return `round/round_${winner?.vsCode || 'lib'}.png`;
+      return `round/round_${winner?.vsCode || 'lib'}.webp`;
     }
-    if (outcome === 'lose') return `round/round_enemy${stageIndex + 1}.png`;
+    if (outcome === 'lose') return `round/round_enemy${stageIndex + 1}.webp`;
     const code = selectedPlayer?.vsCode || 'lib';
-    return `round/round_${code}.png`;
+    return `round/round_${code}.webp`;
   }
 
   function getRoundWinSoundKey(outcome) {
@@ -1331,6 +1291,7 @@
     const code = selectedPlayer?.vsCode || 'lib';
     if (code === 'det') return 'winDet';
     if (code === 'lily') return 'winLily';
+    if (code === 'prof') return 'winProf';
     return 'winLib';
   }
 
@@ -1346,8 +1307,8 @@
     const code = player?.vsCode || 'lib';
     const usePortraitAsset = document.body.classList.contains('fighter-smartphone')
       && document.body.classList.contains('fighter-portrait-stage');
-    if (usePortraitAsset) return `ending_tate/ending_${code}${sceneNumber}_tate.png`;
-    return `ending/ending_${code}${sceneNumber}.png`;
+    if (usePortraitAsset) return `ending_tate/ending_${code}${sceneNumber}_tate.webp`;
+    return `ending/ending_${code}${sceneNumber}.webp`;
   }
 
   function normalizeNdcCards(raw) {
@@ -1516,18 +1477,29 @@
   }
 
   function setTitleControls() {
+    stopGalleryEqualizerMonitor();
     document.body.classList.remove('game-playing', 'fighter-flow', 'fighter-playing', 'fighter-result');
     document.body.classList.remove('fighter-selecting', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
-    document.body.classList.remove('fighter-two-player', 'fighter-two-player-setup');
+    document.body.classList.remove('fighter-two-player', 'fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live');
     document.body.classList.add('fighter-title');
     hideGameArea();
     if (battleHud) battleHud.classList.add('is-hidden');
     if (skillStrip) skillStrip.classList.add('is-hidden');
     setButtonVisible(startButton, true);
     setButtonVisible(twoPlayerButton, true);
-    if (startButton) startButton.textContent = 'START';
+    setButtonVisible(galleryButton, true);
+    setButtonVisible(patchNoteButton, true);
+    if (startButton) {
+      startButton.textContent = 'STORY MODE';
+      startButton.setAttribute('aria-label', 'STORY MODE');
+    }
     updateTwoPlayerTitleButtonState();
-    if (howToButton) howToButton.textContent = 'HOW TO PLAY';
+    if (galleryButton) galleryButton.setAttribute('aria-label', 'GALLERY');
+    if (patchNoteButton) patchNoteButton.setAttribute('aria-label', 'PATCH NOTE');
+    if (howToButton) {
+      howToButton.textContent = 'HOW TO PLAY';
+      howToButton.setAttribute('aria-label', 'HOW TO PLAY');
+    }
     setButtonVisible(howToButton, true);
     setButtonVisible(quitButton, false);
     setButtonVisible(restartButton, false);
@@ -1537,15 +1509,18 @@
   }
 
   function setFlowControls() {
+    stopGalleryEqualizerMonitor();
     document.body.classList.remove('game-playing', 'fighter-playing', 'fighter-result', 'fighter-title');
     document.body.classList.remove('fighter-selecting', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
-    document.body.classList.remove('fighter-two-player', 'fighter-two-player-setup');
+    document.body.classList.remove('fighter-two-player', 'fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live');
     document.body.classList.add('fighter-flow');
     hideGameArea();
     if (battleHud) battleHud.classList.add('is-hidden');
     if (skillStrip) skillStrip.classList.add('is-hidden');
     setButtonVisible(startButton, false);
     setButtonVisible(twoPlayerButton, false);
+    setButtonVisible(galleryButton, false);
+    setButtonVisible(patchNoteButton, false);
     setButtonVisible(howToButton, false);
     setButtonVisible(quitButton, false);
     setButtonVisible(restartButton, false);
@@ -1556,7 +1531,7 @@
   function setPlayingControls() {
     document.body.classList.remove('fighter-flow', 'fighter-result', 'fighter-title');
     document.body.classList.remove('fighter-selecting', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
-    document.body.classList.remove('fighter-two-player-setup');
+    document.body.classList.remove('fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live');
     document.body.classList.add('game-playing', 'fighter-playing');
     document.body.classList.toggle('fighter-two-player', isTwoPlayerMode());
     if (storyRoot) storyRoot.hidden = true;
@@ -1565,6 +1540,8 @@
     showReaderPanel();
     setButtonVisible(startButton, false);
     setButtonVisible(twoPlayerButton, false);
+    setButtonVisible(galleryButton, false);
+    setButtonVisible(patchNoteButton, false);
     setButtonVisible(howToButton, false);
     setButtonVisible(quitButton, false);
     setButtonVisible(restartButton, false);
@@ -1575,7 +1552,7 @@
   function setResultControls() {
     document.body.classList.remove('game-playing', 'fighter-flow', 'fighter-playing', 'fighter-title');
     document.body.classList.remove('fighter-selecting', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
-    document.body.classList.remove('fighter-two-player-setup');
+    document.body.classList.remove('fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live');
     document.body.classList.add('fighter-result');
     document.body.classList.toggle('fighter-two-player', isTwoPlayerMode());
     hideGameArea();
@@ -1583,6 +1560,8 @@
     if (skillStrip) skillStrip.classList.add('is-hidden');
     setButtonVisible(startButton, false);
     setButtonVisible(twoPlayerButton, false);
+    setButtonVisible(galleryButton, false);
+    setButtonVisible(patchNoteButton, false);
     setButtonVisible(howToButton, false);
     setButtonVisible(quitButton, false);
     setButtonVisible(restartButton, false);
@@ -1603,13 +1582,19 @@
       storyRoot.hidden = false;
       storyRoot.innerHTML = `
         <div class="fighter-title-panel reference-title">
-          <h1 class="fighter-title-main">NDC KARUTA HEROES</h1>
-          <div class="difficulty-select" role="group" aria-label="難易度選択">
-            ${Object.entries(DIFFICULTIES).map(([key, diff]) => `
-              <button type="button" data-difficulty="${key}" class="${key === selectedDifficulty ? 'active' : ''}">
-                <strong>${esc(diff.label)}</strong>
-              </button>
-            `).join('')}
+          <div class="title-crest" aria-hidden="true">
+            <span>NDC</span>
+            <i>000 — 999</i>
+          </div>
+          <div class="title-lockup">
+            <p class="title-kicker">NIPPON DECIMAL CLASSIFICATION × KARUTA BATTLE</p>
+            <h1 class="fighter-title-main">
+              <span>NDC KARUTA</span>
+              <strong>HEROES</strong>
+            </h1>
+            <div class="title-classification-rule" aria-hidden="true">
+              <span>000</span><i></i><span>999</span>
+            </div>
           </div>
         </div>`;
     }
@@ -1617,7 +1602,543 @@
     setMessage('', '', '');
     resetDigits();
     resetTimeDisplay();
-    bindDifficultyButtons();
+  }
+
+  function getDebugPreview(player) {
+    if (debugView === 'ending') {
+      return {
+        title: `${player.name} / ENDING SCENE ${debugSceneNumber}`,
+        image: getEndingImagePath(player, debugSceneNumber),
+        lines: getEndingSceneLines(player, debugSceneNumber)
+      };
+    }
+
+    if (debugView === 'defeat') {
+      const enemy = ENEMIES[debugEnemyIndex] || ENEMIES[0];
+      return {
+        title: `${player.name} / DEFEAT VS ${enemy.name}`,
+        image: getVictoryImagePath(player, debugEnemyIndex, 'lose'),
+        lines: [getBattleLine('lose', false)]
+      };
+    }
+
+    const enemy = ENEMIES[debugEnemyIndex] || ENEMIES[0];
+    return {
+      title: `${player.name} / VICTORY VS ${enemy.name}`,
+      image: getVictoryImagePath(player, debugEnemyIndex, 'win'),
+      lines: [getBattleLine('win', debugEnemyIndex >= ENEMIES.length - 1)]
+    };
+  }
+
+  function renderDebugBattleResult(outcome) {
+    const isDefeat = outcome === 'lose';
+    debugScreenLaunchActive = true;
+    playMode = 'story';
+    selectedPlayer = PLAYERS[debugPlayerIndex] || PLAYERS[0];
+    stageIndex = debugEnemyIndex;
+    currentEnemy = ENEMIES[stageIndex] || ENEMIES[0];
+    playerHp = isDefeat ? 0 : getPlayerMaxHp();
+    enemyHp = isDefeat ? 100 : 0;
+    cards = FALLBACK_CARDS.slice(0, DEFAULT_FIELD_SLOT_COUNT).map((card, index) => ({
+      ...card,
+      index,
+      used: true
+    }));
+    screen = 'debugResult';
+    showBattleResult(outcome);
+    document.body.classList.add('fighter-debug-live');
+
+    if (fighterContinueButton) {
+      fighterContinueButton.textContent = 'BACK TO DEBUG MODE';
+      fighterContinueButton.style.display = 'inline-block';
+      fighterResultAction = () => {
+        closeModal(resultModal);
+        renderDebugScreen();
+      };
+    }
+    if (resultTopButton) resultTopButton.style.display = 'none';
+    if (postButton) postButton.style.display = 'none';
+  }
+
+  async function renderDebugScreen() {
+    ensureStoryUi();
+    clearSelectVsTransition();
+    clearRoundTimers();
+    cancelCountdown();
+    closeModal(howToModal);
+    closeModal(resultModal);
+    hideCpuCursor();
+    debugScreenLaunchActive = false;
+    screen = 'debug';
+    playMode = 'story';
+    setFlowControls();
+    document.body.classList.add('fighter-debug');
+    setMessage('', '', '');
+    resetDigits();
+    resetTimeDisplay();
+    stopMusicTrack();
+
+    if (debugView === 'ending') await fetchEndingData();
+    if (screen !== 'debug' || !storyRoot) return;
+
+    debugPlayerIndex = clamp(debugPlayerIndex, 0, PLAYERS.length - 1);
+    debugEnemyIndex = clamp(debugEnemyIndex, 0, ENEMIES.length - 1);
+    const player = PLAYERS[debugPlayerIndex] || PLAYERS[0];
+    selectedPlayer = player;
+    stageIndex = debugEnemyIndex;
+    currentEnemy = ENEMIES[debugEnemyIndex] || ENEMIES[0];
+    const preview = getDebugPreview(player);
+
+    storyRoot.hidden = false;
+    storyRoot.innerHTML = `
+      <section class="fighter-debug-screen" aria-label="DEBUG MODE">
+        <header class="debug-header">
+          <div>
+            <span>DEVELOPMENT PREVIEW</span>
+            <h2>DEBUG MODE</h2>
+          </div>
+          <code>?debug=1</code>
+        </header>
+        <div class="debug-workspace">
+          <aside class="debug-controls" aria-label="デバッグ項目">
+            <section>
+              <h3>CHARACTER</h3>
+              <div class="debug-character-list">
+                ${PLAYERS.map((item, index) => `
+                  <button type="button" data-debug-player="${index}" class="${index === debugPlayerIndex ? 'active' : ''}">
+                    <img src="${esc(versionedSelectAsset(item.icon))}" alt="">
+                    <span><strong>${esc(item.name)}</strong><small>${esc(item.englishName || item.name)}</small></span>
+                  </button>`).join('')}
+              </div>
+            </section>
+            <section>
+              <h3>SCREEN</h3>
+              <div class="debug-screen-tabs">
+                ${[
+                  ['ending', 'ENDING'],
+                  ['victory', 'VICTORY'],
+                  ['defeat', 'DEFEAT']
+                ].map(([id, label]) => `
+                  <button type="button" data-debug-view="${id}" class="${id === debugView ? 'active' : ''}">${label}</button>`).join('')}
+              </div>
+            </section>
+            ${debugView === 'ending' ? `
+              <section>
+                <h3>SCENE</h3>
+                <div class="debug-sub-options">
+                  ${[1, 2].map(sceneNumber => `
+                    <button type="button" data-debug-scene="${sceneNumber}" class="${sceneNumber === debugSceneNumber ? 'active' : ''}">SCENE ${sceneNumber}</button>`).join('')}
+                </div>
+              </section>` : ''}
+            ${debugView !== 'ending' ? `
+              <section>
+                <h3>OPPONENT</h3>
+                <div class="debug-opponent-list">
+                  ${ENEMIES.map((enemy, index) => `
+                    <button type="button" data-debug-enemy="${index}" class="${index === debugEnemyIndex ? 'active' : ''}">
+                      <span>STAGE ${index + 1}</span>${esc(enemy.name)}
+                    </button>`).join('')}
+                </div>
+              </section>` : ''}
+          </aside>
+          <main class="debug-preview">
+            <div class="debug-preview-heading">
+              <span>SELECTED SCREEN</span>
+              <strong>${esc(preview.title)}</strong>
+            </div>
+            <div class="debug-preview-stage">
+              <img src="${esc(versionedSelectAsset(preview.image))}" alt="${esc(preview.title)}">
+              <div class="debug-preview-message">${renderEndingParagraphs(preview.lines)}</div>
+            </div>
+            <button type="button" class="debug-open-screen" data-debug-open>OPEN ACTUAL GAME SCREEN</button>
+            <p class="debug-asset-path">${esc(preview.image)}</p>
+          </main>
+        </div>
+        <footer class="debug-actions">
+          <p>通常画面には表示されない開発確認用メニューです。</p>
+          <button type="button" data-debug-exit>EXIT DEBUG MODE</button>
+        </footer>
+      </section>`;
+
+    storyRoot.querySelectorAll('[data-debug-player]').forEach(button => {
+      button.addEventListener('click', () => {
+        debugPlayerIndex = Number(button.dataset.debugPlayer) || 0;
+        renderDebugScreen();
+      });
+    });
+    storyRoot.querySelectorAll('[data-debug-view]').forEach(button => {
+      button.addEventListener('click', () => {
+        debugView = button.dataset.debugView || 'ending';
+        renderDebugScreen();
+      });
+    });
+    storyRoot.querySelectorAll('[data-debug-scene]').forEach(button => {
+      button.addEventListener('click', () => {
+        debugSceneNumber = Number(button.dataset.debugScene) || 1;
+        renderDebugScreen();
+      });
+    });
+    storyRoot.querySelectorAll('[data-debug-enemy]').forEach(button => {
+      button.addEventListener('click', () => {
+        debugEnemyIndex = Number(button.dataset.debugEnemy) || 0;
+        renderDebugScreen();
+      });
+    });
+    storyRoot.querySelector('[data-debug-open]')?.addEventListener('click', () => {
+      if (debugView === 'ending') {
+        debugScreenLaunchActive = true;
+        renderEndingScreen(debugSceneNumber);
+        return;
+      }
+      renderDebugBattleResult(debugView === 'defeat' ? 'lose' : 'win');
+    });
+    storyRoot.querySelector('[data-debug-exit]')?.addEventListener('click', () => {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('debug');
+      window.location.assign(url.href);
+    });
+  }
+
+  function getGalleryTabLabel(tab) {
+    return ({ cutins: 'CUT-IN', victories: 'VICTORY', endings: 'ENDING', sounds: 'SOUND TEST' })[tab] || tab;
+  }
+
+  function renderHowToScreen() {
+    ensureStoryUi();
+    clearSelectVsTransition();
+    clearRoundTimers();
+    cancelCountdown();
+    closeModal(howToModal);
+    closeModal(resultModal);
+    hideCpuCursor();
+    screen = 'howTo';
+    setFlowControls();
+    document.body.classList.add('fighter-how-to');
+    setMessage('', '', '');
+    resetDigits();
+    resetTimeDisplay();
+    playMusicTrack('select');
+
+    if (storyRoot) {
+      storyRoot.hidden = false;
+      storyRoot.innerHTML = `
+        <section class="how-to-screen" aria-label="HOW TO PLAY">
+          <header class="how-to-header">
+            <div>
+              <span>KNOWLEDGE ARENA GUIDE</span>
+              <h2>HOW TO PLAY</h2>
+            </div>
+            <p>CLASSIFICATION BATTLE</p>
+          </header>
+
+          <div class="how-to-content">
+            <section class="how-to-prologue">
+              <div>
+                <span>WELCOME, CHALLENGER</span>
+                <h3>分類を読み解き、知識の札で道を切り拓け。</h3>
+                <p>ここは、あらゆる本の知識が力へと変わる「分類闘技場」。読み上げられるNDCを見極め、正しい分類札を相手より早くつかみ取ろう。</p>
+              </div>
+              <div class="how-to-crest" aria-hidden="true">
+                <strong>NDC</strong>
+                <span>000 — 999</span>
+              </div>
+            </section>
+
+            <section class="how-to-steps" aria-label="バトルの進め方">
+              <article class="how-to-step">
+                <span class="how-to-step-number">01</span>
+                <div><small>CHOOSE YOUR HERO</small><h3>英雄を選ぶ</h3></div>
+                <p>4人のファイターから一人を選択。攻撃・防御・SPECIALは、それぞれ異なる。</p>
+              </article>
+              <article class="how-to-step">
+                <span class="how-to-step-number">02</span>
+                <div><small>READ THE CODE</small><h3>NDCを読む</h3></div>
+                <p>順に現れる3桁の分類記号を読み、対応する本の分類を見極めよう。</p>
+              </article>
+              <article class="how-to-step">
+                <span class="how-to-step-number">03</span>
+                <div><small>TAKE THE CARD</small><h3>分類札を取る</h3></div>
+                <p>正解の札を相手より先に取れば攻撃成功。素早い正解と連続成功が力になる。</p>
+              </article>
+              <article class="how-to-step">
+                <span class="how-to-step-number">04</span>
+                <div><small>CLAIM THE CROWN</small><h3>2ROUNDを制す</h3></div>
+                <p>1回の出題が1TURN、10TURNで1ROUND。先に2ROUNDを取れば勝利だ。</p>
+              </article>
+            </section>
+
+            <section class="how-to-battle-guide">
+              <div class="how-to-flow" aria-label="攻撃の流れ">
+                <div><small>READ</small><strong>3-DIGIT NDC</strong><span>分類記号を読む</span></div>
+                <i aria-hidden="true">›</i>
+                <div><small>SELECT</small><strong>CATEGORY CARD</strong><span>対応する札を取る</span></div>
+                <i aria-hidden="true">›</i>
+                <div><small>ATTACK</small><strong>DEAL DAMAGE</strong><span>知識を力に変える</span></div>
+              </div>
+              <aside class="how-to-special">
+                <span>SPECIAL</span>
+                <div><strong>ゲージが満ちた時、英雄の切り札が目覚める。</strong><p>ファイター固有の能力で、勝負の流れを引き寄せよう。</p></div>
+              </aside>
+            </section>
+          </div>
+
+          <footer class="how-to-actions">
+            <p><span>TIP</span> 難易度はファイター選択画面で変更できます。</p>
+            <button type="button" data-how-to-back>BACK TO TITLE</button>
+          </footer>
+        </section>`;
+    }
+
+    storyRoot?.querySelector('[data-how-to-back]')?.addEventListener('click', renderTitleScreen);
+  }
+
+  function renderPatchNotesScreen() {
+    ensureStoryUi();
+    clearSelectVsTransition();
+    clearRoundTimers();
+    cancelCountdown();
+    closeModal(howToModal);
+    closeModal(resultModal);
+    hideCpuCursor();
+    screen = 'patchNotes';
+    setFlowControls();
+    document.body.classList.add('fighter-patch-notes');
+    setMessage('', '', '');
+    resetDigits();
+    resetTimeDisplay();
+    playMusicTrack('select');
+
+    const history = PATCH_NOTES.length
+      ? PATCH_NOTES.map(note => `
+          <article class="patch-note-entry">
+            <time datetime="${esc(note.isoDate || '')}">${esc(note.date || '')}</time>
+            <ul>
+              ${(Array.isArray(note.items) ? note.items : []).map(item => `<li>${esc(item)}</li>`).join('')}
+            </ul>
+          </article>`).join('')
+      : '<p class="patch-note-empty">更新履歴はまだありません。</p>';
+
+    if (storyRoot) {
+      storyRoot.hidden = false;
+      storyRoot.innerHTML = `
+        <section class="patch-note-screen" aria-label="PATCH NOTE">
+          <header class="patch-note-header">
+            <div>
+              <span>UPDATE HISTORY</span>
+              <h2>PATCH NOTE</h2>
+            </div>
+            <p>VERSION ARCHIVE</p>
+          </header>
+          <div class="patch-note-content">
+            <div class="patch-note-list">${history}</div>
+          </div>
+          <footer class="patch-note-actions">
+            <button type="button" data-patch-note-back>BACK TO TITLE</button>
+          </footer>
+        </section>`;
+    }
+
+    storyRoot?.querySelector('[data-patch-note-back]')?.addEventListener('click', renderTitleScreen);
+  }
+
+  function renderGalleryImageGrid(category) {
+    return getGalleryImageItems(category).map(item => {
+      const unlocked = isGalleryAssetUnlocked(category, item.asset);
+      return `
+        <button type="button" class="gallery-card ${unlocked ? 'is-unlocked' : 'is-locked'}"
+          ${unlocked ? `data-gallery-item="${esc(item.id)}"` : 'disabled'}
+          aria-label="${esc(unlocked ? item.label : '未解放')}">
+          <span class="gallery-card-visual">
+            ${unlocked
+              ? `<img src="${esc(versionedSelectAsset(item.asset))}" alt="${esc(item.label)}">`
+              : '<span class="gallery-lock" aria-hidden="true">？</span>'}
+          </span>
+          <strong>${esc(unlocked ? item.label : 'LOCKED')}</strong>
+        </button>`;
+    }).join('');
+  }
+
+  function renderGallerySoundGroups() {
+    return GALLERY_SOUND_GROUPS.map(group => `
+      <section class="gallery-sound-group">
+        <h3>${esc(group.label)}</h3>
+        <div class="gallery-sound-buttons">
+          ${group.items.map(item => `
+            <button type="button" data-gallery-sound-kind="${esc(item.kind)}" data-gallery-sound-id="${esc(item.id)}">
+              ${esc(item.label)}
+            </button>`).join('')}
+        </div>
+      </section>`).join('');
+  }
+
+  function playGallerySound(kind, id, label) {
+    if (!karutaAudio) return;
+    karutaAudio.prepare().catch(() => false);
+    if (kind !== 'music') return;
+    karutaAudio.playMusic(id);
+    updateGalleryEqualizer();
+    const status = storyRoot?.querySelector('[data-gallery-sound-status]');
+    if (status) status.textContent = `NOW PLAYING: ${label}`;
+  }
+
+  function updateGalleryEqualizer() {
+    const equalizer = storyRoot?.querySelector('[data-gallery-equalizer]');
+    if (!equalizer) return false;
+    const musicState = karutaAudio?.getMusicState?.();
+    const isPlaying = !!musicState?.name && !musicState.paused;
+    const frequencyBands = isPlaying
+      ? karutaAudio?.getMusicFrequencyBands?.(12) || Array(12).fill(0)
+      : Array(12).fill(0);
+    const bars = equalizer.querySelectorAll('i');
+
+    galleryEqualizerLevels = galleryEqualizerLevels.map((previous, index) => {
+      const target = Number(frequencyBands[index]) || 0;
+      const response = target > previous ? 0.48 : 0.14;
+      const next = previous + (target - previous) * response;
+      const displayedLevel = isPlaying ? Math.max(0.08, Math.min(1, next)) : 0.08;
+      const bar = bars[index];
+      if (bar) bar.style.setProperty('--eq-level', String(displayedLevel));
+      return isPlaying ? next : 0;
+    });
+
+    equalizer.classList.toggle('is-playing', isPlaying);
+    return true;
+  }
+
+  function runGalleryEqualizerFrame() {
+    if (!updateGalleryEqualizer()) {
+      galleryEqualizerTimer = 0;
+      return;
+    }
+    galleryEqualizerTimer = requestAnimationFrame(runGalleryEqualizerFrame);
+  }
+
+  function startGalleryEqualizerMonitor() {
+    stopGalleryEqualizerMonitor();
+    galleryEqualizerLevels = Array(12).fill(0);
+    runGalleryEqualizerFrame();
+  }
+
+  function stopGalleryEqualizerMonitor() {
+    if (galleryEqualizerTimer) cancelAnimationFrame(galleryEqualizerTimer);
+    galleryEqualizerTimer = 0;
+    galleryEqualizerLevels = Array(12).fill(0);
+  }
+
+  function renderGalleryScreen(activeTab = 'cutins') {
+    ensureStoryUi();
+    clearSelectVsTransition();
+    clearRoundTimers();
+    cancelCountdown();
+    closeModal(howToModal);
+    closeModal(resultModal);
+    hideCpuCursor();
+    galleryProgress = readGalleryProgress();
+    const tab = GALLERY_TABS.includes(activeTab) ? activeTab : 'cutins';
+    screen = 'gallery';
+    setFlowControls();
+    document.body.classList.add('fighter-gallery');
+    setMessage('', '', '');
+    resetDigits();
+    resetTimeDisplay();
+    if (tab === 'sounds') stopMusicTrack();
+    else playMusicTrack('select');
+
+    const imageItems = tab === 'sounds' ? [] : getGalleryImageItems(tab);
+    const unlockedCount = imageItems.filter(item => isGalleryAssetUnlocked(tab, item.asset)).length;
+    const summary = tab === 'sounds' ? 'BGM COLLECTION' : `${unlockedCount} / ${imageItems.length} UNLOCKED`;
+
+    if (storyRoot) {
+      storyRoot.hidden = false;
+      storyRoot.innerHTML = `
+        <section class="fighter-gallery-screen" aria-label="GALLERY">
+          <header class="gallery-header">
+            <div>
+              <span>COLLECTION</span>
+              <h2>GALLERY</h2>
+            </div>
+            <p>${esc(summary)}</p>
+          </header>
+          <nav class="gallery-tabs" aria-label="ギャラリー種別">
+            ${GALLERY_TABS.map(tabId => `
+              <button type="button" data-gallery-tab="${tabId}" class="${tabId === tab ? 'active' : ''}">
+                ${esc(getGalleryTabLabel(tabId))}
+              </button>`).join('')}
+          </nav>
+          <div class="gallery-content ${tab === 'sounds' ? 'is-sound-test' : ''}">
+            ${tab === 'sounds'
+              ? `<div class="gallery-sound-test">
+                  ${renderGallerySoundGroups()}
+                  <div class="gallery-sound-footer">
+                    <div class="gallery-sound-now-playing">
+                      <div class="gallery-equalizer" data-gallery-equalizer aria-hidden="true">
+                        ${Array.from({ length: 12 }, () => '<i></i>').join('')}
+                      </div>
+                      <p data-gallery-sound-status>SELECT A TRACK</p>
+                    </div>
+                    <button type="button" data-gallery-sound-stop>STOP</button>
+                  </div>
+                </div>`
+              : `<div class="gallery-grid">${renderGalleryImageGrid(tab)}</div>`}
+          </div>
+          <footer class="gallery-actions">
+            <button type="button" data-gallery-back>BACK TO TITLE</button>
+          </footer>
+        </section>`;
+    }
+
+    storyRoot?.querySelectorAll('[data-gallery-tab]').forEach(button => {
+      button.addEventListener('click', () => renderGalleryScreen(button.dataset.galleryTab));
+    });
+    storyRoot?.querySelectorAll('[data-gallery-item]').forEach(button => {
+      button.addEventListener('click', () => renderGalleryViewer(tab, button.dataset.galleryItem));
+    });
+    storyRoot?.querySelectorAll('[data-gallery-sound-kind]').forEach(button => {
+      button.addEventListener('click', () => {
+        playGallerySound(button.dataset.gallerySoundKind, button.dataset.gallerySoundId, button.textContent.trim());
+      });
+    });
+    storyRoot?.querySelector('[data-gallery-sound-stop]')?.addEventListener('click', () => {
+      stopMusicTrack();
+      updateGalleryEqualizer();
+      const status = storyRoot?.querySelector('[data-gallery-sound-status]');
+      if (status) status.textContent = 'STOPPED';
+    });
+    storyRoot?.querySelector('[data-gallery-back]')?.addEventListener('click', renderTitleScreen);
+    if (tab === 'sounds') startGalleryEqualizerMonitor();
+  }
+
+  async function renderGalleryViewer(category, itemId) {
+    const item = getGalleryImageItems(category).find(entry => entry.id === itemId);
+    if (!item || !isGalleryAssetUnlocked(category, item.asset)) {
+      renderGalleryScreen(category);
+      return;
+    }
+    screen = 'galleryViewer';
+    setFlowControls();
+    document.body.classList.add('fighter-gallery');
+    if (category === 'endings') await fetchEndingData();
+    if (screen !== 'galleryViewer') return;
+    const endingLines = category === 'endings'
+      ? getEndingSceneLines(item.player, item.sceneNumber)
+      : [];
+    if (storyRoot) {
+      storyRoot.hidden = false;
+      storyRoot.innerHTML = `
+        <section class="gallery-viewer" aria-label="${esc(item.label)}">
+          <div class="gallery-viewer-art">
+            <img src="${esc(versionedSelectAsset(item.asset))}" alt="${esc(item.label)}">
+            ${category === 'endings'
+              ? `<div class="gallery-ending-message"><div>${renderEndingParagraphs(endingLines)}</div></div>`
+              : ''}
+          </div>
+          <div class="gallery-viewer-bar">
+            <strong>${esc(item.label)}</strong>
+            <button type="button" data-gallery-viewer-back>BACK TO GALLERY</button>
+          </div>
+        </section>`;
+    }
+    storyRoot?.querySelector('[data-gallery-viewer-back]')?.addEventListener('click', () => renderGalleryScreen(category));
   }
 
   function bindDifficultyButtons() {
@@ -1767,12 +2288,27 @@
               </div>
             </section>
           </div>
-          <div class="character-icon-row" aria-label="キャラクターアイコン">
-            ${PLAYERS.map(player => `
-              <button type="button" class="${player.id === previewPlayer.id ? 'active' : ''}" data-preview-player="${esc(player.id)}" aria-label="${esc(player.name)}">
-                <img src="${esc(versionedSelectAsset(player.icon))}" alt="">
-              </button>
-            `).join('')}
+          <div class="character-select-lower">
+            <div class="character-roster-panel">
+              <span class="character-roster-label">FIGHTER</span>
+              <div class="character-icon-row" aria-label="キャラクターアイコン">
+                ${PLAYERS.map(player => `
+                  <button type="button" class="${player.id === previewPlayer.id ? 'active' : ''}" data-preview-player="${esc(player.id)}" aria-label="${esc(player.name)}">
+                    <img src="${esc(versionedSelectAsset(player.icon))}" alt="">
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+            <div class="character-difficulty-panel">
+              <span class="character-difficulty-label">DIFFICULTY</span>
+              <div class="difficulty-select" role="group" aria-label="CPU難易度選択">
+                ${Object.entries(DIFFICULTIES).map(([key, diff]) => `
+                  <button type="button" data-difficulty="${key}" class="${key === selectedDifficulty ? 'active' : ''}">
+                    <strong>${esc(diff.label)}</strong>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
           </div>
           <p class="fighter-flow-actions character-select-actions">
             <button type="button" data-fighter-back>BACK</button>
@@ -1781,6 +2317,7 @@
         </div>`;
     }
     storyRoot?.querySelector('[data-fighter-back]')?.addEventListener('click', renderTitleScreen);
+    bindDifficultyButtons();
     storyRoot?.querySelectorAll('[data-preview-player]').forEach(button => {
       button.addEventListener('click', () => {
         selectedPlayer = PLAYERS.find(player => player.id === button.dataset.previewPlayer) || PLAYERS[0];
@@ -1821,7 +2358,7 @@
     }, VS_SCREEN_AUTO_START_MS);
   }
 
-  function renderEndingScreen() {
+  function renderEndingScreen(startSceneNumber = 1) {
     ensureStoryUi();
     clearSelectVsTransition();
     clearRoundTimers();
@@ -1831,6 +2368,7 @@
     hideCpuCursor();
     setFlowControls();
     document.body.classList.add('fighter-ending');
+    if (debugScreenLaunchActive) document.body.classList.add('fighter-debug-live');
     screen = 'ending';
     playMusicTrack('ending');
     setMessage('', '', '');
@@ -1840,14 +2378,15 @@
     if (battleResultEl) battleResultEl.innerHTML = '';
 
     const endingPlayer = selectedPlayer || PLAYERS[0];
+    const firstSceneNumber = startSceneNumber === 2 ? 2 : 1;
 
     const renderLoading = () => {
       if (screen !== 'ending') return;
       if (!storyRoot) return;
       storyRoot.hidden = false;
       storyRoot.innerHTML = `
-        <section class="fighter-ending-screen ending-scene-1 is-loading" aria-label="${esc(endingPlayer.name)} ENDING">
-          <img class="ending-full-art" src="${esc(versionedSelectAsset(getEndingImagePath(endingPlayer, 1)))}" alt="${esc(endingPlayer.name)} ending">
+        <section class="fighter-ending-screen ending-scene-${firstSceneNumber} is-loading" aria-label="${esc(endingPlayer.name)} ENDING">
+          <img class="ending-full-art" src="${esc(versionedSelectAsset(getEndingImagePath(endingPlayer, firstSceneNumber)))}" alt="${esc(endingPlayer.name)} ending">
           <div class="ending-message-window" aria-live="polite">
             <div class="ending-message-text">
               <p>${esc(endingPlayer.name)}のエンディングを読み込んでいます。</p>
@@ -1860,7 +2399,9 @@
       if (screen !== 'ending') return;
       if (!storyRoot) return;
       const hasNextScene = sceneNumber === 1;
-      const imagePath = versionedSelectAsset(getEndingImagePath(endingPlayer, sceneNumber));
+      const endingAssetPath = getEndingImagePath(endingPlayer, sceneNumber);
+      unlockGalleryAsset('endings', endingAssetPath);
+      const imagePath = versionedSelectAsset(endingAssetPath);
       const lines = getEndingSceneLines(endingPlayer, sceneNumber);
       storyRoot.hidden = false;
       storyRoot.innerHTML = `
@@ -1872,6 +2413,7 @@
               ${hasNextScene ? '<span class="ending-continue-caret" aria-hidden="true"></span>' : ''}
             </div>
           </div>
+          ${debugScreenLaunchActive ? '<button type="button" class="debug-live-back" data-debug-live-back>BACK TO DEBUG MODE</button>' : ''}
         </section>`;
       const screenEl = storyRoot.querySelector('.fighter-ending-screen');
       const advance = () => {
@@ -1888,13 +2430,17 @@
         event.preventDefault();
         advance();
       });
+      storyRoot.querySelector('[data-debug-live-back]')?.addEventListener('click', event => {
+        event.stopPropagation();
+        renderDebugScreen();
+      });
       screenEl?.focus({ preventScroll: true });
     };
 
     storyRoot.hidden = false;
     renderLoading();
     fetchEndingData().then(() => {
-      renderScene(1);
+      renderScene(firstSceneNumber);
     });
   }
 
@@ -1903,6 +2449,7 @@
     clearSelectVsTransition();
     setFlowControls();
     document.body.classList.add('fighter-ending', 'fighter-credits');
+    if (debugScreenLaunchActive) document.body.classList.add('fighter-debug-live');
     screen = 'endingCredits';
     setMessage('', '', '');
     resetDigits();
@@ -1936,12 +2483,18 @@
               <em>THANK YOU FOR PLAYING</em>
             </div>
           </div>
-          <button type="button" data-ending-title>TITLE</button>
+          <button type="button" data-ending-title>${debugScreenLaunchActive ? 'BACK TO DEBUG MODE' : 'TITLE'}</button>
         </section>`;
-      storyRoot.querySelector('[data-ending-title]')?.addEventListener('click', renderTitleScreen);
+      storyRoot.querySelector('[data-ending-title]')?.addEventListener(
+        'click',
+        debugScreenLaunchActive ? renderDebugScreen : renderTitleScreen
+      );
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Battle setup and turn loop
+  // ---------------------------------------------------------------------------
   function beginBattle() {
     ensureStoryUi();
     clearSelectVsTransition();
@@ -2016,6 +2569,7 @@
     lastComboOwner = null;
     resetFighterIconStates();
     pendingReveal = false;
+    twoCandidateRevealTurnsRemaining = 0;
     cpuSkipTurnsRemaining = 0;
     playerDisabledThisRound = false;
     cpuDisabledThisRound = false;
@@ -2195,6 +2749,10 @@
       pendingReveal = false;
       scheduleReadingTimeout(revealCorrectCard, 420);
     }
+    if (twoCandidateRevealTurnsRemaining > 0) {
+      twoCandidateRevealTurnsRemaining = Math.max(0, twoCandidateRevealTurnsRemaining - 1);
+      scheduleReadingTimeout(revealTwoCandidateCards, 420);
+    }
     updateBattleHud();
   }
 
@@ -2341,6 +2899,9 @@
     refreshPlayerCardInteractivity();
   }
 
+  // ---------------------------------------------------------------------------
+  // Player actions, damage, gauges and skills
+  // ---------------------------------------------------------------------------
   function selectCard(e) {
     if (!roundActive || answered || battlePausedForCutin) return;
     const owner = resolveAnswerOwner(e);
@@ -2627,6 +3188,11 @@
       playerGauge = 0;
       setMessage('success', selectedPlayer.skillName, '次の問題で正解の札が光る');
       activated = true;
+    } else if (selectedPlayer.skillType === 'revealTwoCandidatesNextTwo') {
+      twoCandidateRevealTurnsRemaining = Math.max(twoCandidateRevealTurnsRemaining, 2);
+      playerGauge = 0;
+      setMessage('success', selectedPlayer.skillName, '次の2ターン、正解候補が2枚光る');
+      activated = true;
     } else if (selectedPlayer.skillType === 'removeDecoy') {
       const removed = removeDecoyCard();
       if (!removed) {
@@ -2667,9 +3233,24 @@
     setMessage('success', selectedPlayer.skillName, '正解の札が示された');
   }
 
+  function revealTwoCandidateCards() {
+    const correctCardEl = document.querySelector(`.card[data-index="${currentReadingCard?.index}"]`);
+    if (!correctCardEl || correctCardEl.style.visibility === 'hidden') return;
+
+    const decoyCandidates = getVisibleCardElements().filter(card => card !== correctCardEl);
+    const decoyCardEl = shuffle(decoyCandidates)[0];
+    const candidateCards = decoyCardEl ? [correctCardEl, decoyCardEl] : [correctCardEl];
+    candidateCards.forEach(card => card.classList.add('skill-candidate'));
+    setMessage(
+      'success',
+      selectedPlayer.skillName,
+      decoyCardEl ? '正解候補が2枚示された' : '残った正解候補が示された'
+    );
+  }
+
   function clearCardHints() {
-    document.querySelectorAll('.skill-revealed, .skill-removed, .skill-added, .skill-glitched').forEach(card => {
-      card.classList.remove('skill-revealed', 'skill-removed', 'skill-added', 'skill-glitched');
+    document.querySelectorAll('.skill-revealed, .skill-candidate, .skill-removed, .skill-added, .skill-glitched').forEach(card => {
+      card.classList.remove('skill-revealed', 'skill-candidate', 'skill-removed', 'skill-added', 'skill-glitched');
     });
   }
 
@@ -2760,6 +3341,9 @@
     return visibleCount;
   }
 
+  // ---------------------------------------------------------------------------
+  // Enemy skills and CPU behavior
+  // ---------------------------------------------------------------------------
   function maybeActivateEnemySkill() {
     if (isTwoPlayerMode()) return;
     if (enemyGauge < MAX_GAUGE) return;
@@ -2976,7 +3560,9 @@
     setMessage('', '', '');
     const winnerName = outcome === 'lose' ? currentEnemy.name : selectedPlayer.name;
     const winnerDisplayName = outcome === 'lose' ? (currentEnemy.englishName || currentEnemy.name) : (selectedPlayer.englishName || selectedPlayer.name);
-    const imagePath = versionedSelectAsset(getRoundWinImagePath(outcome));
+    const roundWinAssetPath = getRoundWinImagePath(outcome);
+    unlockGalleryAsset('victories', roundWinAssetPath);
+    const imagePath = versionedSelectAsset(roundWinAssetPath);
     playSoundEffect(getRoundWinSoundKey(outcome));
     const roundScreen = document.createElement('section');
     roundScreen.className = `round-win-screen ${outcome === 'lose' ? 'enemy' : 'player'}`;
@@ -2996,6 +3582,9 @@
     }, ROUND_WIN_DISPLAY_MS);
   }
 
+  // ---------------------------------------------------------------------------
+  // Round resolution, results and reset
+  // ---------------------------------------------------------------------------
   function finishBattle() {
     if (battleFinishing) return;
     battleFinishing = true;
@@ -3064,6 +3653,7 @@
       ? (outcome === 'lose' ? '2P WIN' : '1P WIN')
       : isFinal ? 'GAME CLEAR' : outcome === 'win' ? 'WINNER' : outcome === 'lose' ? 'DEFEATED' : 'DRAW';
     const resultImagePath = getVictoryImagePath(selectedPlayer, stageIndex, outcome);
+    unlockGalleryAsset('victories', resultImagePath);
     const resultAltName = outcome === 'lose' ? currentEnemy.name : selectedPlayer.name;
     const resultLine = getBattleLine(outcome, isFinal);
     setMessage(outcome === 'win' ? 'finish' : 'warning', resultMain, `${selectedPlayer.name} HP ${playerHp} / ${currentEnemy.name} HP ${enemyHp}`);
@@ -3150,6 +3740,8 @@
     enemyGauge = 0;
     roundActive = false;
     answered = false;
+    pendingReveal = false;
+    twoCandidateRevealTurnsRemaining = 0;
     cpuSkipTurnsRemaining = 0;
     playerDisabledThisRound = false;
     cpuDisabledThisRound = false;
@@ -3175,7 +3767,7 @@
   }
 
   function showHowTo() {
-    showModal(howToModal);
+    renderHowToScreen();
   }
 
   function postToX() {
@@ -3216,21 +3808,28 @@
     if (resultModal?.open && document.querySelector('.victory-art-screen')) syncResultModalBounds();
   });
 
+  // ---------------------------------------------------------------------------
+  // Public API consumed by mode_loader.js
+  // ---------------------------------------------------------------------------
   window.karutaModes = window.karutaModes || {};
   window.karutaModes.cpu = {
     startGame: () => runAfterTuningReady(renderCharacterSelect),
+    showGallery: () => runAfterTuningReady(() => renderGalleryScreen('cutins')),
+    showPatchNotes: () => runAfterTuningReady(renderPatchNotesScreen),
     quitGame: () => quitGame(false),
     resetGame,
     postToX,
     showHowTo,
     refreshLanding: () => {
-      if (document.body.dataset.mode === 'cpu') runAfterTuningReady(renderTitleScreen);
+      if (document.body.dataset.mode === 'cpu') {
+        runAfterTuningReady(DEBUG_MODE ? renderDebugScreen : renderTitleScreen);
+      }
     }
   };
 
   tuningReady = loadInitialTuning();
 
   if (document.body.dataset.mode === 'cpu') {
-    runAfterTuningReady(renderTitleScreen);
+    runAfterTuningReady(DEBUG_MODE ? renderDebugScreen : renderTitleScreen);
   }
 })();

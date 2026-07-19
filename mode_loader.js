@@ -7,7 +7,7 @@
     ogDescription: '分類コードを読み解き、NDC Karuta Heroesの頂点へ。',
     label: 'NDC Karuta Heroes',
     rules: [
-      ['1. キャラを選ぶ', '3人のファイターから1人を選び、4人の敵に順番に挑みます。'],
+      ['1. キャラを選ぶ', '4人のファイターから1人を選び、4人の敵に順番に挑みます。'],
       ['2. 札で攻撃する', '3桁のNDCが順に表示されます。対応する分類カードを相手より先に選ぶとダメージを与えます。'],
       ['3. 2ラウンド先取', '1回の読み上げをTURN、10TURNを1ROUNDとして、先に2ROUNDを取った方が勝利です。']
     ]
@@ -24,7 +24,8 @@
     const top = (height - FIXED_STAGE_HEIGHT * scale) / 2 + (viewport?.offsetTop || 0);
     const hasCoarsePointer = typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
     const isTouchDevice = (navigator.maxTouchPoints || 0) > 0 || hasCoarsePointer;
-    const isSmartphoneStage = isTouchDevice && Math.min(width, height) <= 540;
+    const isNarrowPortraitViewport = width <= 540 && height >= width;
+    const isSmartphoneStage = isNarrowPortraitViewport || (isTouchDevice && Math.min(width, height) <= 540);
     const isPortraitStage = isSmartphoneStage && height >= width;
     document.documentElement.style.setProperty('--stage-scale-runtime', String(scale));
     document.documentElement.style.setProperty('--stage-left', `${left}px`);
@@ -109,7 +110,7 @@
   function loadScript(src) {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = `${src}?v=fighters104`;
+      script.src = `${src}?v=fighters129`;
       script.async = false;
       script.addEventListener('load', resolve, { once: true });
       script.addEventListener('error', reject, { once: true });
@@ -137,6 +138,8 @@
   }
 
   document.getElementById('startButton')?.addEventListener('click', () => runGame('startGame'));
+  document.getElementById('galleryButton')?.addEventListener('click', () => runGame('showGallery'));
+  document.getElementById('patchNoteButton')?.addEventListener('click', () => runGame('showPatchNotes'));
   document.getElementById('howToButton')?.addEventListener('click', () => runGame('showHowTo', () => showNativeModal(document.getElementById('howToModal'))));
   document.getElementById('quitButton')?.addEventListener('click', () => runGame('quitGame'));
   document.getElementById('restartButton')?.addEventListener('click', () => runGame('resetGame'));

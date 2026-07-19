@@ -14,6 +14,7 @@
     winLib: 'sound/win_lib.mp3',
     winDet: 'sound/win_det.mp3',
     winLily: 'sound/win_lily.mp3',
+    winProf: 'sound/win_prof.mp3',
     winEnemy: 'sound/win_enemy.mp3',
     victory: 'sound/victory.mp3',
     result: 'sound/result.mp3'
@@ -59,6 +60,7 @@
     winLib: 'winLibSound',
     winDet: 'winDetSound',
     winLily: 'winLilySound',
+    winProf: 'winProfSound',
     winEnemy: 'winEnemySound',
     victory: 'victorySound',
     result: 'resultSound'
@@ -73,6 +75,10 @@
   const loading = new Map();
   const fallbackAudios = new Map();
   let musicAudio = null;
+  let musicSourceNode = null;
+  let musicAnalyser = null;
+  let musicFrequencyData = null;
+  let musicAnalysisAttempted = false;
   let currentMusicName = null;
   let currentMusicVolume = 0;
   let musicFadeFrame = 0;
@@ -283,8 +289,79 @@
       musicAudio = new Audio();
       musicAudio.loop = true;
       musicAudio.preload = 'auto';
+      musicAudio.addEventListener('ended', () => {
+        currentMusicName = null;
+        currentMusicVolume = 0;
+      });
     }
     return musicAudio;
+  }
+
+  function ensureMusicAnalysisGraph(audio = getMusicAudio()) {
+    const context = getAudioContext();
+    if (!context || !audio) return null;
+    if (musicAnalyser) return musicAnalyser;
+    if (musicAnalysisAttempted) return null;
+    musicAnalysisAttempted = true;
+    let sourceNode = null;
+    try {
+      sourceNode = context.createMediaElementSource(audio);
+      const analyser = context.createAnalyser();
+      analyser.fftSize = 512;
+      analyser.smoothingTimeConstant = 0.72;
+      sourceNode.connect(analyser);
+      analyser.connect(context.destination);
+      musicSourceNode = sourceNode;
+      musicAnalyser = analyser;
+      musicFrequencyData = new Uint8Array(analyser.frequencyBinCount);
+      return musicAnalyser;
+    } catch (error) {
+      console.warn('[karutaAudio] music analyser unavailable:', error);
+      try { sourceNode?.connect(context.destination); } catch (e) {}
+      musicSourceNode = null;
+      musicAnalyser = null;
+      musicFrequencyData = null;
+      return null;
+    }
+  }
+
+  function getMusicFrequencyBands(bandCount = 12) {
+    const count = Math.max(1, Math.min(32, Math.floor(Number(bandCount) || 12)));
+    const empty = Array(count).fill(0);
+    if (!currentMusicName || !musicAudio || musicAudio.paused) return empty;
+    const analyser = ensureMusicAnalysisGraph(musicAudio);
+    const context = audioContext;
+    if (!analyser || !context || !musicFrequencyData) return empty;
+
+    analyser.getByteFrequencyData(musicFrequencyData);
+    const nyquist = context.sampleRate / 2;
+    const minFrequency = 55;
+    const maxFrequency = Math.min(14000, nyquist);
+    const values = [];
+
+    for (let band = 0; band < count; band++) {
+      const lowRatio = band / count;
+      const highRatio = (band + 1) / count;
+      const lowFrequency = minFrequency * Math.pow(maxFrequency / minFrequency, lowRatio);
+      const highFrequency = minFrequency * Math.pow(maxFrequency / minFrequency, highRatio);
+      const startBin = Math.max(1, Math.floor((lowFrequency / nyquist) * musicFrequencyData.length));
+      const endBin = Math.max(startBin + 1, Math.ceil((highFrequency / nyquist) * musicFrequencyData.length));
+      let sum = 0;
+      let peak = 0;
+      let samples = 0;
+
+      for (let bin = startBin; bin < Math.min(endBin, musicFrequencyData.length); bin++) {
+        const magnitude = musicFrequencyData[bin];
+        sum += magnitude;
+        peak = Math.max(peak, magnitude);
+        samples++;
+      }
+
+      const average = samples ? sum / samples : 0;
+      const combined = (average * 0.58 + peak * 0.42) / 255;
+      values.push(Math.max(0, Math.min(1, Math.pow(combined, 0.72) * 1.16)));
+    }
+    return values;
   }
 
   function cancelMusicFade() {
@@ -299,6 +376,8 @@
 
     const volume = clampVolume(options.volume, MUSIC_VOLUMES[name] ?? 0.25);
     const audio = getMusicAudio();
+    ensureMusicAnalysisGraph(audio);
+    resumeAudioContext().catch(() => {});
     const changed = currentMusicName !== name || !audio.src || !audio.currentSrc.includes(src);
     cancelMusicFade();
     currentMusicName = name;
@@ -314,7 +393,13 @@
     }
 
     if (!isEnabled()) return false;
-    audio.play().catch(() => {});
+    audio.play().catch(error => {
+      if (currentMusicName === name) {
+        currentMusicName = null;
+        currentMusicVolume = 0;
+      }
+      console.warn('[karutaAudio] music playback failed:', error);
+    });
     return true;
   }
 
@@ -395,7 +480,7 @@
     if (!('serviceWorker' in navigator)) return;
     if (location.protocol === 'file:') return;
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=bgm3').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=bgm4').catch(() => {});
     });
   }
 
@@ -416,6 +501,7 @@
     playMusic,
     stopMusic,
     getMusicState,
+    getMusicFrequencyBands,
     setEnabled,
     setVoiceVariant,
     getVoiceVariant,

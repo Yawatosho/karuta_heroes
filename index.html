@@ -61,6 +61,7 @@
   <link rel="preload" href="sound/win_lib.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/win_det.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/win_lily.mp3" as="audio" type="audio/mpeg">
+  <link rel="preload" href="sound/win_prof.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/win_enemy.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/victory.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/ending.mp3" as="audio" type="audio/mpeg">
@@ -69,9 +70,10 @@
   <link rel="preload" href="sound/vs.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/battle1.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/battle2.mp3" as="audio" type="audio/mpeg">
-  <link rel="stylesheet" href="styles.css?v=fighters104">
-  <script src="audio_manager.js?v=fighters89" defer></script>
-  <script src="mode_loader.js?v=fighters104" defer></script>
+  <link rel="stylesheet" href="styles.css?v=fighters129">
+  <script src="audio_manager.js?v=fighters129" defer></script>
+  <script src="fighters_config.js?v=fighters129" defer></script>
+  <script src="mode_loader.js?v=fighters129" defer></script>
 </head>
 <body data-mode="cpu">
   <main id="main" class="arena">
@@ -92,9 +94,11 @@
         <div id="cpuCursor" class="cpu-cursor" aria-hidden="true"></div>
 
         <p class="action-row">
-          <button id="startButton" type="button">GAME START</button>
-          <button id="twoPlayerButton" type="button">2P BATTLE</button>
-          <button id="howToButton" type="button">HOW TO PLAY</button>
+          <button id="startButton" type="button" aria-label="STORY MODE">STORY MODE</button>
+          <button id="twoPlayerButton" type="button" aria-label="2P BATTLE">2P BATTLE</button>
+          <button id="galleryButton" type="button" aria-label="GALLERY">GALLERY</button>
+          <button id="howToButton" type="button" aria-label="HOW TO PLAY">HOW TO PLAY</button>
+          <button id="patchNoteButton" type="button" aria-label="PATCH NOTE">PATCH NOTE</button>
           <button id="quitButton" type="button">QUIT</button>
           <button id="restartButton" type="button">RETRY</button>
         </p>
@@ -178,6 +182,9 @@
         <audio id="winLilySound" preload="auto" playsinline>
           <source src="sound/win_lily.mp3" type="audio/mpeg">
         </audio>
+        <audio id="winProfSound" preload="auto" playsinline>
+          <source src="sound/win_prof.mp3" type="audio/mpeg">
+        </audio>
         <audio id="winEnemySound" preload="auto" playsinline>
           <source src="sound/win_enemy.mp3" type="audio/mpeg">
         </audio>
@@ -198,16 +205,16 @@
         </div>
         <div class="rules-grid">
           <section>
-            <h3 id="ruleTitle1">1. 数字を読む</h3>
-            <p id="ruleText1">上に出る3桁のNDCを見て、対応する分類カードを選びます。</p>
+            <h3 id="ruleTitle1">1. ファイターを選ぶ</h3>
+            <p id="ruleText1">4人の英雄から一人を選び、知識の闘技場へ挑みます。</p>
           </section>
           <section>
-            <h3 id="ruleTitle2">2. 早く取る</h3>
-            <p id="ruleText2">6秒以内の正解で決まり字ボーナス。連続成功でコンボが伸びます。</p>
+            <h3 id="ruleTitle2">2. 分類札をつかむ</h3>
+            <p id="ruleText2">3桁のNDCを読み解き、相手より早く対応する分類札を取ります。</p>
           </section>
           <section>
-            <h3 id="ruleTitle3">3. 2ラウンド先取</h3>
-            <p id="ruleText3">1回の読み上げをTURN、10TURNを1ROUNDとして、先に2ROUNDを取った方が勝利です。</p>
+            <h3 id="ruleTitle3">3. 栄冠をつかむ</h3>
+            <p id="ruleText3">SPECIALを駆使し、10TURNで構成されるROUNDを2本先取すれば勝利です。</p>
           </section>
         </div>
       </div>
