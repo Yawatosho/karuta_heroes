@@ -1283,6 +1283,7 @@ body.game-playing .option-panel {
   display: none;
 }
 
+#continueButton,
 #startButton,
 #cpuButton,
 #endlessButton,
@@ -4591,6 +4592,251 @@ body[data-mode="cpu"].fighter-playing .skill-cutin-frame img {
   object-position: center;
 }
 
+/* First-play classification training. */
+.battle-tutorial-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 96;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255, 177, 64, 0.15), transparent 42%),
+    rgba(2, 3, 9, 0.78);
+  backdrop-filter: blur(5px);
+}
+
+.battle-tutorial-panel {
+  position: relative;
+  display: grid;
+  width: min(680px, 100%);
+  gap: 13px;
+  padding: 30px 34px 28px;
+  border: 1px solid rgba(255, 218, 139, 0.7);
+  background:
+    linear-gradient(135deg, rgba(255, 174, 55, 0.13), transparent 46%),
+    linear-gradient(180deg, rgba(17, 15, 27, 0.97), rgba(5, 6, 14, 0.98));
+  box-shadow:
+    0 0 0 1px rgba(179, 88, 255, 0.2),
+    0 24px 70px rgba(0, 0, 0, 0.62),
+    inset 4px 0 0 #f7a633;
+  color: #fff8e8;
+}
+
+.battle-tutorial-kicker,
+.battle-tutorial-step,
+.battle-tutorial-special > span,
+.battle-tutorial-coach > span,
+.skill-tutorial-toast > span {
+  color: #ffd27a;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+}
+
+.battle-tutorial-kicker {
+  font-size: 1rem;
+}
+
+.battle-tutorial-step {
+  position: absolute;
+  top: 30px;
+  right: 34px;
+  color: rgba(255, 248, 232, 0.48);
+  font-size: 0.84rem;
+}
+
+.battle-tutorial-panel h2 {
+  margin: 2px 0 0;
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 1.75rem;
+  line-height: 1.35;
+  text-shadow: 0 0 18px rgba(255, 166, 49, 0.34);
+}
+
+.battle-tutorial-panel > p {
+  margin: 0;
+  color: rgba(255, 248, 232, 0.8);
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 0.96rem;
+  font-weight: 700;
+  line-height: 1.8;
+}
+
+.battle-tutorial-panel .battle-tutorial-note {
+  color: rgba(255, 248, 232, 0.55);
+  font-size: 0.76rem;
+}
+
+.battle-tutorial-example {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 214, 139, 0.25);
+  background: rgba(1, 3, 10, 0.66);
+}
+
+.battle-tutorial-example span {
+  display: grid;
+  width: 46px;
+  height: 54px;
+  place-items: center;
+  border: 1px solid rgba(155, 206, 255, 0.42);
+  background: rgba(30, 64, 105, 0.52);
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 2.4rem;
+}
+
+.battle-tutorial-example i {
+  margin: 0 6px;
+  color: #c997ff;
+  font-size: 1.8rem;
+  font-style: normal;
+}
+
+.battle-tutorial-example strong {
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 1.15rem;
+}
+
+.battle-tutorial-special {
+  display: grid;
+  grid-template-columns: 98px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 13px 16px;
+  border: 1px solid rgba(255, 179, 68, 0.42);
+  background: rgba(255, 155, 38, 0.1);
+}
+
+.battle-tutorial-special p {
+  margin: 0;
+  color: rgba(255, 248, 232, 0.76);
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.65;
+}
+
+.battle-tutorial-actions {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 3px;
+}
+
+.battle-tutorial-actions.single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.battle-tutorial-actions button,
+.battle-tutorial-coach button {
+  min-height: 48px;
+  border: 1px solid rgba(255, 218, 139, 0.58);
+  border-radius: 0;
+  background: rgba(4, 5, 12, 0.9);
+  color: #fff8e8;
+  cursor: pointer;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 1.18rem;
+  font-weight: 900;
+}
+
+.battle-tutorial-actions button:last-child {
+  background: linear-gradient(180deg, #ffe49a, #f39b2f 56%, #843b08);
+  color: #180b06;
+}
+
+.battle-tutorial-actions button:hover,
+.battle-tutorial-coach button:hover {
+  border-color: #fff1b9;
+  box-shadow: 0 0 18px rgba(255, 168, 50, 0.42);
+}
+
+.battle-tutorial-coach {
+  position: absolute;
+  top: 118px;
+  right: 22px;
+  z-index: 72;
+  display: grid;
+  width: 360px;
+  gap: 4px;
+  padding: 13px 15px;
+  border: 1px solid rgba(255, 218, 139, 0.68);
+  background: rgba(5, 6, 14, 0.94);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.48), inset 3px 0 0 #f7a633;
+  color: #fff8e8;
+  pointer-events: none;
+}
+
+.battle-tutorial-coach strong,
+.battle-tutorial-coach p {
+  margin: 0;
+  font-family: "Noto Sans JP", sans-serif;
+}
+
+.battle-tutorial-coach strong {
+  font-size: 0.96rem;
+}
+
+.battle-tutorial-coach p {
+  color: rgba(255, 248, 232, 0.67);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.battle-tutorial-coach button {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 0.78rem;
+  pointer-events: auto;
+}
+
+.skill-tutorial-toast {
+  position: absolute;
+  right: 20px;
+  bottom: 78px;
+  z-index: 74;
+  display: grid;
+  width: 340px;
+  gap: 3px;
+  padding: 14px 38px 14px 16px;
+  border: 1px solid rgba(255, 218, 139, 0.68);
+  background: rgba(5, 6, 14, 0.96);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.5), inset 3px 0 0 #f7a633;
+  color: #fff8e8;
+}
+
+.skill-tutorial-toast strong,
+.skill-tutorial-toast p {
+  margin: 0;
+  font-family: "Noto Sans JP", sans-serif;
+}
+
+.skill-tutorial-toast p {
+  color: rgba(255, 248, 232, 0.7);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.skill-tutorial-toast button {
+  position: absolute;
+  top: 5px;
+  right: 7px;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 248, 232, 0.68);
+  cursor: pointer;
+  font-size: 1.25rem;
+}
+
 @keyframes skillCutinDim {
   0%, 100% { opacity: 0; }
   18%, 78% { opacity: 1; }
@@ -6217,6 +6463,7 @@ body[data-mode="cpu"].fighter-title .action-row::after {
   letter-spacing: 0.12em;
 }
 
+body[data-mode="cpu"].fighter-title .action-row #continueButton,
 body[data-mode="cpu"].fighter-title .action-row #startButton,
 body[data-mode="cpu"].fighter-title .action-row #twoPlayerButton,
 body[data-mode="cpu"].fighter-title .action-row #galleryButton,
@@ -6247,6 +6494,7 @@ body[data-mode="cpu"].fighter-title .action-row #howToButton {
   transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
 }
 
+body[data-mode="cpu"].fighter-title .action-row #continueButton::after,
 body[data-mode="cpu"].fighter-title .action-row #startButton::after,
 body[data-mode="cpu"].fighter-title .action-row #twoPlayerButton::after,
 body[data-mode="cpu"].fighter-title .action-row #galleryButton::after,
@@ -6257,12 +6505,43 @@ body[data-mode="cpu"].fighter-title .action-row #howToButton::after {
   font-size: 1.5rem;
 }
 
+body[data-mode="cpu"].fighter-title .action-row #continueButton:hover,
 body[data-mode="cpu"].fighter-title .action-row #startButton:hover,
 body[data-mode="cpu"].fighter-title .action-row #twoPlayerButton:hover,
 body[data-mode="cpu"].fighter-title .action-row #galleryButton:hover,
 body[data-mode="cpu"].fighter-title .action-row #patchNoteButton:hover,
 body[data-mode="cpu"].fighter-title .action-row #howToButton:hover {
   transform: translateX(5px);
+}
+
+body[data-mode="cpu"].fighter-title .action-row #continueButton[hidden] {
+  display: none !important;
+}
+
+body[data-mode="cpu"].fighter-title .action-row #continueButton {
+  border-color: rgba(255, 245, 190, 0.96);
+  box-shadow:
+    0 0 24px rgba(255, 174, 55, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+body[data-mode="cpu"].fighter-title .action-row #continueButton > span {
+  display: grid;
+  justify-items: start;
+  gap: 3px;
+}
+
+body[data-mode="cpu"].fighter-title .action-row #continueButton small {
+  overflow: hidden;
+  max-width: 100%;
+  color: rgba(34, 12, 7, 0.76);
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 0.64rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 body[data-mode="cpu"].fighter-title .action-row #galleryButton,
@@ -6596,6 +6875,78 @@ body[data-mode="cpu"].fighter-how-to .fighter-story {
   color: rgba(255, 248, 232, 0.62);
 }
 
+.how-to-analytics {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) 210px;
+  gap: 16px;
+  align-items: center;
+  padding: 13px 16px;
+  border: 1px solid rgba(150, 211, 255, 0.24);
+  background:
+    linear-gradient(120deg, rgba(82, 151, 214, 0.12), transparent 48%),
+    rgba(4, 7, 15, 0.76);
+  box-shadow: inset 3px 0 0 rgba(150, 211, 255, 0.62);
+}
+
+.how-to-analytics > span {
+  color: #a8d8ff;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 1.24rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 12px rgba(85, 162, 255, 0.45);
+}
+
+.how-to-analytics h3,
+.how-to-analytics p {
+  margin: 0;
+  font-family: "Noto Sans JP", sans-serif;
+}
+
+.how-to-analytics h3 {
+  margin-bottom: 4px;
+  color: #fff8e8;
+  font-size: 0.88rem;
+}
+
+.how-to-analytics p {
+  color: rgba(255, 248, 232, 0.66);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.how-to-analytics p + p {
+  margin-top: 3px;
+}
+
+.how-to-analytics nav {
+  display: grid;
+  gap: 7px;
+}
+
+.how-to-analytics a {
+  display: grid;
+  min-height: 30px;
+  padding: 5px 8px;
+  place-items: center;
+  border: 1px solid rgba(150, 211, 255, 0.26);
+  color: #c8e8ff;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-decoration: none;
+}
+
+.how-to-analytics a:hover,
+.how-to-analytics a:focus-visible {
+  border-color: rgba(168, 216, 255, 0.82);
+  background: rgba(85, 162, 255, 0.12);
+  box-shadow: 0 0 12px rgba(85, 162, 255, 0.22);
+}
+
 .how-to-actions {
   display: flex;
   align-items: center;
@@ -6617,6 +6968,11 @@ body[data-mode="cpu"].fighter-how-to .fighter-story {
   font-family: "Bebas Neue", sans-serif;
   font-size: 1rem;
   letter-spacing: 0.08em;
+}
+
+.how-to-action-buttons {
+  display: flex;
+  gap: 10px;
 }
 
 .how-to-actions button {
@@ -7689,6 +8045,7 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .a
   padding: 44px 16px 16px;
 }
 
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .action-row #continueButton,
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .action-row #startButton,
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .action-row #twoPlayerButton,
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .action-row #galleryButton,
@@ -8081,8 +8438,37 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .how-to-special 
   font-size: 0.64rem;
 }
 
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .how-to-analytics {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+  padding: 11px 12px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .how-to-analytics > span {
+  font-size: 0.92rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .how-to-analytics h3 {
+  font-size: 0.78rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .how-to-analytics p {
+  font-size: 0.59rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .how-to-analytics nav {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .how-to-actions {
   display: grid;
+  gap: 6px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .how-to-action-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
 }
 
@@ -8097,6 +8483,96 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .how-to-actions 
   min-height: 42px;
   padding: 4px 12px;
   font-size: 1rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-overlay {
+  padding: 10px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-panel {
+  gap: 9px;
+  padding: 20px 17px 17px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-kicker {
+  font-size: 0.72rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-step {
+  top: 20px;
+  right: 17px;
+  font-size: 0.68rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-panel h2 {
+  font-size: 1.28rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-panel > p {
+  font-size: 0.76rem;
+  line-height: 1.65;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-example {
+  gap: 6px;
+  padding: 8px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-example span {
+  width: 36px;
+  height: 42px;
+  font-size: 1.9rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-example strong {
+  font-size: 0.82rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-special {
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 8px;
+  padding: 9px 10px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-special p {
+  font-size: 0.66rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-actions {
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 7px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-actions.single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-actions button {
+  min-height: 42px;
+  font-size: 1rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-coach {
+  top: 118px;
+  right: 9px;
+  left: 9px;
+  width: auto;
+  padding: 10px 68px 10px 11px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-coach strong {
+  font-size: 0.78rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .battle-tutorial-coach p {
+  font-size: 0.61rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .skill-tutorial-toast {
+  right: 9px;
+  bottom: 72px;
+  left: 9px;
+  width: auto;
 }
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-patch-notes .game-shell {

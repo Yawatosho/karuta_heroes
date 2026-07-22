@@ -7,7 +7,7 @@
     ogDescription: '分類コードを読み解き、NDC Karuta Heroesの頂点へ。',
     label: 'NDC Karuta Heroes',
     rules: [
-      ['1. キャラを選ぶ', '5人のファイターから1人を選び、4人の敵に順番に挑みます。'],
+      ['1. キャラクターを選ぶ', '5人のキャラクターから1人を選び、4人の敵に順番に挑みます。'],
       ['2. 札で攻撃する', '3桁のNDCが順に表示されます。対応する分類カードを相手より先に選ぶとダメージを与えます。'],
       ['3. 2ラウンド先取', '1回の読み上げをTURN、10TURNを1ROUNDとして、先に2ROUNDを取った方が勝利です。']
     ]
@@ -110,7 +110,7 @@
   function loadScript(src) {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = `${src}?v=fighters149`;
+      script.src = `${src}?v=fighters155`;
       script.async = false;
       script.addEventListener('load', resolve, { once: true });
       script.addEventListener('error', reject, { once: true });

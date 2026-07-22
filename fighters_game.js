@@ -57,6 +57,11 @@
   const PRODUCTION_TUNING_URL = 'fighters_tuning.json';
   const ENDING_MD_URL = 'ending/ending.md';
   const GALLERY_STORAGE_KEY = 'karutaGalleryProgressV1';
+  const STORY_PROGRESS_STORAGE_KEY = 'karutaStoryProgressV1';
+  const STORY_PROGRESS_VERSION = 1;
+  const STORY_PROGRESS_PHASES = new Set(['opening', 'battle', 'ending']);
+  const TUTORIAL_STORAGE_KEY = 'karutaTutorialProgressV1';
+  const TUTORIAL_PROGRESS_VERSION = 1;
   const GALLERY_TABS = ['cutins', 'victories', 'endings', 'sounds'];
   const GALLERY_SOUND_GROUPS = [
     {
@@ -94,10 +99,10 @@
   const OPENING_CHARACTER_SCENES = {
     librarian: [
       '利用者の質問に答え、本棚の間を歩き、必要な知識へと案内する。それが司書さんのいつもの仕事だった。',
-      'その日の閉館後、彼女のもとに一通の大会招待状が届く。',
+      'ある日、彼女のもとに一通の大会招待状が届く。',
       'そこは、世界中の「分類の達人」が集う、年に一度の大舞台。',
       '「私より、ふさわしい方がいるような気もしますが……」',
-      'しばらく考えた彼女は、静かな書架に並ぶ本を見渡した。',
+      'しばらく考えた彼女は、書架に並ぶ本を見渡した。',
       '「もっと本のことを知れるなら」――小さな決意とともに、司書さんの挑戦が始まった。'
     ],
     detective: [
@@ -117,7 +122,7 @@
       '「うん。やってみなくちゃ、わからないよね！」'
     ],
     professor: [
-      '大学で物理学を教える教授。',
+      '大学で物理学を研究する教授。',
       '研究室には、分類しきれないほどの資料と、返却期限の近い本が積み上がっていた。',
       '大会の案内を読んだ彼女は、少し考えてから眼鏡を上げる。',
       '「知識を整理することも、立派な研究の一部です」',
@@ -162,6 +167,8 @@
   const winEnemySound = document.getElementById('winEnemySound');
   const victorySound = document.getElementById('victorySound');
   const resultSound = document.getElementById('resultSound');
+  const continueButton = document.getElementById('continueButton');
+  const continueButtonDetail = document.getElementById('continueButtonDetail');
   const startButton = document.getElementById('startButton');
   const twoPlayerButton = document.getElementById('twoPlayerButton');
   const galleryButton = document.getElementById('galleryButton');
@@ -277,6 +284,13 @@
   let galleryProgress = readGalleryProgress();
   let galleryEqualizerTimer = 0;
   let galleryEqualizerLevels = Array(12).fill(0);
+  let tutorialActive = false;
+  let tutorialAwaitingAnswer = false;
+  let tutorialReplayRequested = false;
+  let tutorialReturnToHowTo = false;
+  let tutorialRunId = 0;
+  let skillTutorialToastTimer = 0;
+  let skillTutorialToastPlayerId = null;
 
   // ---------------------------------------------------------------------------
   // Shared helpers and input mapping
@@ -295,6 +309,164 @@
 
   function isTwoPlayerMode() {
     return playMode === 'twoPlayer';
+  }
+
+  function removeStoryProgress() {
+    try { localStorage.removeItem(STORY_PROGRESS_STORAGE_KEY); } catch (e) {}
+  }
+
+  function readStoryProgress() {
+    let saved;
+    try {
+      saved = JSON.parse(localStorage.getItem(STORY_PROGRESS_STORAGE_KEY) || 'null');
+    } catch (e) {
+      removeStoryProgress();
+      return null;
+    }
+
+    const player = PLAYERS.find(candidate => candidate.id === saved?.playerId);
+    const difficultyExists = Object.prototype.hasOwnProperty.call(DIFFICULTIES, saved?.difficulty);
+    const stageIsValid = Number.isInteger(saved?.stageIndex)
+      && saved.stageIndex >= 0
+      && saved.stageIndex < ENEMIES.length;
+    const phaseIsValid = STORY_PROGRESS_PHASES.has(saved?.phase);
+    const openingSceneIsValid = saved?.phase !== 'opening'
+      || (Number.isInteger(saved.openingSceneIndex)
+        && saved.openingSceneIndex >= 0
+        && saved.openingSceneIndex <= OPENING_COMMON_SCENES.length);
+    const endingSceneIsValid = saved?.phase !== 'ending'
+      || saved.endingSceneNumber === 1
+      || saved.endingSceneNumber === 2;
+
+    if (saved?.version !== STORY_PROGRESS_VERSION || !player || !difficultyExists
+      || !stageIsValid || !phaseIsValid || !openingSceneIsValid || !endingSceneIsValid) {
+      if (saved) removeStoryProgress();
+      return null;
+    }
+
+    return {
+      version: STORY_PROGRESS_VERSION,
+      playerId: player.id,
+      difficulty: saved.difficulty,
+      stageIndex: saved.stageIndex,
+      phase: saved.phase,
+      openingSceneIndex: saved.phase === 'opening' ? saved.openingSceneIndex : 0,
+      endingSceneNumber: saved.phase === 'ending' ? saved.endingSceneNumber : 1,
+      updatedAt: Number(saved.updatedAt) || 0
+    };
+  }
+
+  function writeStoryProgress(phase, options = {}) {
+    if (DEBUG_MODE || debugScreenLaunchActive || isTwoPlayerMode()) return;
+    const player = selectedPlayer || PLAYERS[0];
+    const difficulty = Object.prototype.hasOwnProperty.call(DIFFICULTIES, selectedDifficulty)
+      ? selectedDifficulty
+      : 'normal';
+    const nextProgress = {
+      version: STORY_PROGRESS_VERSION,
+      playerId: player.id,
+      difficulty,
+      stageIndex: clamp(
+        Number.isInteger(options.stageIndex) ? options.stageIndex : stageIndex,
+        0,
+        ENEMIES.length - 1
+      ),
+      phase,
+      openingSceneIndex: clamp(
+        Number.isInteger(options.openingSceneIndex) ? options.openingSceneIndex : 0,
+        0,
+        OPENING_COMMON_SCENES.length
+      ),
+      endingSceneNumber: options.endingSceneNumber === 2 ? 2 : 1,
+      updatedAt: Date.now()
+    };
+    try { localStorage.setItem(STORY_PROGRESS_STORAGE_KEY, JSON.stringify(nextProgress)); } catch (e) {}
+  }
+
+  function getStoryProgressLabel(progress) {
+    const player = PLAYERS.find(candidate => candidate.id === progress.playerId) || PLAYERS[0];
+    const difficulty = DIFFICULTIES[progress.difficulty] || DIFFICULTIES.normal;
+    const location = progress.phase === 'opening'
+      ? 'OPENING'
+      : progress.phase === 'ending'
+        ? `ENDING ${progress.endingSceneNumber}`
+        : `STAGE ${progress.stageIndex + 1}`;
+    return `${player.name} / ${location} / ${difficulty.label}`;
+  }
+
+  function updateContinueTitleButton() {
+    if (!continueButton) return;
+    const progress = readStoryProgress();
+    continueButton.hidden = !progress;
+    setButtonVisible(continueButton, !!progress, 'grid');
+    if (!progress) return;
+    const detail = getStoryProgressLabel(progress);
+    if (continueButtonDetail) continueButtonDetail.textContent = detail;
+    continueButton.setAttribute('aria-label', `CONTINUE: ${detail}`);
+  }
+
+  function continueStory() {
+    const progress = readStoryProgress();
+    if (!progress) {
+      renderTitleScreen();
+      return;
+    }
+    playMode = 'story';
+    selectedPlayer = PLAYERS.find(player => player.id === progress.playerId) || PLAYERS[0];
+    selectedDifficulty = progress.difficulty;
+    stageIndex = progress.stageIndex;
+    currentEnemy = ENEMIES[stageIndex] || ENEMIES[0];
+    if (progress.phase === 'opening') {
+      renderOpeningScreen(progress.openingSceneIndex);
+    } else if (progress.phase === 'ending') {
+      renderEndingScreen(progress.endingSceneNumber);
+    } else {
+      renderVsScreen();
+    }
+  }
+
+  function createEmptyTutorialProgress() {
+    return { version: TUTORIAL_PROGRESS_VERSION, completed: false, skillSeen: [] };
+  }
+
+  function readTutorialProgress() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(TUTORIAL_STORAGE_KEY) || 'null');
+      if (!saved || saved.version !== TUTORIAL_PROGRESS_VERSION) return createEmptyTutorialProgress();
+      return {
+        version: TUTORIAL_PROGRESS_VERSION,
+        completed: saved.completed === true,
+        skillSeen: Array.isArray(saved.skillSeen)
+          ? [...new Set(saved.skillSeen.filter(id => PLAYERS.some(player => player.id === id)))]
+          : []
+      };
+    } catch (e) {
+      return createEmptyTutorialProgress();
+    }
+  }
+
+  function writeTutorialProgress(progress) {
+    try { localStorage.setItem(TUTORIAL_STORAGE_KEY, JSON.stringify(progress)); } catch (e) {}
+  }
+
+  function markTutorialCompleted() {
+    const progress = readTutorialProgress();
+    progress.completed = true;
+    writeTutorialProgress(progress);
+  }
+
+  function markSkillTutorialSeen(playerId) {
+    if (!playerId) return;
+    const progress = readTutorialProgress();
+    if (progress.skillSeen.includes(playerId)) return;
+    progress.skillSeen.push(playerId);
+    writeTutorialProgress(progress);
+  }
+
+  function shouldStartBattleTutorial() {
+    if (DEBUG_MODE || debugScreenLaunchActive || isTwoPlayerMode()) return false;
+    if (tutorialReplayRequested) return true;
+    return stageIndex === 0 && battleRound === 1 && !readTutorialProgress().completed;
   }
 
   function createEmptyGalleryProgress() {
@@ -1591,6 +1763,7 @@
     hideGameArea();
     if (battleHud) battleHud.classList.add('is-hidden');
     if (skillStrip) skillStrip.classList.add('is-hidden');
+    updateContinueTitleButton();
     setButtonVisible(startButton, true);
     setButtonVisible(twoPlayerButton, true);
     setButtonVisible(galleryButton, true);
@@ -1603,8 +1776,8 @@
     if (galleryButton) galleryButton.setAttribute('aria-label', 'GALLERY');
     if (patchNoteButton) patchNoteButton.setAttribute('aria-label', 'PATCH NOTE');
     if (howToButton) {
-      howToButton.textContent = 'HOW TO PLAY';
-      howToButton.setAttribute('aria-label', 'HOW TO PLAY');
+      howToButton.textContent = 'HELP';
+      howToButton.setAttribute('aria-label', 'HELP');
     }
     setButtonVisible(howToButton, true);
     setButtonVisible(quitButton, false);
@@ -1623,6 +1796,7 @@
     hideGameArea();
     if (battleHud) battleHud.classList.add('is-hidden');
     if (skillStrip) skillStrip.classList.add('is-hidden');
+    setButtonVisible(continueButton, false);
     setButtonVisible(startButton, false);
     setButtonVisible(twoPlayerButton, false);
     setButtonVisible(galleryButton, false);
@@ -1644,6 +1818,7 @@
     if (battleHud) battleHud.classList.remove('is-hidden');
     if (skillStrip) skillStrip.classList.toggle('is-hidden', isTwoPlayerMode());
     showReaderPanel();
+    setButtonVisible(continueButton, false);
     setButtonVisible(startButton, false);
     setButtonVisible(twoPlayerButton, false);
     setButtonVisible(galleryButton, false);
@@ -1664,6 +1839,7 @@
     hideGameArea();
     if (battleHud) battleHud.classList.add('is-hidden');
     if (skillStrip) skillStrip.classList.add('is-hidden');
+    setButtonVisible(continueButton, false);
     setButtonVisible(startButton, false);
     setButtonVisible(twoPlayerButton, false);
     setButtonVisible(galleryButton, false);
@@ -1928,11 +2104,11 @@
     if (storyRoot) {
       storyRoot.hidden = false;
       storyRoot.innerHTML = `
-        <section class="how-to-screen" aria-label="HOW TO PLAY">
+        <section class="how-to-screen" aria-label="HELP">
           <header class="how-to-header">
             <div>
               <span>KNOWLEDGE ARENA GUIDE</span>
-              <h2>HOW TO PLAY</h2>
+              <h2>HELP</h2>
             </div>
             <p>CLASSIFICATION BATTLE</p>
           </header>
@@ -1953,8 +2129,8 @@
             <section class="how-to-steps" aria-label="バトルの進め方">
               <article class="how-to-step">
                 <span class="how-to-step-number">01</span>
-                <div><small>CHOOSE YOUR HERO</small><h3>英雄を選ぶ</h3></div>
-                <p>5人のファイターから一人を選択。攻撃・防御・SPECIALは、それぞれ異なる。</p>
+                <div><small>CHOOSE YOUR CHARACTER</small><h3>キャラクターを選ぶ</h3></div>
+                <p>5人のキャラクターから一人を選択。攻撃・防御・SPECIALは、それぞれ異なる。</p>
               </article>
               <article class="how-to-step">
                 <span class="how-to-step-number">02</span>
@@ -1983,19 +2159,36 @@
               </div>
               <aside class="how-to-special">
                 <span>SPECIAL</span>
-                <div><strong>ゲージが満ちた時、英雄の切り札が目覚める。</strong><p>ファイター固有の能力で、勝負の流れを引き寄せよう。</p></div>
+                <div><strong>ゲージが満ちた時、キャラクターの切り札が目覚める。</strong><p>キャラクター固有の能力で、勝負の流れを引き寄せよう。</p></div>
               </aside>
+            </section>
+
+            <section class="how-to-analytics" aria-labelledby="analyticsNoticeTitle">
+              <span>PRIVACY</span>
+              <div>
+                <h3 id="analyticsNoticeTitle">Google Analyticsについて</h3>
+                <p>本ゲームでは、利用状況の把握と改善のためGoogle Analyticsを使用しています。Cookie等を利用し、アクセス状況、セッション、概算地域、ブラウザ・端末情報などがGoogleへ送信されます。本ゲームから氏名・メールアドレスなど、個人を直接特定する情報を送信することはありません。収集されたデータはGoogleの規約とプライバシーポリシーに基づいて処理されます。</p>
+                <p>計測を無効にしたい場合は、Googleが提供するオプトアウトアドオンをご利用ください。</p>
+              </div>
+              <nav aria-label="Google Analytics関連情報">
+                <a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener noreferrer">GOOGLE PRIVACY POLICY</a>
+                <a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener noreferrer">OPT-OUT ADD-ON</a>
+              </nav>
             </section>
           </div>
 
           <footer class="how-to-actions">
-            <p><span>TIP</span> 難易度はファイター選択画面で変更できます。</p>
-            <button type="button" data-how-to-back>BACK TO TITLE</button>
+            <p><span>TIP</span> 難易度はキャラクター選択画面で変更できます。</p>
+            <div class="how-to-action-buttons">
+              <button type="button" data-how-to-tutorial>${readTutorialProgress().completed ? 'PLAY TUTORIAL AGAIN' : 'PLAY TUTORIAL'}</button>
+              <button type="button" data-how-to-back>BACK TO TITLE</button>
+            </div>
           </footer>
         </section>`;
     }
 
     storyRoot?.querySelector('[data-how-to-back]')?.addEventListener('click', renderTitleScreen);
+    storyRoot?.querySelector('[data-how-to-tutorial]')?.addEventListener('click', startTutorialReplay);
   }
 
   function renderPatchNotesScreen() {
@@ -2442,6 +2635,7 @@
     storyRoot?.querySelector('[data-confirm-player]')?.addEventListener('click', event => {
       selectedPlayer = PLAYERS.find(player => player.id === event.currentTarget.dataset.confirmPlayer) || PLAYERS[0];
       stageIndex = 0;
+      writeStoryProgress('opening', { stageIndex: 0, openingSceneIndex: 0 });
       transitionFromSelectToOpening();
     });
   }
@@ -2509,6 +2703,7 @@
     const renderScene = sceneIndex => {
       if (screen !== 'opening' || !storyRoot) return;
       const boundedIndex = Math.max(0, Math.min(scenes.length - 1, sceneIndex));
+      writeStoryProgress('opening', { stageIndex: 0, openingSceneIndex: boundedIndex });
       const scene = scenes[boundedIndex];
       const openingAssetPath = getOpeningImagePath(openingPlayer, scene.common);
       unlockGalleryAsset('endings', openingAssetPath);
@@ -2562,6 +2757,7 @@
     if (!options.musicAlreadyFading) stopMusicTrack();
     screen = 'vs';
     currentEnemy = isTwoPlayerMode() ? getTwoPlayerTwo() : (ENEMIES[stageIndex] || ENEMIES[0]);
+    writeStoryProgress('battle');
     setFlowControls();
     document.body.classList.toggle('fighter-two-player', isTwoPlayerMode());
     document.body.classList.add('fighter-vs-ready');
@@ -2623,6 +2819,7 @@
     const renderScene = sceneNumber => {
       if (screen !== 'ending') return;
       if (!storyRoot) return;
+      writeStoryProgress('ending', { endingSceneNumber: sceneNumber });
       const hasNextScene = sceneNumber === 1;
       const endingAssetPath = getEndingImagePath(endingPlayer, sceneNumber);
       unlockGalleryAsset('endings', endingAssetPath);
@@ -2676,6 +2873,7 @@
     document.body.classList.add('fighter-ending', 'fighter-credits');
     if (debugScreenLaunchActive) document.body.classList.add('fighter-debug-live');
     screen = 'endingCredits';
+    if (!DEBUG_MODE && !debugScreenLaunchActive && !isTwoPlayerMode()) removeStoryProgress();
     setMessage('', '', '');
     resetDigits();
     resetTimeDisplay();
@@ -2718,6 +2916,191 @@
         debugScreenLaunchActive ? renderDebugScreen : renderTitleScreen
       );
     }
+  }
+
+  function removeTutorialOverlay() {
+    karutaEl?.querySelectorAll('.battle-tutorial-overlay, .battle-tutorial-coach').forEach(element => element.remove());
+  }
+
+  function removeSkillTutorialToast(markSeen = false) {
+    if (skillTutorialToastTimer) clearTimeout(skillTutorialToastTimer);
+    skillTutorialToastTimer = 0;
+    if (markSeen && skillTutorialToastPlayerId) markSkillTutorialSeen(skillTutorialToastPlayerId);
+    skillTutorialToastPlayerId = null;
+    karutaEl?.querySelectorAll('.skill-tutorial-toast').forEach(element => element.remove());
+  }
+
+  function startInteractiveTutorial(runId = gameRunId) {
+    tutorialActive = true;
+    tutorialAwaitingAnswer = false;
+    tutorialRunId = runId;
+    roundActive = false;
+    answered = false;
+    disableCardClicks();
+    hideCpuCursor();
+    setReadingHudVisible(false);
+    document.body.classList.add('fighter-tutorial');
+    removeTutorialOverlay();
+
+    const overlay = document.createElement('section');
+    overlay.className = 'battle-tutorial-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', '初回プレイチュートリアル');
+    overlay.innerHTML = `
+      <div class="battle-tutorial-panel">
+        <span class="battle-tutorial-kicker">CLASSIFICATION TRAINING</span>
+        <strong class="battle-tutorial-step">STEP 1 / 3</strong>
+        <h2>読み上げられるNDCを見極めよう</h2>
+        <p>NDCは、本の内容を表す3桁の分類記号。数字が順番に現れたら、対応する分類札を選んでください。</p>
+        <div class="battle-tutorial-example" aria-label="NDCの例">
+          <span>5</span><span>4</span><span>7</span><i>→</i><strong>電気工学</strong>
+        </div>
+        <p class="battle-tutorial-note">この練習中は相手が札を取りません。落ち着いて挑戦できます。</p>
+        <div class="battle-tutorial-actions">
+          <button type="button" data-tutorial-skip>SKIP</button>
+          <button type="button" data-tutorial-begin>TRY IT</button>
+        </div>
+      </div>`;
+    karutaEl?.appendChild(overlay);
+    overlay.querySelector('[data-tutorial-skip]')?.addEventListener('click', () => finishInteractiveTutorial(true));
+    overlay.querySelector('[data-tutorial-begin]')?.addEventListener('click', startTutorialTrial);
+    overlay.querySelector('[data-tutorial-begin]')?.focus({ preventScroll: true });
+  }
+
+  function startTutorialTrial() {
+    if (!tutorialActive || tutorialRunId !== gameRunId) return;
+    removeTutorialOverlay();
+    tutorialAwaitingAnswer = true;
+    round = 1;
+    roundId = 1;
+    currentReadingCard = roundDeck[0] || cards[0];
+    if (!currentReadingCard) {
+      finishInteractiveTutorial(true);
+      return;
+    }
+    currentReadingCard.used = true;
+    roundActive = true;
+    answered = false;
+    playerDisabledThisRound = false;
+    cpuDisabledThisRound = true;
+    comboContinuationWindowOpen = true;
+    roundStartTime = Date.now();
+    resetDigits();
+    setReadingHudVisible(true);
+    enableCardClicks();
+    updateBattleHud();
+    setMessage('ready', 'TRAINING', '読み上げられるNDCと同じ分類札を選ぼう');
+
+    const coach = document.createElement('aside');
+    coach.className = 'battle-tutorial-coach';
+    coach.setAttribute('aria-live', 'polite');
+    coach.innerHTML = `
+      <span>STEP 2 / 3</span>
+      <strong>正しい分類札を取ってください</strong>
+      <p data-tutorial-feedback>数字は2秒ごとに1桁ずつ読み上げられます。</p>
+      <button type="button" data-tutorial-skip>SKIP</button>`;
+    karutaEl?.appendChild(coach);
+    coach.querySelector('[data-tutorial-skip]')?.addEventListener('click', () => finishInteractiveTutorial(true));
+    readDigits(String(currentReadingCard.ndc));
+  }
+
+  function resolveTutorialCardSelection(cardEl, selectedCard) {
+    if (!tutorialAwaitingAnswer || !currentReadingCard) return;
+    if (selectedCard.ndc !== currentReadingCard.ndc) {
+      playSoundEffect('ng');
+      cardEl.classList.remove('shake');
+      void cardEl.offsetWidth;
+      cardEl.classList.add('shake');
+      setTimeout(() => cardEl.classList.remove('shake'), 300);
+      const feedback = karutaEl?.querySelector('[data-tutorial-feedback]');
+      if (feedback) feedback.textContent = 'その札ではありません。数字と分類を確認して、もう一度選びましょう。';
+      return;
+    }
+
+    tutorialAwaitingAnswer = false;
+    roundActive = false;
+    answered = true;
+    disableCardClicks();
+    cancelReadingTimeouts();
+    playSoundEffect('correct');
+    cardEl.classList.add('correct');
+    setMessage('success', 'CORRECT', '分類札を見つけました');
+    removeTutorialOverlay();
+
+    const overlay = document.createElement('section');
+    overlay.className = 'battle-tutorial-overlay is-complete';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', 'チュートリアル完了');
+    overlay.innerHTML = `
+      <div class="battle-tutorial-panel">
+        <span class="battle-tutorial-kicker">CLASSIFICATION TRAINING</span>
+        <strong class="battle-tutorial-step">STEP 3 / 3</strong>
+        <h2>正解です。知識を連撃へつなげよう</h2>
+        <p>3桁目が読み終わる前に正解すると、次のTURNへコンボをつなげられます。連続正解するほどダメージも上昇します。</p>
+        <div class="battle-tutorial-special">
+          <span>SPECIAL</span>
+          <p>攻防でゲージが最大になると必殺技が使用可能。PCではSPACE、スマートフォンではSPECIALボタンで発動できます。</p>
+        </div>
+        <div class="battle-tutorial-actions single">
+          <button type="button" data-tutorial-complete>${tutorialReturnToHowTo ? 'BACK TO GUIDE' : 'START BATTLE'}</button>
+        </div>
+      </div>`;
+    karutaEl?.appendChild(overlay);
+    overlay.querySelector('[data-tutorial-complete]')?.addEventListener('click', () => finishInteractiveTutorial(false));
+    overlay.querySelector('[data-tutorial-complete]')?.focus({ preventScroll: true });
+  }
+
+  function finishInteractiveTutorial(skipped = false) {
+    if (!tutorialActive) return;
+    const runId = tutorialRunId;
+    const returnToGuide = tutorialReturnToHowTo;
+    markTutorialCompleted();
+    tutorialActive = false;
+    tutorialAwaitingAnswer = false;
+    tutorialReplayRequested = false;
+    tutorialReturnToHowTo = false;
+    roundActive = false;
+    answered = false;
+    document.body.classList.remove('fighter-tutorial');
+    removeTutorialOverlay();
+    cancelReadingTimeouts();
+    disableCardClicks();
+    if (returnToGuide) {
+      renderHowToScreen();
+      return;
+    }
+    if (runId === gameRunId) startBattleRound(runId, { skipTutorial: true, skipped });
+  }
+
+  function startTutorialReplay() {
+    tutorialReplayRequested = true;
+    tutorialReturnToHowTo = true;
+    playMode = 'story';
+    stageIndex = 0;
+    currentEnemy = ENEMIES[0];
+    beginBattle();
+  }
+
+  function maybeShowSkillTutorial() {
+    if (screen !== 'battle' || tutorialActive || isTwoPlayerMode() || playerGauge < MAX_GAUGE) return;
+    if (karutaEl?.querySelector('.skill-tutorial-toast')) return;
+    const progress = readTutorialProgress();
+    if (!selectedPlayer?.id || progress.skillSeen.includes(selectedPlayer.id)) return;
+    removeSkillTutorialToast();
+    skillTutorialToastPlayerId = selectedPlayer.id;
+    const toast = document.createElement('aside');
+    toast.className = 'skill-tutorial-toast';
+    toast.setAttribute('aria-live', 'polite');
+    toast.innerHTML = `
+      <button type="button" aria-label="必殺技の説明を閉じる" data-skill-tutorial-close>×</button>
+      <span>SPECIAL READY</span>
+      <strong>${esc(selectedPlayer.skillName)}</strong>
+      <p>ゲージが最大になりました。PCではSPACE、スマートフォンではSPECIALボタンで発動できます。</p>`;
+    karutaEl?.appendChild(toast);
+    toast.querySelector('[data-skill-tutorial-close]')?.addEventListener('click', () => removeSkillTutorialToast(true));
+    skillTutorialToastTimer = setTimeout(() => removeSkillTutorialToast(true), 6500);
   }
 
   // ---------------------------------------------------------------------------
@@ -2780,7 +3163,7 @@
     });
   }
 
-  function startBattleRound(runId = gameRunId) {
+  function startBattleRound(runId = gameRunId, options = {}) {
     if (runId !== gameRunId) return;
     screen = 'battle';
     battleFinishing = false;
@@ -2816,6 +3199,10 @@
     disableCardClicks();
     hideCpuCursor();
     setMessage('ready', `ROUND ${battleRound}`, currentEnemy.name);
+    if (!options.skipTutorial && shouldStartBattleTutorial()) {
+      startInteractiveTutorial(runId);
+      return;
+    }
     startCountdown(runId);
   }
 
@@ -3151,6 +3538,7 @@
     clearCpuTimers();
     karutaEl?.querySelectorAll('.skill-cutin').forEach(cutin => cutin.remove());
     karutaEl?.querySelectorAll('.combo-cutin').forEach(cutin => cutin.remove());
+    removeSkillTutorialToast();
     removeRoundWinScreen();
   }
 
@@ -3188,6 +3576,10 @@
     const index = Number(hitCardEl.dataset.index);
     const selectedCard = cards[index];
     if (!selectedCard || !currentReadingCard) return;
+    if (tutorialAwaitingAnswer) {
+      if (!isCPU) resolveTutorialCardSelection(hitCardEl, selectedCard);
+      return;
+    }
     const elapsed = Date.now() - roundStartTime;
 
     if (selectedCard.ndc === currentReadingCard.ndc) {
@@ -3475,11 +3867,13 @@
 
     if (scoreElPlayer) scoreElPlayer.textContent = `${selectedPlayer.shortName}: HP ${playerHp}`;
     if (scoreElCPU) scoreElCPU.textContent = `${currentEnemy.name}: HP ${enemyHp}`;
+    maybeShowSkillTutorial();
   }
 
   function usePlayerSkill() {
     if (isTwoPlayerMode()) return;
     if (screen !== 'battle' || playerGauge < MAX_GAUGE || battlePausedForCutin || battleFinishing) return;
+    removeSkillTutorialToast(true);
     let activated = false;
     if (selectedPlayer.skillType === 'revealNext') {
       pendingReveal = true;
@@ -3957,6 +4351,15 @@
 
     const outcome = outcomeOverride || getMatchOutcome();
     const isFinal = !isTwoPlayerMode() && outcome === 'win' && stageIndex >= ENEMIES.length - 1;
+    if (!isTwoPlayerMode()) {
+      if (isFinal) {
+        writeStoryProgress('ending', { endingSceneNumber: 1 });
+      } else if (outcome === 'win') {
+        writeStoryProgress('battle', { stageIndex: stageIndex + 1 });
+      } else {
+        writeStoryProgress('battle');
+      }
+    }
     playMusicTrack('victory');
     const resultMain = isTwoPlayerMode()
       ? (outcome === 'lose' ? '2P WIN' : '1P WIN')
@@ -4099,6 +4502,7 @@
     if (screen === 'title') playMusicTrack('select');
   });
 
+  continueButton?.addEventListener('click', () => runAfterTuningReady(continueStory));
   twoPlayerButton?.addEventListener('click', () => runAfterTuningReady(renderTwoPlayerSetup));
   document.addEventListener('keydown', handleBattleKeydown);
 
@@ -4114,6 +4518,7 @@
 
   window.addEventListener('storage', event => {
     if (event.key === DEV_TUNING_KEY) reloadDevTuning();
+    if (event.key === STORY_PROGRESS_STORAGE_KEY && screen === 'title') updateContinueTitleButton();
   });
 
   window.addEventListener('resize', () => {

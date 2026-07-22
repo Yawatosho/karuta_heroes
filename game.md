@@ -183,12 +183,12 @@ NDC Karuta Heroes
 - 狭い画面ではレイアウトを再配置せず、固定ステージ全体を等比スケールする。
 - 幅が狭い時専用のCSSは作らず、既存の幅条件メディアクエリも削除する。
 - 常設トップ表示の「STORY / 4 BATTLES / HP KARUTA」、SOUNDトグル、タイトル画面の単独「NDC」と「LIBRARY ARCANA BATTLE」は表示しない。
-- タイトル画面は説明文を表示せず、「NDC KARUTA HEROES」の文字タイトルとSTORY MODE / 2P BATTLE / HOW TO PLAYボタンを中央揃えで並べる。
+- タイトル画面は説明文を表示せず、「NDC KARUTA HEROES」の文字タイトルとSTORY MODE / 2P BATTLE / HELPボタンを中央揃えで並べる。
   - 文字タイトルは、キャラクターセレクト画面の「SELECT FIGHTER」と同じフォント・エフェクトで表示する。
-  - START/HOW TO PLAYボタンは他画面のボタンと同じ金/黒系の格闘ゲーム風デザインに揃える。
+  - START/HELPボタンは他画面のボタンと同じ金/黒系の格闘ゲーム風デザインに揃える。
   - 文字タイトルの背面には、ゲーム画面の左右端まで伸びる半透明の黒い帯を敷く。
   - タイトル画面にはQUIT/RETRYボタンを表示しない。
-  - START/HOW TO PLAYボタンはキャラクターセレクト画面のボタンとデザインを揃える。
+  - START/HELPボタンはキャラクターセレクト画面のボタンとデザインを揃える。
   - 難易度ボタンにはHP説明を表示せず、EASY / NORMAL / HARDのみを表示する。
   - タイトル画面の最下部に「NDC9：日本図書館協会 / 作成：やわらか図書館学」を表示する。
 - SNS/X共有時のOGP画像はimage/ogp.pngを使用し、ホーム画面追加用アイコンはimage/apple-touch-icon.png、faviconはimage/favicon.icoを使用する。

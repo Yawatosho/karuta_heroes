@@ -242,6 +242,14 @@
   // Public update history. Add the newest entry to the beginning of this array.
   const patchNotes = [
     {
+      date: '2026.07.23',
+      isoDate: '2026-07-23',
+      items: [
+        '「STORY MODE」の進行状況を自動保存し、タイトルから再開できる「CONTINUE」機能を追加しました',
+        '初回バトルで基本操作を学べるチュートリアルを追加し、「HELP」から再体験できるようにしました'
+      ]
+    },
+    {
       date: '2026.07.22',
       isoDate: '2026-07-22',
       items: [

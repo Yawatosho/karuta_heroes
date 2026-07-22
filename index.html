@@ -72,10 +72,10 @@
   <link rel="preload" href="sound/vs.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/battle1.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/battle2.mp3" as="audio" type="audio/mpeg">
-  <link rel="stylesheet" href="styles.css?v=fighters149">
+  <link rel="stylesheet" href="styles.css?v=fighters155">
   <script src="audio_manager.js?v=fighters145" defer></script>
-  <script src="fighters_config.js?v=fighters149" defer></script>
-  <script src="mode_loader.js?v=fighters149" defer></script>
+  <script src="fighters_config.js?v=fighters155" defer></script>
+  <script src="mode_loader.js?v=fighters155" defer></script>
 </head>
 <body data-mode="cpu">
   <main id="main" class="arena">
@@ -95,10 +95,13 @@
         <div id="cpuCursor" class="cpu-cursor" aria-hidden="true"></div>
 
         <p class="action-row">
+          <button id="continueButton" type="button" aria-label="CONTINUE" hidden>
+            <span>CONTINUE<small id="continueButtonDetail"></small></span>
+          </button>
           <button id="startButton" type="button" aria-label="STORY MODE">STORY MODE</button>
           <button id="twoPlayerButton" type="button" aria-label="2P BATTLE">2P BATTLE</button>
           <button id="galleryButton" type="button" aria-label="GALLERY">GALLERY</button>
-          <button id="howToButton" type="button" aria-label="HOW TO PLAY">HOW TO PLAY</button>
+          <button id="howToButton" type="button" aria-label="HELP">HELP</button>
           <button id="patchNoteButton" type="button" aria-label="PATCH NOTE">PATCH NOTE</button>
           <button id="quitButton" type="button">QUIT</button>
           <button id="restartButton" type="button">RETRY</button>
@@ -204,13 +207,13 @@
     <dialog id="howToModal" class="game-modal">
       <div class="modal-frame">
         <div class="modal-head">
-          <h2>HOW TO PLAY</h2>
+          <h2>HELP</h2>
           <button class="modal-close" type="button" data-close-modal="howToModal" aria-label="閉じる">×</button>
         </div>
         <div class="rules-grid">
           <section>
             <h3 id="ruleTitle1">1. ファイターを選ぶ</h3>
-            <p id="ruleText1">5人の英雄から一人を選び、知識の闘技場へ挑みます。</p>
+            <p id="ruleText1">5人のキャラクターから一人を選び、知識の闘技場へ挑みます。</p>
           </section>
           <section>
             <h3 id="ruleTitle2">2. 分類札をつかむ</h3>
