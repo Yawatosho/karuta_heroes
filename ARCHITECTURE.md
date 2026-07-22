@@ -32,7 +32,7 @@
 ### プレイヤーキャラクターを追加する
 
 1. `fighters_config.js` の `players` に設定を追加する。
-2. `character/`、`cutin/`、`reference/`、`vs/`、`victory/`、`ending/` に必要素材を追加する。
+2. `character/`、`cutin/`、`vs/`、`victory/`、`ending/` に必要素材を追加する。
 3. 新しい `skillType` を使う場合のみ、`fighters_game.js` の `usePlayerSkill()` を拡張する。
 
 ### 敵を追加する
