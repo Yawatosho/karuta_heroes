@@ -62,18 +62,20 @@
   <link rel="preload" href="sound/win_det.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/win_lily.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/win_prof.mp3" as="audio" type="audio/mpeg">
+  <link rel="preload" href="sound/win_flib.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/win_enemy.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/victory.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/ending.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/result.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/select.mp3" as="audio" type="audio/mpeg">
+  <link rel="preload" href="sound/opening.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/vs.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/battle1.mp3" as="audio" type="audio/mpeg">
   <link rel="preload" href="sound/battle2.mp3" as="audio" type="audio/mpeg">
-  <link rel="stylesheet" href="styles.css?v=fighters130">
-  <script src="audio_manager.js?v=fighters129" defer></script>
-  <script src="fighters_config.js?v=fighters129" defer></script>
-  <script src="mode_loader.js?v=fighters129" defer></script>
+  <link rel="stylesheet" href="styles.css?v=fighters148">
+  <script src="audio_manager.js?v=fighters145" defer></script>
+  <script src="fighters_config.js?v=fighters148" defer></script>
+  <script src="mode_loader.js?v=fighters148" defer></script>
 </head>
 <body data-mode="cpu">
   <main id="main" class="arena">
@@ -185,6 +187,9 @@
         <audio id="winProfSound" preload="auto" playsinline>
           <source src="sound/win_prof.mp3" type="audio/mpeg">
         </audio>
+        <audio id="winFlibSound" preload="auto" playsinline>
+          <source src="sound/win_flib.mp3" type="audio/mpeg">
+        </audio>
         <audio id="winEnemySound" preload="auto" playsinline>
           <source src="sound/win_enemy.mp3" type="audio/mpeg">
         </audio>
@@ -206,7 +211,7 @@
         <div class="rules-grid">
           <section>
             <h3 id="ruleTitle1">1. ファイターを選ぶ</h3>
-            <p id="ruleText1">4人の英雄から一人を選び、知識の闘技場へ挑みます。</p>
+            <p id="ruleText1">5人の英雄から一人を選び、知識の闘技場へ挑みます。</p>
           </section>
           <section>
             <h3 id="ruleTitle2">2. 分類札をつかむ</h3>

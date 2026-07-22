@@ -82,6 +82,26 @@
       story: '物理学を専門とする、穏やかで知的な大学教授。学生からの信頼も厚い。',
       winLine: '理論どおりですね。良い実験結果です。',
       loseLine: '興味深い結果です。仮説を組み直しましょう。'
+    },
+    {
+      id: 'fightingLibrarian',
+      name: '格闘系司書',
+      englishName: 'FIGHTING LIBRARIAN',
+      shortName: '格闘系司書',
+      image: 'character/flib_select.webp',
+      vsCode: 'flib',
+      icon: 'character/flib_icon.webp',
+      selectImage: 'character/flib_select.webp',
+      cutin: 'cutin/cutin_flib.webp',
+      skillName: '格闘系スペシャル',
+      skillEffect: '次のターンから3ターン攻撃力が上がる。3ターン連続正解すると…？',
+      skillType: 'fightingPowerRush',
+      stats: { atk: 4, def: 2 },
+      damageDealtMultiplier: 1.2,
+      damageTakenMultiplier: 1.2,
+      story: '体を動かすことと楽しい図書館イベントが大好きな、元気いっぱいの司書。',
+      winLine: '楽しく体を動かせば、分類だって自然に身につきます！',
+      loseLine: 'いい運動になりました！次はもっと早く札を取りますよ！'
     }
   ];
 
@@ -221,6 +241,14 @@
 
   // Public update history. Add the newest entry to the beginning of this array.
   const patchNotes = [
+    {
+      date: '2026.07.22',
+      isoDate: '2026-07-22',
+      items: [
+        '「STORY MODE」に、各ファイターの物語へつながるオープニングデモを追加しました',
+        '新たなプレイアブルキャラクター「格闘系司書」を追加しました'
+      ]
+    },
     {
       date: '2026.07.19',
       isoDate: '2026-07-19',

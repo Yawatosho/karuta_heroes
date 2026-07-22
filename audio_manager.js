@@ -15,6 +15,7 @@
     winDet: 'sound/win_det.mp3',
     winLily: 'sound/win_lily.mp3',
     winProf: 'sound/win_prof.mp3',
+    winFlib: 'sound/win_flib.mp3',
     winEnemy: 'sound/win_enemy.mp3',
     victory: 'sound/victory.mp3',
     result: 'sound/result.mp3'
@@ -29,6 +30,7 @@
   };
   const MUSIC_SOURCES = {
     select: 'sound/select.mp3',
+    opening: 'sound/opening.mp3',
     vs: 'sound/vs.mp3',
     battle1: 'sound/battle1.mp3',
     battle2: 'sound/battle2.mp3',
@@ -37,6 +39,7 @@
   };
   const MUSIC_VOLUMES = {
     select: 0.38,
+    opening: 0.42,
     vs: 0.42,
     battle1: 0.22,
     battle2: 0.22,
@@ -44,6 +47,7 @@
     ending: 0.42
   };
   const MUSIC_LOOPS = {
+    opening: false,
     vs: false,
     victory: false
   };
@@ -61,6 +65,7 @@
     winDet: 'winDetSound',
     winLily: 'winLilySound',
     winProf: 'winProfSound',
+    winFlib: 'winFlibSound',
     winEnemy: 'winEnemySound',
     victory: 'victorySound',
     result: 'resultSound'
@@ -480,7 +485,7 @@
     if (!('serviceWorker' in navigator)) return;
     if (location.protocol === 'file:') return;
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=bgm4').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=bgm5').catch(() => {});
     });
   }
 

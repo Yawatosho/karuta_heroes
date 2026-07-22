@@ -9,10 +9,13 @@
   const MAX_GAUGE = 100;
   const BASE_DAMAGE = 14;
   const OPPONENT_HIT_GAUGE = 18;
+  const FIGHTING_POWER_RUSH_TURNS = 3;
+  const FIGHTING_POWER_RUSH_MULTIPLIER = 1.3;
+  const DIGIT_READING_COMPLETE_MS = 1050;
   const NDC_JSON_URL = 'https://raw.githubusercontent.com/Yawatosho/karuta/refs/heads/main/ndc.json';
   const LOCAL_NDC_JSON_URL = 'ndc.json';
   const NDC_CACHE_KEY = 'ndc_json_cache_v2';
-  const SELECT_ASSET_VERSION = 'fighters129';
+  const SELECT_ASSET_VERSION = 'fighters135';
   const DEBUG_MODE = new URLSearchParams(window.location.search).has('debug');
   const karutaAudio = window.karutaAudio || null;
 
@@ -26,8 +29,10 @@
   const ENEMIES = fightersConfig.enemies;
   const DIFFICULTIES = fightersConfig.difficulties;
 
-  const SELECT_TO_VS_FADE_MS = 1800;
-  const SELECT_TO_VS_SWITCH_DELAY_MS = 1650;
+  const SELECT_TO_OPENING_FADE_MS = 1800;
+  const SELECT_TO_OPENING_SWITCH_DELAY_MS = 1650;
+  const OPENING_TO_VS_HOLD_MS = 1100;
+  const OPENING_TO_VS_FADE_MS = 720;
   const VS_SCREEN_AUTO_START_MS = 3200;
   const ROUND_CALL_INTRO_DELAY_MS = 450;
   const ROUND_CALL_AUDIO_MS = 2200;
@@ -57,11 +62,76 @@
     {
       label: 'BGM',
       items: [
-        ['select', 'SELECT'], ['battle1', 'BATTLE 1'],
+        ['select', 'SELECT'], ['opening', 'OPENING'], ['battle1', 'BATTLE 1'],
         ['battle2', 'BATTLE 2'], ['victory', 'VICTORY'], ['ending', 'ENDING']
       ].map(([id, label]) => ({ kind: 'music', id, label }))
     }
   ];
+  const OPENING_COMMON_SCENES = [
+    {
+      lines: [
+        '世界には、あらゆる知識を分類し、',
+        '求める情報へ誰よりも早く辿り着く者たちがいる。',
+        '人は彼らを――「分類の達人（マスター・オブ・クラシフィケーション）」と呼ぶ。',
+        'その頂点を決める、年に一度の知の祭典。'
+      ]
+    },
+    {
+      lines: [
+        { text: '「日本十進分類カルタ大会」', emphasis: true }
+      ]
+    },
+    {
+      lines: [
+        '風のような速さ。',
+        'すべてを見抜く知識。',
+        'そして、一瞬の判断力。',
+        '世界中の司書たちが集う中、',
+        '今年もまた、新たな挑戦者が大会の扉を開く。'
+      ]
+    }
+  ];
+  const OPENING_CHARACTER_SCENES = {
+    librarian: [
+      '利用者の質問に答え、本棚の間を歩き、必要な知識へと案内する。それが司書さんのいつもの仕事だった。',
+      'その日の閉館後、彼女のもとに一通の大会招待状が届く。',
+      'そこは、世界中の「分類の達人」が集う、年に一度の大舞台。',
+      '「私より、ふさわしい方がいるような気もしますが……」',
+      'しばらく考えた彼女は、静かな書架に並ぶ本を見渡した。',
+      '「もっと本のことを知れるなら」――小さな決意とともに、司書さんの挑戦が始まった。'
+    ],
+    detective: [
+      '大学図書館に通う、明るく元気な学生探偵。',
+      'ある日、彼女は図書館で一枚の招待状を発見する。',
+      '「世界中の分類の達人が集まる大会……？」',
+      '難事件の気配を感じた探偵さんは、にやりと笑った。',
+      '「つまり、最後まで勝ち残れば、何かがわかるってことだね！」',
+      '事件かどうかは、まだ誰にもわからない。'
+    ],
+    lily: [
+      '本の声を聞くことができる、ひよっこ司書のリリー。',
+      '書架を整理していた彼女の耳に、一冊の本から小さな声が届いた。',
+      '――大会へ行って。そこで、きっと何かが見つかる。',
+      '「わたしにできるかな……？」',
+      '不安を抱えながらも、リリーは笑顔で一歩を踏み出す。',
+      '「うん。やってみなくちゃ、わからないよね！」'
+    ],
+    professor: [
+      '大学で物理学を教える教授。',
+      '研究室には、分類しきれないほどの資料と、返却期限の近い本が積み上がっていた。',
+      '大会の案内を読んだ彼女は、少し考えてから眼鏡を上げる。',
+      '「知識を整理することも、立派な研究の一部です」',
+      'そして、ひとつだけ付け加えた。',
+      '「もちろん、参加するからには優勝を目指します」'
+    ],
+    fightingLibrarian: [
+      '図書館とゲームを愛する、格闘系司書。',
+      '彼が目指しているのは、誰もが楽しみながら図書館を知ることのできる場所だった。',
+      '日本十進分類カルタ大会の知らせを聞くと、彼は楽しそうに腕をまくる。',
+      '「分類とカルタと真剣勝負。これは盛り上がりそうですね！」',
+      '勝利の先に、新しい図書館イベントの姿を思い描きながら。'
+    ]
+  };
   const DEFAULT_DEV_TUNING = buildDefaultDevTuning();
   let devTuning = cloneTuning(DEFAULT_DEV_TUNING);
   let productionTuning = null;
@@ -88,6 +158,7 @@
   const winDetSound = document.getElementById('winDetSound');
   const winLilySound = document.getElementById('winLilySound');
   const winProfSound = document.getElementById('winProfSound');
+  const winFlibSound = document.getElementById('winFlibSound');
   const winEnemySound = document.getElementById('winEnemySound');
   const victorySound = document.getElementById('victorySound');
   const resultSound = document.getElementById('resultSound');
@@ -165,12 +236,17 @@
   let playerCombo = 0;
   let enemyCombo = 0;
   let lastComboOwner = null;
+  let comboContinuationWindowOpen = false;
   let roundStartTime = 0;
   let roundActive = false;
   let answered = false;
   let pendingReveal = false;
   let twoCandidateRevealTurnsRemaining = 0;
   let cpuSkipTurnsRemaining = 0;
+  let fightingPowerRushQueued = false;
+  let fightingPowerRushTurnsRemaining = 0;
+  let fightingPowerRushStreak = 0;
+  let fightingPowerRushActiveThisTurn = false;
   let playerDisabledThisRound = false;
   let cpuDisabledThisRound = false;
   let reverseReading = false;
@@ -286,10 +362,24 @@
       ];
     }
     if (category === 'endings') {
-      return PLAYERS.flatMap(player => [1, 2].map(sceneNumber => {
+      const commonOpeningAsset = getOpeningImagePath(PLAYERS[0], true);
+      const openingItems = [
+        {
+          id: commonOpeningAsset,
+          label: 'OPENING / PROLOGUE',
+          asset: commonOpeningAsset,
+          kind: 'opening'
+        },
+        ...PLAYERS.map(player => {
+          const asset = getOpeningImagePath(player, false);
+          return { id: asset, label: `${player.name} OPENING`, asset, kind: 'opening', player };
+        })
+      ];
+      const endingItems = PLAYERS.flatMap(player => [1, 2].map(sceneNumber => {
         const asset = getEndingImagePath(player, sceneNumber);
-        return { id: asset, label: `${player.name} SCENE ${sceneNumber}`, asset, player, sceneNumber };
+        return { id: asset, label: `${player.name} ENDING ${sceneNumber}`, asset, kind: 'ending', player, sceneNumber };
       }));
+      return [...openingItems, ...endingItems];
     }
     return [];
   }
@@ -815,6 +905,12 @@
     return '互いの分類は、まだ決着を許しません。';
   }
 
+  function formatVictoryLineForViewport(line) {
+    const value = String(line || '');
+    if (!document.body.classList.contains('fighter-smartphone')) return value;
+    return value.replace(/[ \t]*[\r\n]+[ \t]*/g, '');
+  }
+
   function randInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
@@ -904,6 +1000,7 @@
       winDet: winDetSound,
       winLily: winLilySound,
       winProf: winProfSound,
+      winFlib: winFlibSound,
       winEnemy: winEnemySound,
       victory: victorySound,
       result: resultSound
@@ -952,9 +1049,9 @@
     storyRoot?.querySelector('.fighter-character-select.is-exiting-to-vs')?.classList.remove('is-exiting-to-vs');
   }
 
-  function transitionFromSelectToVs() {
+  function transitionFromSelectToOpening() {
     clearSelectVsTransition();
-    stopMusicTrack({ fadeMs: SELECT_TO_VS_FADE_MS });
+    stopMusicTrack({ fadeMs: SELECT_TO_OPENING_FADE_MS });
     storyRoot?.querySelectorAll('button').forEach(button => {
       button.disabled = true;
     });
@@ -963,8 +1060,8 @@
     });
     selectVsTransitionTimer = setTimeout(() => {
       selectVsTransitionTimer = 0;
-      renderVsScreen({ musicAlreadyFading: true });
-    }, SELECT_TO_VS_SWITCH_DELAY_MS);
+      renderOpeningScreen();
+    }, SELECT_TO_OPENING_SWITCH_DELAY_MS);
   }
 
   function showModal(modal) {
@@ -1258,6 +1355,14 @@
     return `vs/vs_${enemyNumber}_${code}.webp`;
   }
 
+  function getOpeningImagePath(player, useCommonImage = false) {
+    const code = useCommonImage ? 'common' : (player?.vsCode || 'lib');
+    const usePortraitAsset = document.body.classList.contains('fighter-smartphone')
+      && document.body.classList.contains('fighter-portrait-stage');
+    const suffix = usePortraitAsset ? '_tate' : '';
+    return `opening/op_${code}${suffix}.webp`;
+  }
+
   function getVictoryImagePath(player, enemyIndex, outcome) {
     const usePortraitAsset = document.body.classList.contains('fighter-smartphone')
       && document.body.classList.contains('fighter-portrait-stage');
@@ -1292,6 +1397,7 @@
     if (code === 'det') return 'winDet';
     if (code === 'lily') return 'winLily';
     if (code === 'prof') return 'winProf';
+    if (code === 'flib') return 'winFlib';
     return 'winLib';
   }
 
@@ -1479,7 +1585,7 @@
   function setTitleControls() {
     stopGalleryEqualizerMonitor();
     document.body.classList.remove('game-playing', 'fighter-flow', 'fighter-playing', 'fighter-result');
-    document.body.classList.remove('fighter-selecting', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
+    document.body.classList.remove('fighter-selecting', 'fighter-opening', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
     document.body.classList.remove('fighter-two-player', 'fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live');
     document.body.classList.add('fighter-title');
     hideGameArea();
@@ -1511,7 +1617,7 @@
   function setFlowControls() {
     stopGalleryEqualizerMonitor();
     document.body.classList.remove('game-playing', 'fighter-playing', 'fighter-result', 'fighter-title');
-    document.body.classList.remove('fighter-selecting', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
+    document.body.classList.remove('fighter-selecting', 'fighter-opening', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
     document.body.classList.remove('fighter-two-player', 'fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live');
     document.body.classList.add('fighter-flow');
     hideGameArea();
@@ -1530,7 +1636,7 @@
 
   function setPlayingControls() {
     document.body.classList.remove('fighter-flow', 'fighter-result', 'fighter-title');
-    document.body.classList.remove('fighter-selecting', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
+    document.body.classList.remove('fighter-selecting', 'fighter-opening', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
     document.body.classList.remove('fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live');
     document.body.classList.add('game-playing', 'fighter-playing');
     document.body.classList.toggle('fighter-two-player', isTwoPlayerMode());
@@ -1551,7 +1657,7 @@
 
   function setResultControls() {
     document.body.classList.remove('game-playing', 'fighter-flow', 'fighter-playing', 'fighter-title');
-    document.body.classList.remove('fighter-selecting', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
+    document.body.classList.remove('fighter-selecting', 'fighter-opening', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
     document.body.classList.remove('fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live');
     document.body.classList.add('fighter-result');
     document.body.classList.toggle('fighter-two-player', isTwoPlayerMode());
@@ -1800,7 +1906,7 @@
   }
 
   function getGalleryTabLabel(tab) {
-    return ({ cutins: 'CUT-IN', victories: 'VICTORY', endings: 'ENDING', sounds: 'SOUND TEST' })[tab] || tab;
+    return ({ cutins: 'CUT-IN', victories: 'VICTORY', endings: 'OPENING / ENDING', sounds: 'SOUND TEST' })[tab] || tab;
   }
 
   function renderHowToScreen() {
@@ -1848,7 +1954,7 @@
               <article class="how-to-step">
                 <span class="how-to-step-number">01</span>
                 <div><small>CHOOSE YOUR HERO</small><h3>英雄を選ぶ</h3></div>
-                <p>4人のファイターから一人を選択。攻撃・防御・SPECIALは、それぞれ異なる。</p>
+                <p>5人のファイターから一人を選択。攻撃・防御・SPECIALは、それぞれ異なる。</p>
               </article>
               <article class="how-to-step">
                 <span class="how-to-step-number">02</span>
@@ -2117,9 +2223,10 @@
     screen = 'galleryViewer';
     setFlowControls();
     document.body.classList.add('fighter-gallery');
-    if (category === 'endings') await fetchEndingData();
+    const showsEndingText = category === 'endings' && item.kind === 'ending';
+    if (showsEndingText) await fetchEndingData();
     if (screen !== 'galleryViewer') return;
-    const endingLines = category === 'endings'
+    const endingLines = showsEndingText
       ? getEndingSceneLines(item.player, item.sceneNumber)
       : [];
     if (storyRoot) {
@@ -2128,7 +2235,7 @@
         <section class="gallery-viewer" aria-label="${esc(item.label)}">
           <div class="gallery-viewer-art">
             <img src="${esc(versionedSelectAsset(item.asset))}" alt="${esc(item.label)}">
-            ${category === 'endings'
+            ${showsEndingText
               ? `<div class="gallery-ending-message"><div>${renderEndingParagraphs(endingLines)}</div></div>`
               : ''}
           </div>
@@ -2315,6 +2422,14 @@
             <button type="button" data-confirm-player="${esc(previewPlayer.id)}">FIGHT WITH THIS HERO</button>
           </p>
         </div>`;
+      const specialPanel = storyRoot.querySelector('.character-special');
+      const specialDescription = specialPanel?.querySelector('p');
+      if (specialPanel && specialDescription) {
+        const descriptionStyle = getComputedStyle(specialDescription);
+        const lineHeight = Number.parseFloat(descriptionStyle.lineHeight) || 0;
+        const isMultiline = lineHeight > 0 && specialDescription.scrollHeight > lineHeight * 1.5;
+        specialPanel.classList.toggle('is-description-multiline', isMultiline);
+      }
     }
     storyRoot?.querySelector('[data-fighter-back]')?.addEventListener('click', renderTitleScreen);
     bindDifficultyButtons();
@@ -2327,8 +2442,118 @@
     storyRoot?.querySelector('[data-confirm-player]')?.addEventListener('click', event => {
       selectedPlayer = PLAYERS.find(player => player.id === event.currentTarget.dataset.confirmPlayer) || PLAYERS[0];
       stageIndex = 0;
-      transitionFromSelectToVs();
+      transitionFromSelectToOpening();
     });
+  }
+
+  function renderOpeningParagraphs(lines) {
+    return lines.map(line => {
+      const item = typeof line === 'string' ? { text: line, emphasis: false } : line;
+      return `<p class="${item?.emphasis ? 'is-emphasis' : ''}">${esc(item?.text || '')}</p>`;
+    }).join('');
+  }
+
+  function renderOpeningScreen(startSceneIndex = 0) {
+    ensureStoryUi();
+    clearSelectVsTransition();
+    clearRoundTimers();
+    cancelCountdown();
+    closeModal(howToModal);
+    closeModal(resultModal);
+    hideCpuCursor();
+    setFlowControls();
+    document.body.classList.add('fighter-opening');
+    document.body.classList.remove('fighter-selecting');
+    screen = 'opening';
+    currentEnemy = ENEMIES[0];
+    setMessage('', '', '');
+    resetDigits();
+    resetTimeDisplay();
+    playMusicTrack('opening');
+
+    const openingPlayer = selectedPlayer || PLAYERS[0];
+    const characterLines = OPENING_CHARACTER_SCENES[openingPlayer.id]
+      || OPENING_CHARACTER_SCENES.librarian;
+    const scenes = [
+      ...OPENING_COMMON_SCENES.map(scene => ({ ...scene, common: true })),
+      {
+        lines: characterLines,
+        common: false,
+        character: true
+      }
+    ];
+
+    const finishOpening = (screenEl, options = {}) => {
+      if (screen !== 'opening' || screenEl?.classList.contains('is-finishing')) return;
+      const linger = options.linger !== false;
+      screenEl?.classList.add('is-finishing');
+      screenEl?.querySelectorAll('button').forEach(button => { button.disabled = true; });
+
+      const beginVsTransition = () => {
+        if (screen !== 'opening') return;
+        screenEl?.classList.add('is-leaving');
+        stopMusicTrack({ fadeMs: OPENING_TO_VS_FADE_MS });
+        selectVsTransitionTimer = setTimeout(() => {
+          selectVsTransitionTimer = 0;
+          renderVsScreen({ musicAlreadyFading: true });
+        }, OPENING_TO_VS_FADE_MS);
+      };
+
+      if (linger) {
+        selectVsTransitionTimer = setTimeout(beginVsTransition, OPENING_TO_VS_HOLD_MS);
+      } else {
+        beginVsTransition();
+      }
+    };
+
+    const renderScene = sceneIndex => {
+      if (screen !== 'opening' || !storyRoot) return;
+      const boundedIndex = Math.max(0, Math.min(scenes.length - 1, sceneIndex));
+      const scene = scenes[boundedIndex];
+      const openingAssetPath = getOpeningImagePath(openingPlayer, scene.common);
+      unlockGalleryAsset('endings', openingAssetPath);
+      const imagePath = versionedSelectAsset(openingAssetPath);
+      storyRoot.hidden = false;
+      storyRoot.innerHTML = `
+        <section class="fighter-opening-screen opening-scene-${boundedIndex + 1} ${scene.character ? 'opening-scene-character' : 'opening-scene-common'}" tabindex="0" aria-label="OPENING DEMO ${boundedIndex + 1} / ${scenes.length}">
+          <img class="opening-full-art" src="${esc(imagePath)}" alt="${esc(scene.common ? '日本十進分類カルタ大会' : openingPlayer.name)} opening scene">
+          <button type="button" class="opening-skip-button" data-opening-skip>SKIP</button>
+          <div class="opening-message-window">
+            <div class="opening-message-text">
+              ${renderOpeningParagraphs(scene.lines)}
+              <span class="opening-continue-caret" aria-hidden="true"></span>
+            </div>
+          </div>
+        </section>`;
+
+      const screenEl = storyRoot.querySelector('.fighter-opening-screen');
+      const advance = () => {
+        if (screen !== 'opening') return;
+        if (boundedIndex < scenes.length - 1) {
+          renderScene(boundedIndex + 1);
+          return;
+        }
+        finishOpening(screenEl);
+      };
+      screenEl?.addEventListener('click', advance);
+      screenEl?.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          finishOpening(screenEl, { linger: false });
+          return;
+        }
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        advance();
+      });
+      storyRoot.querySelector('[data-opening-skip]')?.addEventListener('click', event => {
+        event.stopPropagation();
+        finishOpening(screenEl, { linger: false });
+      });
+      screenEl?.focus({ preventScroll: true });
+    };
+
+    renderScene(startSceneIndex);
   }
 
   function renderVsScreen(options = {}) {
@@ -2461,25 +2686,28 @@
         <section class="fighter-ending-screen ending-credit-screen" aria-label="CREDITS">
           <div class="ending-credit-viewport" aria-live="polite">
             <div class="ending-credit-roll">
-            <h2>NDC Karuta Heroes</h2>
-              <p>STORY</p>
-              <strong>ChatGPT</strong>
-              <p>ILLUSTRATION</p>
-              <strong>ChatGPT</strong>
-              <p>PROGRAMMING</p>
-              <strong>Codex</strong>
-              <p>BGM</p>
-              <strong>Suno</strong>
-              <p>SE/VOICE</p>
-              <strong>効果音ラボ<br>ElevenLabs</strong>
-              <p>NDC</p>
-              <strong>日本図書館協会</strong>
-              <p>PRODUCE</p>
-              <strong>やわらか図書館学</strong>
+              <h2>NDC Karuta Heroes</h2>
+              <div class="ending-credit-entry"><p>STORY</p><strong>ChatGPT</strong></div>
+              <div class="ending-credit-entry"><p>ILLUSTRATION</p><strong>ChatGPT</strong></div>
+              <div class="ending-credit-entry"><p>PROGRAMMING</p><strong>Codex</strong></div>
+              <div class="ending-credit-entry"><p>BGM</p><strong>Suno</strong></div>
+              <div class="ending-credit-entry">
+                <p>SE/VOICE</p>
+                <strong>効果音ラボ</strong>
+                <strong>ElevenLabs</strong>
+              </div>
+              <div class="ending-credit-entry"><p>NDC</p><strong>日本図書館協会</strong></div>
+              <div class="ending-credit-entry ending-credit-thanks">
+                <p>SPECIAL THANKS</p>
+                <strong>格闘系司書</strong>
+                <strong>すべての図書館を愛するプレイヤーへ</strong>
+              </div>
             </div>
             <div class="ending-credit-final">
-              <p>SPECIAL THANKS</p>
-              <strong>すべての図書館を愛するプレイヤーへ</strong>
+              <div class="ending-credit-entry">
+                <p>PRODUCE</p>
+                <strong>やわらか図書館学</strong>
+              </div>
               <em>THANK YOU FOR PLAYING</em>
             </div>
           </div>
@@ -2567,10 +2795,12 @@
     playerCombo = 0;
     enemyCombo = 0;
     lastComboOwner = null;
+    comboContinuationWindowOpen = false;
     resetFighterIconStates();
     pendingReveal = false;
     twoCandidateRevealTurnsRemaining = 0;
     cpuSkipTurnsRemaining = 0;
+    resetFightingPowerRush();
     playerDisabledThisRound = false;
     cpuDisabledThisRound = false;
     setReverseReading(false);
@@ -2698,6 +2928,41 @@
     }
   }
 
+  function resetFightingPowerRush() {
+    fightingPowerRushQueued = false;
+    fightingPowerRushTurnsRemaining = 0;
+    fightingPowerRushStreak = 0;
+    fightingPowerRushActiveThisTurn = false;
+  }
+
+  function isFightingPowerRushInProgress() {
+    return selectedPlayer?.skillType === 'fightingPowerRush'
+      && (fightingPowerRushQueued || fightingPowerRushTurnsRemaining > 0 || fightingPowerRushActiveThisTurn);
+  }
+
+  function advanceFightingPowerRushTurn() {
+    fightingPowerRushActiveThisTurn = false;
+    if (selectedPlayer?.skillType !== 'fightingPowerRush') {
+      resetFightingPowerRush();
+      return;
+    }
+    if (fightingPowerRushQueued) {
+      fightingPowerRushQueued = false;
+      fightingPowerRushTurnsRemaining = FIGHTING_POWER_RUSH_TURNS;
+      fightingPowerRushStreak = 0;
+    }
+    if (fightingPowerRushTurnsRemaining > 0) {
+      fightingPowerRushActiveThisTurn = true;
+      fightingPowerRushTurnsRemaining -= 1;
+      return;
+    }
+    fightingPowerRushStreak = 0;
+  }
+
+  function breakFightingPowerRushStreak() {
+    if (fightingPowerRushActiveThisTurn) fightingPowerRushStreak = 0;
+  }
+
   function nextRound(options = {}) {
     advanceReverseReadingRound();
     if (playerHp <= 0 || enemyHp <= 0 || round >= TURNS_PER_BATTLE_ROUND) {
@@ -2711,8 +2976,10 @@
     clearCardHints();
     round++;
     roundId++;
+    advanceFightingPowerRushTurn();
     roundActive = true;
     answered = false;
+    comboContinuationWindowOpen = true;
     playerDisabledThisRound = false;
     cpuDisabledThisRound = false;
     resetFighterIconStates();
@@ -2765,6 +3032,7 @@
       playerCombo = 0;
       enemyCombo = 0;
       lastComboOwner = null;
+      breakFightingPowerRushStreak();
       resetFighterIconStates();
       clearInterval(timeDisplayInterval);
       updateComboDisplay();
@@ -2788,6 +3056,7 @@
     playerCombo = 0;
     enemyCombo = 0;
     lastComboOwner = null;
+    breakFightingPowerRushStreak();
     resetFighterIconStates();
     updateComboDisplay();
     updateBattleHud();
@@ -2811,6 +3080,11 @@
     target.style.opacity = 1;
     playDigitSound(digit);
     maybeTriggerCpu(prefixLen);
+    if (prefixLen === 3) {
+      scheduleReadingTimeout(() => {
+        comboContinuationWindowOpen = false;
+      }, DIGIT_READING_COMPLETE_MS);
+    }
   }
 
   function scheduleReadingTimeout(callback, delay) {
@@ -2982,24 +3256,35 @@
     timeEl.classList.remove('danger');
 
     const owner = isCPU ? 'enemy' : 'player';
+    const continuesCombo = comboContinuationWindowOpen && lastComboOwner === owner;
     if (owner === 'player') {
-      playerCombo = lastComboOwner === 'player' ? playerCombo + 1 : 1;
+      playerCombo = continuesCombo ? playerCombo + 1 : 1;
       enemyCombo = 0;
     } else {
-      enemyCombo = lastComboOwner === 'enemy' ? enemyCombo + 1 : 1;
+      enemyCombo = continuesCombo ? enemyCombo + 1 : 1;
       playerCombo = 0;
     }
     lastComboOwner = owner;
     setFighterIconStatesForCardTake(owner);
 
     const combo = owner === 'player' ? playerCombo : enemyCombo;
+    const fightingPowerRushHit = !isCPU && fightingPowerRushActiveThisTurn;
+    if (fightingPowerRushHit) {
+      fightingPowerRushStreak += 1;
+    } else if (isCPU) {
+      breakFightingPowerRushStreak();
+    }
+    const fightingPowerRushKo = fightingPowerRushHit
+      && fightingPowerRushStreak >= FIGHTING_POWER_RUSH_TURNS;
     const baseDamage = calcDamage(combo);
     const damageMultiplier = isTwoPlayerMode()
       ? 1
       : isCPU
       ? (selectedPlayer.damageTakenMultiplier || 1)
-      : (selectedPlayer.damageDealtMultiplier || 1);
-    const damage = Math.max(1, Math.round(baseDamage * damageMultiplier));
+      : (selectedPlayer.damageDealtMultiplier || 1)
+        * (fightingPowerRushHit ? FIGHTING_POWER_RUSH_MULTIPLIER : 1);
+    let damage = Math.max(1, Math.round(baseDamage * damageMultiplier));
+    if (fightingPowerRushKo) damage = Math.max(damage, enemyHp);
     const gaugeGain = calcGaugeGain(elapsed);
     const difficulty = DIFFICULTIES[selectedDifficulty] || DIFFICULTIES.normal;
 
@@ -3021,7 +3306,7 @@
     if (combo >= 2) showComboCutin(owner, combo);
     pulseBody(isCPU ? 'cpu-hit-flash' : 'hit-flash');
     burstFromElement(cardEl, isCPU ? '#9d4f58' : '#d8a444', combo >= 2 ? 28 : 18);
-    popText(isCPU ? `${damage} DMG` : `${damage} DMG`, cardEl, isCPU ? '#9d4f58' : '#d8a444');
+    popText(fightingPowerRushKo ? 'K.O.' : `${damage} DMG`, cardEl, isCPU ? '#9d4f58' : '#d8a444');
     cardEl.classList.add(isCPU ? 'enemy-correct' : 'correct');
     setTimeout(() => {
       cardEl.style.visibility = 'hidden';
@@ -3031,7 +3316,13 @@
 
     const actor = isCPU ? currentEnemy.name : selectedPlayer.name;
     const target = isCPU ? selectedPlayer.name : currentEnemy.name;
-    setMessage(isCPU ? 'warning' : 'success', `${actor} HIT`, `${target}に${damage}ダメージ`);
+    setMessage(
+      isCPU ? 'warning' : 'success',
+      fightingPowerRushKo ? selectedPlayer.skillName : `${actor} HIT`,
+      fightingPowerRushKo
+        ? '3ターン連続正解！相手の体力を0にした'
+        : `${target}に${damage}ダメージ`
+    );
     updateComboDisplay();
     updateBattleHud();
 
@@ -3054,6 +3345,7 @@
     } else {
       playerDisabledThisRound = true;
       playerCombo = 0;
+      breakFightingPowerRushStreak();
       lastComboOwner = enemyCombo > 0 ? 'enemy' : null;
       if (!isTwoPlayerMode()) playerGauge = clamp(playerGauge + devTuning.gauge.playerMiss, 0, MAX_GAUGE);
     }
@@ -3117,7 +3409,13 @@
     const playerMaxHp = getPlayerMaxHp();
     const enemyMaxHp = 100;
     const enemySkillPending = currentEnemy.skillType === 'pending';
-    const playerSkillReady = playerGauge >= MAX_GAUGE;
+    const fightingPowerRushInProgress = isFightingPowerRushInProgress();
+    const playerSkillReady = playerGauge >= MAX_GAUGE && !fightingPowerRushInProgress;
+    const playerSkillStatus = fightingPowerRushInProgress
+      ? fightingPowerRushQueued
+        ? 'NEXT TURN'
+        : `POWER ${fightingPowerRushStreak}/${FIGHTING_POWER_RUSH_TURNS}`
+      : 'CHARGE';
     const enemySkillReady = enemyGauge >= MAX_GAUGE && !enemySkillPending;
     const playerHpPercent = clamp((playerHp / playerMaxHp) * 100, 0, 100);
     const enemyHpPercent = clamp((enemyHp / enemyMaxHp) * 100, 0, 100);
@@ -3164,8 +3462,8 @@
 
     skillStrip.classList.remove('is-hidden');
     skillStrip.innerHTML = `
-      <div class="skill-meter player ${playerSkillReady ? 'is-ready' : ''}">
-        <div class="fighter-label"><span>SUPER</span><strong>${esc(selectedPlayer.skillName)}</strong><em>CHARGE</em></div>
+      <div class="skill-meter player ${playerSkillReady ? 'is-ready' : ''} ${fightingPowerRushInProgress ? 'is-active' : ''}">
+        <div class="fighter-label"><span>SUPER</span><strong>${esc(selectedPlayer.skillName)}</strong><em>${esc(playerSkillStatus)}</em></div>
         <div class="gauge-track"><span style="width:${playerGauge}%"></span></div>
       </div>
       <button id="fighterSkillButton" type="button" ${playerSkillReady ? '' : 'disabled'}>SPECIAL</button>
@@ -3207,6 +3505,17 @@
       cpuSkipTurnsRemaining = Math.max(cpuSkipTurnsRemaining, 2);
       playerGauge = 0;
       setMessage('success', selectedPlayer.skillName, '次の2ターン、相手の解答権を封じる');
+      activated = true;
+    } else if (selectedPlayer.skillType === 'fightingPowerRush') {
+      if (isFightingPowerRushInProgress()) {
+        setMessage('warning', selectedPlayer.skillName, '攻撃力上昇の効果が続いている');
+        updateBattleHud();
+        return;
+      }
+      fightingPowerRushQueued = true;
+      fightingPowerRushStreak = 0;
+      playerGauge = 0;
+      setMessage('success', selectedPlayer.skillName, '次のターンから3ターン、攻撃力上昇');
       activated = true;
     }
     if (!activated) return;
@@ -3654,12 +3963,15 @@
       : isFinal ? 'GAME CLEAR' : outcome === 'win' ? 'WINNER' : outcome === 'lose' ? 'DEFEATED' : 'DRAW';
     const resultImagePath = getVictoryImagePath(selectedPlayer, stageIndex, outcome);
     unlockGalleryAsset('victories', resultImagePath);
+    const resultCharacter = outcome === 'lose'
+      ? (isTwoPlayerMode() ? getTwoPlayerTwo() : currentEnemy)
+      : (isTwoPlayerMode() ? getTwoPlayerOne() : selectedPlayer);
     const resultAltName = outcome === 'lose' ? currentEnemy.name : selectedPlayer.name;
-    const resultLine = getBattleLine(outcome, isFinal);
+    const resultLine = formatVictoryLineForViewport(getBattleLine(outcome, isFinal));
     setMessage(outcome === 'win' ? 'finish' : 'warning', resultMain, `${selectedPlayer.name} HP ${playerHp} / ${currentEnemy.name} HP ${enemyHp}`);
     if (battleResultEl) {
       battleResultEl.innerHTML = `
-        <section class="reference-result-screen victory-art-screen outcome-${esc(outcome)} ${isFinal ? 'is-final' : ''} ${isTwoPlayerMode() ? 'two-player-result' : ''}" aria-label="${esc(resultMain)}: ${esc(resultAltName)}">
+        <section class="reference-result-screen victory-art-screen outcome-${esc(outcome)} ${isFinal ? 'is-final' : ''} ${isTwoPlayerMode() ? 'two-player-result' : ''}" data-result-character="${esc(resultCharacter?.id || selectedPlayer?.id || '')}" aria-label="${esc(resultMain)}: ${esc(resultAltName)}">
           <img class="victory-full-art" src="${esc(resultImagePath)}" alt="${esc(resultMain)}: ${esc(resultAltName)}">
           <div class="victory-message-window" aria-live="polite">
             <p>${esc(resultLine)}</p>
@@ -3743,6 +4055,7 @@
     pendingReveal = false;
     twoCandidateRevealTurnsRemaining = 0;
     cpuSkipTurnsRemaining = 0;
+    resetFightingPowerRush();
     playerDisabledThisRound = false;
     cpuDisabledThisRound = false;
     playerCombo = 0;

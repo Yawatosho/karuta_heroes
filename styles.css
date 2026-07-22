@@ -3699,6 +3699,8 @@ body[data-mode="cpu"] .result-modal .result-actions button {
 }
 
 body[data-mode="cpu"] .reference-result-screen.victory-art-screen {
+  --victory-glow-primary: rgba(85, 162, 255, 0.62);
+  --victory-glow-secondary: rgba(150, 211, 255, 0.34);
   position: absolute;
   inset: 0 !important;
   width: 100%;
@@ -3753,6 +3755,7 @@ body[data-mode="cpu"] .victory-message-window {
 body[data-mode="cpu"] .victory-message-window p {
   max-width: min(76%, 860px);
   margin: 0;
+  white-space: pre-line;
   color: #f7fbff;
   font-family: "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Noto Serif JP", serif;
   font-size: clamp(1.24rem, 2.08vw, 2.15rem);
@@ -3763,8 +3766,53 @@ body[data-mode="cpu"] .victory-message-window p {
   text-shadow:
     0 2px 7px rgba(0, 0, 0, 0.88),
     0 0 11px rgba(255, 255, 255, 0.68),
-    0 0 24px rgba(85, 162, 255, 0.62),
-    0 0 38px rgba(150, 211, 255, 0.34);
+    0 0 24px var(--victory-glow-primary),
+    0 0 38px var(--victory-glow-secondary);
+}
+
+body[data-mode="cpu"] .victory-art-screen[data-result-character="librarian"] {
+  --victory-glow-primary: rgba(53, 151, 255, 0.78);
+  --victory-glow-secondary: rgba(97, 195, 255, 0.45);
+}
+
+body[data-mode="cpu"] .victory-art-screen[data-result-character="detective"] {
+  --victory-glow-primary: rgba(255, 185, 63, 0.78);
+  --victory-glow-secondary: rgba(255, 221, 134, 0.43);
+}
+
+body[data-mode="cpu"] .victory-art-screen[data-result-character="lily"] {
+  --victory-glow-primary: rgba(172, 74, 255, 0.78);
+  --victory-glow-secondary: rgba(221, 139, 255, 0.43);
+}
+
+body[data-mode="cpu"] .victory-art-screen[data-result-character="professor"] {
+  --victory-glow-primary: rgba(224, 157, 94, 0.72);
+  --victory-glow-secondary: rgba(255, 213, 164, 0.40);
+}
+
+body[data-mode="cpu"] .victory-art-screen[data-result-character="fightingLibrarian"] {
+  --victory-glow-primary: rgba(38, 135, 255, 0.82);
+  --victory-glow-secondary: rgba(75, 218, 255, 0.44);
+}
+
+body[data-mode="cpu"] .victory-art-screen[data-result-character="wind"] {
+  --victory-glow-primary: rgba(133, 202, 89, 0.78);
+  --victory-glow-secondary: rgba(198, 255, 149, 0.42);
+}
+
+body[data-mode="cpu"] .victory-art-screen[data-result-character="magician"] {
+  --victory-glow-primary: rgba(153, 58, 255, 0.78);
+  --victory-glow-secondary: rgba(209, 125, 255, 0.44);
+}
+
+body[data-mode="cpu"] .victory-art-screen[data-result-character="digital"] {
+  --victory-glow-primary: rgba(29, 191, 255, 0.80);
+  --victory-glow-secondary: rgba(111, 229, 255, 0.44);
+}
+
+body[data-mode="cpu"] .victory-art-screen[data-result-character="supreme"] {
+  --victory-glow-primary: rgba(255, 235, 202, 0.82);
+  --victory-glow-secondary: rgba(255, 255, 255, 0.48);
 }
 
 body[data-mode="cpu"] .result-modal .modal-frame:has(.victory-art-screen) {
@@ -4770,6 +4818,15 @@ body[data-mode="cpu"] .character-story {
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.58);
 }
 
+body[data-mode="cpu"] .character-special.is-description-multiline {
+  height: 125px;
+}
+
+body[data-mode="cpu"] .character-special.is-description-multiline p {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
 body[data-mode="cpu"] .fighter-stat-panel {
   display: grid;
   gap: 11px;
@@ -4978,7 +5035,7 @@ body[data-mode="cpu"] .character-select-info {
 
 body[data-mode="cpu"] .character-select-info h3 {
   display: flex;
-  align-items: baseline;
+  align-items: flex-end;
   gap: 18px;
 }
 
@@ -5200,6 +5257,212 @@ body[data-mode="cpu"].fighter-ending .credits {
   display: none;
 }
 
+body[data-mode="cpu"].fighter-opening .game-shell {
+  padding: 0;
+  background: #090807;
+}
+
+body[data-mode="cpu"].fighter-opening .game-shell::before {
+  inset: 10px;
+  z-index: 9;
+  border-color: rgba(255, 210, 122, 0.3);
+  pointer-events: none;
+}
+
+body[data-mode="cpu"].fighter-opening .game-shell::after {
+  display: none;
+}
+
+body[data-mode="cpu"].fighter-opening .fighter-story {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  align-content: normal;
+}
+
+body[data-mode="cpu"] .fighter-opening-screen {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  overflow: hidden;
+  background: #090807;
+  cursor: pointer;
+  animation: none;
+}
+
+body[data-mode="cpu"] .fighter-opening-screen.opening-scene-character {
+  animation: openingSceneReveal 420ms ease both;
+}
+
+body[data-mode="cpu"] .fighter-opening-screen.is-finishing {
+  pointer-events: none;
+}
+
+body[data-mode="cpu"] .fighter-opening-screen.is-leaving {
+  animation: openingSceneLeave 720ms ease both;
+}
+
+body[data-mode="cpu"] .opening-full-art {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  animation: none;
+}
+
+body[data-mode="cpu"] .opening-scene-character .opening-full-art {
+  animation: openingArtReveal 7s ease-out both;
+}
+
+body[data-mode="cpu"] .fighter-opening-screen::before {
+  content: "";
+  display: none;
+}
+
+body[data-mode="cpu"] .fighter-opening-screen::after {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  z-index: 6;
+  border: 1px solid rgba(255, 221, 143, 0.34);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    inset 0 0 42px rgba(255, 182, 68, 0.08);
+  pointer-events: none;
+}
+
+body[data-mode="cpu"] .opening-skip-button {
+  position: absolute;
+  top: 24px;
+  right: 34px;
+  z-index: 8;
+  min-width: 116px;
+  min-height: 42px;
+  padding: 8px 18px;
+  border: 1px solid rgba(255, 225, 164, 0.66);
+  border-radius: 0;
+  background: rgba(7, 8, 14, 0.7);
+  color: #fff1cf;
+  cursor: pointer;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 1.16rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  box-shadow: inset 0 0 18px rgba(255, 192, 90, 0.08), 0 4px 18px rgba(0, 0, 0, 0.34);
+}
+
+body[data-mode="cpu"] .opening-skip-button:hover,
+body[data-mode="cpu"] .opening-skip-button:focus-visible {
+  border-color: rgba(255, 225, 164, 0.94);
+  background: rgba(68, 43, 16, 0.82);
+  box-shadow: inset 0 0 22px rgba(255, 192, 90, 0.16), 0 0 18px rgba(255, 177, 61, 0.24);
+}
+
+body[data-mode="cpu"] .opening-message-window {
+  position: absolute;
+  right: 48px;
+  bottom: 30px;
+  left: 48px;
+  z-index: 5;
+  display: grid;
+  min-height: 226px;
+  padding: 22px 34px 24px;
+  border: 1px solid rgba(255, 226, 159, 0.58);
+  background:
+    linear-gradient(180deg, rgba(8, 9, 16, 0.56), rgba(8, 8, 14, 0.76)),
+    radial-gradient(circle at 50% 0%, rgba(255, 184, 75, 0.08), transparent 58%);
+  box-shadow:
+    0 12px 42px rgba(0, 0, 0, 0.48),
+    0 0 30px rgba(255, 176, 64, 0.13),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset 0 0 44px rgba(52, 75, 126, 0.12);
+  pointer-events: none;
+}
+
+body[data-mode="cpu"] .opening-message-text {
+  display: grid;
+  align-content: center;
+  justify-items: stretch;
+  gap: 2px;
+  min-width: 0;
+}
+
+body[data-mode="cpu"] .opening-message-text p {
+  margin: 0;
+  color: #f9f7f2;
+  font-family: var(--fighter-serif);
+  font-size: 1.24rem;
+  font-weight: 750;
+  line-height: 1.43;
+  letter-spacing: 0.01em;
+  text-shadow:
+    0 2px 7px rgba(0, 0, 0, 0.94),
+    0 0 12px rgba(255, 255, 255, 0.22);
+}
+
+body[data-mode="cpu"] .opening-message-text p.is-emphasis {
+  margin-top: 7px;
+  color: #fff0bd;
+  font-size: 1.52rem;
+  font-weight: 900;
+  letter-spacing: 0.025em;
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.94),
+    0 0 12px rgba(255, 255, 255, 0.32),
+    0 0 24px rgba(255, 177, 61, 0.42);
+}
+
+body[data-mode="cpu"] .opening-scene-2 .opening-message-text {
+  justify-items: center;
+  text-align: center;
+}
+
+body[data-mode="cpu"] .opening-scene-2 .opening-message-text p.is-emphasis {
+  margin-top: 12px;
+  font-size: 2.35rem;
+  letter-spacing: 0.08em;
+}
+
+body[data-mode="cpu"] .opening-scene-character .opening-message-text p {
+  font-size: 1.13rem;
+  line-height: 1.42;
+}
+
+body[data-mode="cpu"] .opening-continue-caret {
+  display: block;
+  justify-self: center;
+  width: 0;
+  height: 0;
+  margin-top: 7px;
+  border-top: 13px solid #fff3d2;
+  border-right: 10px solid transparent;
+  border-left: 10px solid transparent;
+  filter: drop-shadow(0 0 7px rgba(255, 184, 72, 0.72));
+  animation: endingCaretBlink 1.05s ease-in-out infinite;
+}
+
+@keyframes openingSceneReveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes openingSceneLeave {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes openingArtReveal {
+  from { transform: scale(1.018); }
+  to { transform: scale(1); }
+}
+
 body[data-mode="cpu"].fighter-ending .game-shell {
   padding: 0;
   background: #05070e;
@@ -5366,7 +5629,7 @@ body[data-mode="cpu"] .ending-credit-roll {
   bottom: 0;
   display: grid;
   justify-items: center;
-  gap: 18px;
+  gap: 30px;
   width: 760px;
   padding: 0 54px 80px;
   border: 0;
@@ -5392,7 +5655,7 @@ body[data-mode="cpu"] .ending-credit-final p {
 }
 
 body[data-mode="cpu"] .ending-credit-roll h2 {
-  margin: 0 0 40px;
+  margin: 0 0 12px;
   color: #fffaf0;
   font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
   font-size: 5rem;
@@ -5401,6 +5664,17 @@ body[data-mode="cpu"] .ending-credit-roll h2 {
   text-shadow:
     0 3px 0 rgba(0, 0, 0, 0.82),
     0 0 24px rgba(255, 159, 46, 0.58);
+}
+
+body[data-mode="cpu"] .ending-credit-entry {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+body[data-mode="cpu"] .ending-credit-entry strong + strong {
+  margin-top: 2px;
 }
 
 body[data-mode="cpu"] .ending-credit-roll strong,
@@ -5425,7 +5699,7 @@ body[data-mode="cpu"] .ending-credit-final {
   z-index: 6;
   display: grid;
   justify-items: center;
-  gap: 20px;
+  gap: 48px;
   width: 880px;
   color: #fff8e8;
   text-align: center;
@@ -5442,7 +5716,7 @@ body[data-mode="cpu"] .ending-credit-final strong {
 }
 
 body[data-mode="cpu"] .ending-credit-final em {
-  margin-top: 58px;
+  margin-top: 0;
   color: #ffd27a;
   font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
   font-size: 3.1rem;
@@ -5476,10 +5750,10 @@ body[data-mode="cpu"] .ending-credit-screen > button {
 }
 
 @keyframes endingCreditFinalHold {
-  0%, 56% {
+  0%, 65% {
     transform: translate(-50%, 520px);
   }
-  88%, 100% {
+  84%, 100% {
     transform: translate(-50%, -50%);
   }
 }
@@ -5506,6 +5780,18 @@ body[data-mode="cpu"].fighter-playing .skill-meter.is-ready .fighter-label stron
   text-shadow:
     0 0 8px rgba(255, 226, 138, 0.72),
     0 0 18px rgba(255, 168, 54, 0.38);
+}
+
+body[data-mode="cpu"].fighter-playing .skill-meter.is-active .fighter-label em {
+  color: #ffe28a;
+  text-shadow: 0 0 10px rgba(255, 179, 63, 0.72);
+}
+
+body[data-mode="cpu"].fighter-playing .skill-meter.is-active .gauge-track {
+  border-color: rgba(255, 179, 63, 0.7);
+  box-shadow:
+    0 0 10px rgba(255, 179, 63, 0.34),
+    inset 0 0 12px rgba(255, 179, 63, 0.12);
 }
 
 body[data-mode="cpu"].fighter-playing .skill-meter.is-ready .gauge-track {
@@ -7506,7 +7792,8 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-selec
 }
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-select-info h3 {
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: flex-end;
   gap: 4px 8px;
   font-size: clamp(1.32rem, 6.7vw, 1.82rem);
   line-height: 1;
@@ -7534,6 +7821,15 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-speci
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-special p {
   font-size: 0.66rem;
   line-height: 1.28;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-special.is-description-multiline {
+  height: 78px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .character-special.is-description-multiline p {
+  font-size: 0.53rem;
+  line-height: 1.08;
 }
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-stat-panel {
@@ -8444,6 +8740,79 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .result-modal .m
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .result-modal .result-actions #fighterContinueButton,
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .result-modal .result-actions #resultTopButton {
   min-width: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-opening-screen {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-opening-screen::after {
+  inset: 8px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .opening-full-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .opening-skip-button {
+  top: 14px;
+  right: 16px;
+  min-width: 76px;
+  min-height: 34px;
+  padding: 5px 10px;
+  font-size: 0.86rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .opening-message-window {
+  right: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  left: 12px;
+  min-height: 0;
+  max-height: min(46%, 330px);
+  padding: 14px 14px max(16px, calc(env(safe-area-inset-bottom) + 10px));
+  overflow: hidden;
+  border-radius: 5px;
+  background:
+    linear-gradient(180deg, rgba(8, 9, 16, 0.56), rgba(8, 8, 14, 0.76)),
+    radial-gradient(circle at 50% 0%, rgba(255, 184, 75, 0.06), transparent 60%);
+  backdrop-filter: blur(4px);
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .opening-message-text {
+  gap: 1px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .opening-message-text p,
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .opening-scene-character .opening-message-text p {
+  font-size: clamp(0.8rem, 3.45vw, 0.96rem);
+  line-height: 1.42;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .opening-message-text p.is-emphasis {
+  margin-top: 4px;
+  font-size: clamp(0.88rem, 3.85vw, 1.04rem);
+  line-height: 1.4;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .opening-scene-2 .opening-message-text p.is-emphasis {
+  margin-top: 8px;
+  font-size: clamp(1.12rem, 5vw, 1.38rem);
+  letter-spacing: 0.035em;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .opening-continue-caret {
+  margin-top: 4px;
+  border-top-width: 10px;
+  border-right-width: 8px;
+  border-left-width: 8px;
 }
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .fighter-ending-screen:not(.ending-credit-screen) {
