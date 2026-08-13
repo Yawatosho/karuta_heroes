@@ -6403,7 +6403,10 @@ body[data-mode="cpu"].fighter-title .credits {
   bottom: 16px;
   left: 0;
   z-index: 4;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   margin: 0;
   color: rgba(255, 248, 232, 0.68);
   font-family: "Noto Sans JP", sans-serif;
@@ -6416,6 +6419,31 @@ body[data-mode="cpu"].fighter-title .credits {
 
 body[data-mode="cpu"].fighter-title .credits p {
   margin: 0;
+}
+
+body[data-mode="cpu"].fighter-title .yawatosho-games-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.55em 0.9em;
+  border: 1px solid rgba(255, 248, 232, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: inherit;
+  font: 600 12px/1.2 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  text-shadow: none;
+  backdrop-filter: blur(6px);
+  transition: border-color 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+}
+
+body[data-mode="cpu"].fighter-title .yawatosho-games-link:hover,
+body[data-mode="cpu"].fighter-title .yawatosho-games-link:focus-visible {
+  border-color: rgba(255, 220, 148, 0.72);
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff8e8;
+  outline: none;
 }
 
 body[data-mode="cpu"].fighter-title .action-row {
@@ -8071,9 +8099,16 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .a
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .credits {
   bottom: 10px;
+  gap: 7px;
   padding: 0 10px;
   font-size: 0.64rem;
   line-height: 1.35;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-title .yawatosho-games-link {
+  flex: 0 0 auto;
+  padding: 0.48em 0.72em;
+  font-size: 0.58rem;
 }
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-selecting .game-shell {
