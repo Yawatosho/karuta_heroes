@@ -3,6 +3,7 @@
 **/._*
 **/.DS_Store
 /local-dev/
+/ignore/
 /reference/
 **/original/
 /original/

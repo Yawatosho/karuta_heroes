@@ -65,7 +65,7 @@
   const GALLERY_TABS = ['cutins', 'victories', 'endings', 'artworks', 'sounds'];
   const ARTWORK_ITEMS = Array.from({ length: 16 }, (_, index) => {
     const number = String(index + 1).padStart(2, '0');
-    const asset = `artwork/artwork${number}.png`;
+    const asset = `artwork/artwork${number}.webp`;
     return { id: asset, label: `ARTWORK ${number}`, asset };
   });
   const GALLERY_SOUND_GROUPS = [
@@ -498,7 +498,7 @@
 
   function normalizeGalleryAssetId(value) {
     const assetId = String(value || '').split('?')[0];
-    return assetId.startsWith('artwork/') ? assetId : assetId.replace(/\.png$/i, '.webp');
+    return assetId.replace(/\.png$/i, '.webp');
   }
 
   function unlockGalleryAsset(category, assetPath) {
