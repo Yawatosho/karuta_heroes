@@ -5975,6 +5975,187 @@ body[data-mode="cpu"] .ending-credit-screen > button {
   z-index: 6;
 }
 
+/* Story clear reward: reveal one previously locked artwork after the credits. */
+body[data-mode="cpu"].fighter-artwork-unlock .topbar,
+body[data-mode="cpu"].fighter-artwork-unlock .credits {
+  display: none;
+}
+
+body[data-mode="cpu"].fighter-artwork-unlock .game-shell {
+  padding: 0;
+  background:
+    radial-gradient(circle at 50% 44%, rgba(255, 194, 96, 0.16), transparent 42%),
+    linear-gradient(135deg, rgba(255, 143, 37, 0.1), transparent 40%, rgba(177, 73, 255, 0.16)),
+    #05070e;
+}
+
+body[data-mode="cpu"].fighter-artwork-unlock .fighter-story {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.artwork-unlock-screen {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: 76px minmax(0, 1fr) 52px;
+  gap: 12px;
+  padding: 24px 42px 22px;
+  overflow: hidden;
+  color: #fff8e8;
+}
+
+.artwork-unlock-screen::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(255, 216, 139, 0.3);
+  box-shadow: inset 0 0 46px rgba(255, 171, 55, 0.08);
+  pointer-events: none;
+}
+
+.artwork-unlock-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: end;
+  gap: 18px;
+  border-bottom: 1px solid rgba(255, 214, 139, 0.38);
+}
+
+.artwork-unlock-header span {
+  margin-bottom: 10px;
+  color: #ffd27a;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+.artwork-unlock-header h2 {
+  margin: 0;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 4.4rem;
+  line-height: 0.92;
+  text-shadow: 0 3px 0 rgba(47, 12, 4, 0.95), 0 0 22px rgba(255, 168, 50, 0.62);
+}
+
+.artwork-unlock-stage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 18px;
+  min-height: 0;
+  padding: 12px;
+  border: 1px solid rgba(255, 214, 139, 0.28);
+  background: rgba(3, 4, 10, 0.7);
+  box-shadow: 0 20px 54px rgba(0, 0, 0, 0.44);
+}
+
+.artwork-unlock-visual {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 224, 159, 0.5);
+  background: #03040a;
+  box-shadow: 0 0 30px rgba(255, 165, 48, 0.18);
+  animation: artworkUnlockReveal 0.8s cubic-bezier(0.2, 0.78, 0.22, 1) both;
+}
+
+.artwork-unlock-visual img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.artwork-unlock-visual figcaption {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 224, 159, 0.4);
+  background: rgba(3, 4, 10, 0.76);
+  color: #fff1c8;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.artwork-unlock-message {
+  display: grid;
+  align-content: center;
+  gap: 12px;
+  padding: 26px 24px;
+  border-left: 3px solid #f7a633;
+  background: linear-gradient(135deg, rgba(255, 177, 64, 0.12), transparent 56%), rgba(10, 9, 18, 0.9);
+}
+
+.artwork-unlock-message > span {
+  color: #ffd27a;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 16px rgba(255, 166, 49, 0.48);
+}
+
+.artwork-unlock-message h3,
+.artwork-unlock-message p {
+  margin: 0;
+  font-family: "Noto Sans JP", sans-serif;
+}
+
+.artwork-unlock-message h3 {
+  font-size: 1.5rem;
+  line-height: 1.45;
+}
+
+.artwork-unlock-message p {
+  color: rgba(255, 248, 232, 0.7);
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.75;
+}
+
+.artwork-unlock-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.artwork-unlock-actions button {
+  min-width: 230px;
+  border: 1px solid rgba(255, 230, 157, 0.72);
+  border-radius: 0;
+  background: linear-gradient(180deg, rgba(255, 230, 157, 0.94), rgba(255, 156, 45, 0.92) 52%, rgba(114, 48, 5, 0.96));
+  color: #1b1307;
+  cursor: pointer;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 1.35rem;
+  font-weight: 900;
+  box-shadow: 0 0 24px rgba(255, 153, 38, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.62);
+}
+
+.artwork-unlock-actions button:hover,
+.artwork-unlock-actions button:focus-visible {
+  border-color: #fff1b9;
+  transform: translateY(-1px);
+}
+
+@keyframes artworkUnlockReveal {
+  from { opacity: 0; filter: brightness(1.6) blur(8px); transform: scale(1.035); }
+  to { opacity: 1; filter: brightness(1) blur(0); transform: scale(1); }
+}
+
 @keyframes endingCaretBlink {
   0%, 100% {
     opacity: 0.28;
@@ -7239,7 +7420,7 @@ body[data-mode="cpu"].fighter-gallery .fighter-story {
 
 .gallery-tabs {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -8711,7 +8892,7 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .gallery-header 
 }
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .gallery-tabs {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 5px;
 }
 
@@ -8847,6 +9028,71 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .gallery-viewer-
   min-width: 0;
   min-height: 42px;
   font-size: 0.96rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-artwork-unlock .game-shell {
+  padding: 0;
+  border: 0;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .artwork-unlock-screen {
+  grid-template-rows: auto minmax(0, 1fr) 42px;
+  gap: 7px;
+  padding: 12px 10px max(9px, env(safe-area-inset-bottom));
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .artwork-unlock-header {
+  min-height: 52px;
+  align-items: end;
+  gap: 9px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .artwork-unlock-header span {
+  margin-bottom: 5px;
+  font-size: 0.66rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .artwork-unlock-header h2 {
+  font-size: 2.65rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .artwork-unlock-stage {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 7px;
+  padding: 7px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .artwork-unlock-visual figcaption {
+  right: 7px;
+  bottom: 6px;
+  padding: 4px 8px;
+  font-size: 0.72rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .artwork-unlock-message {
+  gap: 5px;
+  padding: 10px 12px;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .artwork-unlock-message > span {
+  font-size: 0.82rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .artwork-unlock-message h3 {
+  font-size: 0.88rem;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .artwork-unlock-message p {
+  font-size: 0.64rem;
+  line-height: 1.55;
+}
+
+body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .artwork-unlock-actions button {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  font-size: 1rem;
 }
 
 body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage.fighter-vs-ready .game-shell,

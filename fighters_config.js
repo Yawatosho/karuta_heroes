@@ -242,6 +242,13 @@
   // Public update history. Add the newest entry to the beginning of this array.
   const patchNotes = [
     {
+      date: '2026.08.15',
+      isoDate: '2026-08-15',
+      items: [
+        '「STORY MODE」クリア時にアートワークを獲得できるコレクション機能を追加しました'
+      ]
+    },
+    {
       date: '2026.07.23',
       isoDate: '2026-07-23',
       items: [

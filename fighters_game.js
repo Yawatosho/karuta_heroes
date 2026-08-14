@@ -62,7 +62,12 @@
   const STORY_PROGRESS_PHASES = new Set(['opening', 'battle', 'ending']);
   const TUTORIAL_STORAGE_KEY = 'karutaTutorialProgressV1';
   const TUTORIAL_PROGRESS_VERSION = 1;
-  const GALLERY_TABS = ['cutins', 'victories', 'endings', 'sounds'];
+  const GALLERY_TABS = ['cutins', 'victories', 'endings', 'artworks', 'sounds'];
+  const ARTWORK_ITEMS = Array.from({ length: 16 }, (_, index) => {
+    const number = String(index + 1).padStart(2, '0');
+    const asset = `artwork/artwork${number}.png`;
+    return { id: asset, label: `ARTWORK ${number}`, asset };
+  });
   const GALLERY_SOUND_GROUPS = [
     {
       label: 'BGM',
@@ -167,6 +172,7 @@
   const winEnemySound = document.getElementById('winEnemySound');
   const victorySound = document.getElementById('victorySound');
   const resultSound = document.getElementById('resultSound');
+  const artworkSound = document.getElementById('artworkSound');
   const continueButton = document.getElementById('continueButton');
   const continueButtonDetail = document.getElementById('continueButtonDetail');
   const startButton = document.getElementById('startButton');
@@ -470,7 +476,7 @@
   }
 
   function createEmptyGalleryProgress() {
-    return { cutins: [], victories: [], endings: [] };
+    return { cutins: [], victories: [], endings: [], artworks: [] };
   }
 
   function readGalleryProgress() {
@@ -491,7 +497,8 @@
   }
 
   function normalizeGalleryAssetId(value) {
-    return String(value || '').split('?')[0].replace(/\.png$/i, '.webp');
+    const assetId = String(value || '').split('?')[0];
+    return assetId.startsWith('artwork/') ? assetId : assetId.replace(/\.png$/i, '.webp');
   }
 
   function unlockGalleryAsset(category, assetPath) {
@@ -504,6 +511,15 @@
 
   function isGalleryAssetUnlocked(category, assetPath) {
     return !!galleryProgress[category]?.includes(normalizeGalleryAssetId(assetPath));
+  }
+
+  function unlockRandomArtwork() {
+    galleryProgress = readGalleryProgress();
+    const lockedItems = ARTWORK_ITEMS.filter(item => !isGalleryAssetUnlocked('artworks', item.asset));
+    if (!lockedItems.length) return null;
+    const item = lockedItems[Math.floor(Math.random() * lockedItems.length)];
+    unlockGalleryAsset('artworks', item.asset);
+    return item;
   }
 
   function getGalleryImageItems(category) {
@@ -553,6 +569,7 @@
       }));
       return [...openingItems, ...endingItems];
     }
+    if (category === 'artworks') return ARTWORK_ITEMS;
     return [];
   }
 
@@ -1175,7 +1192,8 @@
       winFlib: winFlibSound,
       winEnemy: winEnemySound,
       victory: victorySound,
-      result: resultSound
+      result: resultSound,
+      artwork: artworkSound
     };
     playFallbackAudio(fallbackMap[name], playbackRate);
   }
@@ -1758,7 +1776,7 @@
     stopGalleryEqualizerMonitor();
     document.body.classList.remove('game-playing', 'fighter-flow', 'fighter-playing', 'fighter-result');
     document.body.classList.remove('fighter-selecting', 'fighter-opening', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
-    document.body.classList.remove('fighter-two-player', 'fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live');
+    document.body.classList.remove('fighter-two-player', 'fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live', 'fighter-artwork-unlock');
     document.body.classList.add('fighter-title');
     hideGameArea();
     if (battleHud) battleHud.classList.add('is-hidden');
@@ -1791,7 +1809,7 @@
     stopGalleryEqualizerMonitor();
     document.body.classList.remove('game-playing', 'fighter-playing', 'fighter-result', 'fighter-title');
     document.body.classList.remove('fighter-selecting', 'fighter-opening', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
-    document.body.classList.remove('fighter-two-player', 'fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live');
+    document.body.classList.remove('fighter-two-player', 'fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live', 'fighter-artwork-unlock');
     document.body.classList.add('fighter-flow');
     hideGameArea();
     if (battleHud) battleHud.classList.add('is-hidden');
@@ -1811,7 +1829,7 @@
   function setPlayingControls() {
     document.body.classList.remove('fighter-flow', 'fighter-result', 'fighter-title');
     document.body.classList.remove('fighter-selecting', 'fighter-opening', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
-    document.body.classList.remove('fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live');
+    document.body.classList.remove('fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live', 'fighter-artwork-unlock');
     document.body.classList.add('game-playing', 'fighter-playing');
     document.body.classList.toggle('fighter-two-player', isTwoPlayerMode());
     if (storyRoot) storyRoot.hidden = true;
@@ -1833,7 +1851,7 @@
   function setResultControls() {
     document.body.classList.remove('game-playing', 'fighter-flow', 'fighter-playing', 'fighter-title');
     document.body.classList.remove('fighter-selecting', 'fighter-opening', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
-    document.body.classList.remove('fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live');
+    document.body.classList.remove('fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live', 'fighter-artwork-unlock');
     document.body.classList.add('fighter-result');
     document.body.classList.toggle('fighter-two-player', isTwoPlayerMode());
     hideGameArea();
@@ -2082,7 +2100,7 @@
   }
 
   function getGalleryTabLabel(tab) {
-    return ({ cutins: 'CUT-IN', victories: 'VICTORY', endings: 'OPENING / ENDING', sounds: 'SOUND TEST' })[tab] || tab;
+    return ({ cutins: 'CUT-IN', victories: 'VICTORY', endings: 'OPENING / ENDING', artworks: 'ARTWORK', sounds: 'SOUND TEST' })[tab] || tab;
   }
 
   function renderHowToScreen() {
@@ -2873,7 +2891,6 @@
     document.body.classList.add('fighter-ending', 'fighter-credits');
     if (debugScreenLaunchActive) document.body.classList.add('fighter-debug-live');
     screen = 'endingCredits';
-    if (!DEBUG_MODE && !debugScreenLaunchActive && !isTwoPlayerMode()) removeStoryProgress();
     setMessage('', '', '');
     resetDigits();
     resetTimeDisplay();
@@ -2909,13 +2926,60 @@
               <em>THANK YOU FOR PLAYING</em>
             </div>
           </div>
-          <button type="button" data-ending-title>${debugScreenLaunchActive ? 'BACK TO DEBUG MODE' : 'TITLE'}</button>
+          <button type="button" data-ending-next>NEXT</button>
         </section>`;
-      storyRoot.querySelector('[data-ending-title]')?.addEventListener(
-        'click',
-        debugScreenLaunchActive ? renderDebugScreen : renderTitleScreen
-      );
+      storyRoot.querySelector('[data-ending-next]')?.addEventListener('click', renderArtworkUnlockScreen);
     }
+  }
+
+  function renderArtworkUnlockScreen() {
+    const returnToDebug = debugScreenLaunchActive;
+    const unlockedArtwork = unlockRandomArtwork();
+    if (!DEBUG_MODE && !returnToDebug && !isTwoPlayerMode()) removeStoryProgress();
+    if (!unlockedArtwork) {
+      if (returnToDebug) renderDebugScreen();
+      else renderTitleScreen();
+      return;
+    }
+    ensureStoryUi();
+    clearSelectVsTransition();
+    setFlowControls();
+    document.body.classList.add('fighter-artwork-unlock');
+    if (returnToDebug) document.body.classList.add('fighter-debug-live');
+    screen = 'artworkUnlock';
+    stopMusicTrack({ fadeMs: 320 });
+    playSoundEffect('artwork');
+    setMessage('', '', '');
+    resetDigits();
+    resetTimeDisplay();
+
+    if (!storyRoot) return;
+    storyRoot.hidden = false;
+    storyRoot.innerHTML = `
+      <section class="artwork-unlock-screen" aria-label="ARTWORK COLLECTION">
+        <header class="artwork-unlock-header">
+          <span>COLLECTION UPDATE</span>
+          <h2>NEW ARTWORK</h2>
+        </header>
+        <div class="artwork-unlock-stage">
+          <figure class="artwork-unlock-visual">
+            <img src="${esc(versionedSelectAsset(unlockedArtwork.asset))}" alt="${esc(unlockedArtwork.label)}">
+            <figcaption>${esc(unlockedArtwork.label)}</figcaption>
+          </figure>
+          <div class="artwork-unlock-message" aria-live="polite">
+            <span>UNLOCKED</span>
+            <h3>新しいアートワークを獲得しました</h3>
+            <p>獲得したアートワークは、GALLERYのARTWORKカテゴリーでいつでも閲覧できます。</p>
+          </div>
+        </div>
+        <footer class="artwork-unlock-actions">
+          <button type="button" data-artwork-unlock-close>${returnToDebug ? 'BACK TO DEBUG MODE' : 'TITLE'}</button>
+        </footer>
+      </section>`;
+    storyRoot.querySelector('[data-artwork-unlock-close]')?.addEventListener(
+      'click',
+      returnToDebug ? renderDebugScreen : renderTitleScreen
+    );
   }
 
   function removeTutorialOverlay() {

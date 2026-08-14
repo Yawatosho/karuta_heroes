@@ -18,7 +18,8 @@
     winFlib: 'sound/win_flib.mp3',
     winEnemy: 'sound/win_enemy.mp3',
     victory: 'sound/victory.mp3',
-    result: 'sound/result.mp3'
+    result: 'sound/result.mp3',
+    artwork: 'sound/artwork.mp3'
   };
   const DIGIT_SOURCES = Array.from({ length: 10 }, (_, digit) => ({
     [`digitA${digit}`]: `sound/${digit}.mp3`,
@@ -68,7 +69,8 @@
     winFlib: 'winFlibSound',
     winEnemy: 'winEnemySound',
     victory: 'victorySound',
-    result: 'resultSound'
+    result: 'resultSound',
+    artwork: 'artworkSound'
   };
 
   let audioContext = null;
@@ -485,7 +487,7 @@
     if (!('serviceWorker' in navigator)) return;
     if (location.protocol === 'file:') return;
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=bgm5').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=bgm6').catch(() => {});
     });
   }
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'karuta-audio-v10';
+const CACHE_NAME = 'karuta-audio-v11';
 const AUDIO_ASSETS = [
   './sound/0.mp3',
   './sound/1.mp3',
@@ -38,6 +38,7 @@ const AUDIO_ASSETS = [
   './sound/win_enemy.mp3',
   './sound/victory.mp3',
   './sound/result.mp3',
+  './sound/artwork.mp3',
   './sound/select.mp3',
   './sound/opening.mp3',
   './sound/battle1.mp3',
