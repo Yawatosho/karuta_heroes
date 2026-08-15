@@ -63,7 +63,7 @@
   const TUTORIAL_STORAGE_KEY = 'karutaTutorialProgressV1';
   const TUTORIAL_PROGRESS_VERSION = 1;
   const GALLERY_TABS = ['cutins', 'victories', 'endings', 'artworks', 'sounds'];
-  const ARTWORK_ITEMS = Array.from({ length: 16 }, (_, index) => {
+  const ARTWORK_ITEMS = Array.from({ length: 20 }, (_, index) => {
     const number = String(index + 1).padStart(2, '0');
     const asset = `artwork/artwork${number}.webp`;
     return { id: asset, label: `ARTWORK ${number}`, asset };
