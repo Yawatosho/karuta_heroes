@@ -242,6 +242,13 @@
   // Public update history. Add the newest entry to the beginning of this array.
   const patchNotes = [
     {
+      date: '2026.08.27',
+      isoDate: '2026-08-27',
+      items: [
+        '「GALLERY」の「ARTWORK」に新たなアートワークを追加しました'
+      ]
+    },
+    {
       date: '2026.08.15',
       isoDate: '2026-08-15',
       items: [
