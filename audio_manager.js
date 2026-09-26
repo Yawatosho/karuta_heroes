@@ -278,6 +278,44 @@
     return playBuffer(name, options);
   }
 
+  // A quiet, short low-frequency impact underneath the existing card-take SE.
+  // No new asset, timer, or BGM/VOICE gain change is needed.
+  const hitAccentNodes = new Set();
+  function stopHitAccent() {
+    hitAccentNodes.forEach(source => { try { source.stop(); } catch (e) {} });
+    hitAccentNodes.clear();
+  }
+
+  function playHitAccent(tier = 0, ko = false) {
+    if (!isEnabled()) return;
+    const context = getAudioContext();
+    if (!context || context.state !== 'running') return;
+    stopHitAccent();
+    const level = Math.max(0, Math.min(4, Number(tier) || 0));
+    const voice = (frequency, volume, delay, duration) => {
+      const source = context.createOscillator();
+      const gain = context.createGain();
+      const at = context.currentTime + delay;
+      source.type = 'sine';
+      source.frequency.setValueAtTime(frequency, at);
+      source.frequency.exponentialRampToValueAtTime(frequency * .45, at + duration);
+      gain.gain.setValueAtTime(0, at);
+      gain.gain.linearRampToValueAtTime(volume, at + .004);
+      gain.gain.exponentialRampToValueAtTime(.0001, at + duration);
+      source.connect(gain).connect(context.destination);
+      hitAccentNodes.add(source);
+      source.onended = () => {
+        hitAccentNodes.delete(source);
+        source.disconnect();
+        gain.disconnect();
+      };
+      source.start(at);
+      source.stop(at + duration + .01);
+    };
+    voice(ko ? 135 : 170, ko ? .12 : .07 + level * .008, 0, ko ? .13 : .085);
+    if (level > 0) voice(380 + level * 60, .015 + level * .003, .025, .055);
+  }
+
   function playDigit(digit, options = {}) {
     const normalized = Number(digit);
     if (!Number.isInteger(normalized) || normalized < 0 || normalized > 9) return false;
@@ -475,6 +513,7 @@
 
   function setEnabled(value) {
     enabled = !!value;
+    if (!enabled) stopHitAccent();
     if (enabled) {
       prepare().catch(() => {});
       if (currentMusicName) playMusic(currentMusicName, { volume: currentMusicVolume });
@@ -504,6 +543,8 @@
   window.karutaAudio = {
     prepare,
     playEffect,
+    playHitAccent,
+    stopHitAccent,
     playDigit,
     playMusic,
     stopMusic,

@@ -18,6 +18,101 @@
   const SELECT_ASSET_VERSION = 'fighters135';
   const DEBUG_MODE = new URLSearchParams(window.location.search).has('debug');
   const karutaAudio = window.karutaAudio || null;
+  // Battle feedback is scheduled independently of gameplay timers.
+  const HIT_FX = Object.freeze({ impactMs: 110, comboMs: 260, cardHideMs: 520,
+    hpMs: 220, trailDelayMs: 290, trailMs: 330, damageMs: 540 });
+  const battleEffectTimers = new Set();
+  const battleEffectAnimations = new Set();
+
+  function reducedBattleMotion() {
+    return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function scheduleBattleEffect(action, delay) {
+    const timer = setTimeout(() => {
+      battleEffectTimers.delete(timer);
+      action();
+    }, delay);
+    battleEffectTimers.add(timer);
+    return timer;
+  }
+
+  function animateBattleEffect(element, frames, options) {
+    if (!element?.animate || reducedBattleMotion()) return;
+    const animation = element.animate(frames, options);
+    battleEffectAnimations.add(animation);
+    animation.finished.catch(() => {}).finally(() => battleEffectAnimations.delete(animation));
+  }
+
+  function clearBattleEffects() {
+    battleEffectTimers.forEach(clearTimeout);
+    battleEffectTimers.clear();
+    battleEffectAnimations.forEach(animation => animation.cancel());
+    battleEffectAnimations.clear();
+    fxLayer?.querySelectorAll('.spark, .pop-text').forEach(el => el.remove());
+    cardGrid?.querySelectorAll('.hit-acquired, .shake').forEach(el => el.classList.remove('hit-acquired', 'shake'));
+    document.body.classList.remove('hit-flash', 'cpu-hit-flash', 'miss-flash', 'finish-flash');
+    karutaAudio?.stopHitAccent?.();
+  }
+
+  function playHitSequence(cardEl, owner, combo, damage, ko) {
+    const enemyHit = owner === 'enemy';
+    const tier = combo >= 10 ? 4 : combo >= 5 ? 3 : combo >= 3 ? 2 : combo >= 2 ? 1 : 0;
+    const color = enemyHit ? '#9d4f58' : '#d8a444';
+    playSoundEffect('correct', Math.min(1.24, 1 + Math.max(0, combo - 1) * 0.04));
+    cardEl.classList.add('hit-acquired');
+    // Hold the card visually for 70ms (95ms on KO); never pause game timers.
+    animateBattleEffect(cardEl, [
+      { transform: 'scale(1)', opacity: 1, offset: 0 },
+      { transform: 'scale(1.035)', opacity: 1, offset: 0.08 },
+      { transform: 'scale(1.035)', opacity: 1, offset: ko ? 0.27 : 0.22 },
+      { transform: 'translateY(-8px) scale(1.06)', opacity: 1, offset: 0.45 },
+      { transform: 'translateY(-20px) scale(.92)', opacity: 0, offset: 1 }
+    ], { duration: HIT_FX.cardHideMs, easing: 'linear' });
+    scheduleBattleEffect(() => {
+      karutaAudio?.playHitAccent?.(tier, ko);
+      const target = battleHud?.querySelector(`.fighter-combatant.${enemyHit ? 'player' : 'enemy'} .fighter-face`);
+      const strength = (document.body.classList.contains('fighter-smartphone') ? 1 : 1.5) + (ko ? 1.5 : tier * .3);
+      animateBattleEffect(cardGrid, [
+        { transform: 'translateX(0)' }, { transform: `translateX(${-strength}px)` },
+        { transform: `translateX(${strength}px)` }, { transform: 'translateX(0)' }
+      ], { duration: ko ? 170 : 130 });
+      animateBattleEffect(target, [
+        { filter: 'brightness(1)' }, { filter: 'brightness(1.65)', offset: .2 }, { filter: 'brightness(1)' }
+      ], { duration: 210 });
+      burstFromElement(target || cardEl, color, reducedBattleMotion() ? 0 : 6 + tier * 2 + (ko ? 4 : 0));
+      popText(`${damage} DMG`, target || cardEl, color, tier);
+    }, HIT_FX.impactMs);
+    if (combo >= 2) scheduleBattleEffect(() => showComboCutin(owner, combo), HIT_FX.comboMs);
+    scheduleBattleEffect(() => {
+      cardEl.style.visibility = 'hidden';
+      cardEl.style.pointerEvents = 'none';
+      cardEl.classList.remove('hit-acquired');
+      if (enemyHit) hideCpuCursor();
+    }, HIT_FX.cardHideMs);
+  }
+
+  function updateHitHpTrack(track, percent) {
+    const previous = Number(track.dataset.hpPercent ?? percent);
+    track.dataset.hpPercent = String(percent);
+    let trail = track.querySelector('.hp-trail');
+    if (!trail) {
+      trail = document.createElement('i');
+      trail.className = 'hp-trail';
+      trail.setAttribute('aria-hidden', 'true');
+      track.prepend(trail);
+    }
+    const fill = track.querySelector('span');
+    fill.style.width = '100%';
+    fill.style.transform = `scaleX(${percent / 100})`;
+    trail.style.transform = `scaleX(${percent / 100})`;
+    if (percent < previous) {
+      const frames = [{ transform: `scaleX(${previous / 100})` }, { transform: `scaleX(${percent / 100})` }];
+      animateBattleEffect(fill, frames, { delay: HIT_FX.impactMs, duration: HIT_FX.hpMs, fill: 'backwards', easing: 'ease-out' });
+      animateBattleEffect(trail, frames, { delay: HIT_FX.trailDelayMs, duration: HIT_FX.trailMs, fill: 'backwards', easing: 'ease-out' });
+      animateBattleEffect(track, [{ filter: 'brightness(1)' }, { filter: 'brightness(1.5)' }, { filter: 'brightness(1)' }], { delay: HIT_FX.impactMs, duration: 200 });
+    }
+  }
 
   // ---------------------------------------------------------------------------
   // Configuration and static data
@@ -152,6 +247,26 @@
 
   const FALLBACK_CARDS = fightersConfig.fallbackCards;
   const PATCH_NOTES = Array.isArray(fightersConfig.patchNotes) ? fightersConfig.patchNotes : [];
+  const SCREEN_BODY_CLASSES = [
+    'game-playing',
+    'fighter-flow',
+    'fighter-playing',
+    'fighter-result',
+    'fighter-title',
+    'fighter-selecting',
+    'fighter-opening',
+    'fighter-vs-ready',
+    'fighter-ending',
+    'fighter-credits',
+    'fighter-two-player',
+    'fighter-two-player-setup',
+    'fighter-gallery',
+    'fighter-patch-notes',
+    'fighter-how-to',
+    'fighter-debug',
+    'fighter-debug-live',
+    'fighter-artwork-unlock'
+  ];
 
   // ---------------------------------------------------------------------------
   // DOM references
@@ -206,16 +321,30 @@
   const digit1Num = document.querySelector('#digit1 .num');
   const digit2Num = document.querySelector('#digit2 .num');
   const digit3Num = document.querySelector('#digit3 .num');
+  const PRIMARY_ACTION_BUTTONS = [
+    continueButton,
+    startButton,
+    twoPlayerButton,
+    galleryButton,
+    patchNoteButton,
+    howToButton,
+    quitButton,
+    restartButton,
+    postButton
+  ];
 
   // ---------------------------------------------------------------------------
   // Runtime state
   // ---------------------------------------------------------------------------
+  // Audio and dynamically mounted UI.
   let soundEnabled = true;
   let storyRoot = null;
   let battleHud = null;
   let skillStrip = null;
   let fighterContinueButton = null;
   let fighterResultAction = null;
+
+  // Screen, mode and story selection.
   let screen = 'title';
   let playMode = 'story';
   let twoPlayerControls = { player: 'mouse', enemy: 'keyboardA' };
@@ -223,14 +352,20 @@
   let selectedPlayer = PLAYERS[0];
   let stageIndex = 0;
   let currentEnemy = ENEMIES[0];
+
+  // URL-only debug screen selection.
   let debugPlayerIndex = 0;
   let debugView = 'ending';
   let debugSceneNumber = 1;
   let debugEnemyIndex = 0;
   let debugScreenLaunchActive = false;
+
+  // Character-select and VS transition timers.
   let selectVsTransitionTimer = 0;
   let vsAutoStartTimer = 0;
   let characterSelectSoundTimer = 0;
+
+  // Card source, field and current turn.
   let allCardPool = [];
   let cards = [];
   let roundDeck = [];
@@ -241,6 +376,8 @@
   let playerRoundWins = 0;
   let enemyRoundWins = 0;
   let roundId = 0;
+
+  // Battle values and combo state.
   let playerHp = 100;
   let enemyHp = 100;
   let playerGauge = 0;
@@ -253,6 +390,8 @@
   let roundStartTime = 0;
   let roundActive = false;
   let answered = false;
+
+  // Player/enemy skill effects that can span turns or rounds.
   let pendingReveal = false;
   let twoCandidateRevealTurnsRemaining = 0;
   let cpuSkipTurnsRemaining = 0;
@@ -266,6 +405,8 @@
   let reverseReadingRoundsLeft = 0;
   let reverseReadingQueuedRounds = 0;
   let supremeSkillUsed = false;
+
+  // Battle lifecycle token and timer ownership. clearRoundTimers() owns these.
   let gameRunId = 0;
   let roundTimer = null;
   let roundResultTimeout = null;
@@ -281,15 +422,21 @@
   let pausedRoundRemainingMs = 0;
   let comboCutinTimer = 0;
   let battleFinishing = false;
+
+  // CPU scheduling. clearCpuTimers() owns these.
   let cpuActionTimer = null;
   let cpuClickTimer = null;
   let cpuActionScheduled = false;
   let cpuPlannedAt = 0;
   let cpuPlannedWait = 0;
+
+  // Cached fallback audio and gallery visualizer state.
   let digitSounds = new Map();
   let galleryProgress = readGalleryProgress();
   let galleryEqualizerTimer = 0;
   let galleryEqualizerLevels = Array(12).fill(0);
+
+  // First-play and skill tutorial state.
   let tutorialActive = false;
   let tutorialAwaitingAnswer = false;
   let tutorialReplayRequested = false;
@@ -299,7 +446,7 @@
   let skillTutorialToastPlayerId = null;
 
   // ---------------------------------------------------------------------------
-  // Shared helpers and input mapping
+  // Utilities
   // ---------------------------------------------------------------------------
   function esc(s) {
     return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
@@ -317,6 +464,9 @@
     return playMode === 'twoPlayer';
   }
 
+  // ---------------------------------------------------------------------------
+  // Save and progress persistence
+  // ---------------------------------------------------------------------------
   function removeStoryProgress() {
     try { localStorage.removeItem(STORY_PROGRESS_STORAGE_KEY); } catch (e) {}
   }
@@ -475,6 +625,7 @@
     return stageIndex === 0 && battleRound === 1 && !readTutorialProgress().completed;
   }
 
+  // Gallery unlock data shares one versioned localStorage document.
   function createEmptyGalleryProgress() {
     return { cutins: [], victories: [], endings: [], artworks: [] };
   }
@@ -573,6 +724,9 @@
     return [];
   }
 
+  // ---------------------------------------------------------------------------
+  // Battle mode helpers and 2P input mapping
+  // ---------------------------------------------------------------------------
   function isEasyStoryCardRestrictionActive() {
     return !isTwoPlayerMode() && selectedDifficulty === 'easy';
   }
@@ -682,6 +836,7 @@
     return roundActive && !answered && !battlePausedForCutin && !isOwnerDisabled(owner);
   }
 
+  // Shared markup and asset helpers used by multiple screens.
   function renderStatBar(label, value) {
     const normalized = clamp(Number(value) || 0, 0, 5);
     const percent = Math.round((normalized / 5) * 100);
@@ -811,7 +966,7 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Ending and tuning data
+  // Ending story data
   // ---------------------------------------------------------------------------
   function parseEndingMarkdown(markdown) {
     const parsed = Object.fromEntries(PLAYERS.map(player => [player.id, {}]));
@@ -885,6 +1040,9 @@
     return lines.map(line => `<p>${esc(line)}</p>`).join('');
   }
 
+  // ---------------------------------------------------------------------------
+  // Production and local development tuning data
+  // ---------------------------------------------------------------------------
   function cloneTuning(value) {
     return JSON.parse(JSON.stringify(value));
   }
@@ -1100,6 +1258,7 @@
     return value.replace(/[ \t]*[\r\n]+[ \t]*/g, '');
   }
 
+  // Random selection and card-pool utilities.
   function randInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
@@ -1156,7 +1315,7 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Audio facade and visual effects
+  // Audio facade
   // ---------------------------------------------------------------------------
   async function prepareAudioForGameplay() {
     if (!soundEnabled || !karutaAudio) return;
@@ -1223,6 +1382,7 @@
     return stageIndex >= 3 ? 'battle2' : 'battle1';
   }
 
+  // Select/VS transition timers are separate from battle timers.
   function clearSelectVsTransition(options = {}) {
     if (selectVsTransitionTimer) {
       clearTimeout(selectVsTransitionTimer);
@@ -1254,6 +1414,9 @@
     }, SELECT_TO_OPENING_SWITCH_DELAY_MS);
   }
 
+  // ---------------------------------------------------------------------------
+  // DOM overlays and visual effects
+  // ---------------------------------------------------------------------------
   function showModal(modal) {
     if (!modal) return;
     if (typeof modal.showModal === 'function') {
@@ -1412,7 +1575,7 @@
 
     const side = owner === 'enemy' ? 'enemy' : 'player';
     const cutin = document.createElement('div');
-    cutin.className = `combo-cutin ${side}`;
+    cutin.className = `combo-cutin ${side} combo-tier-${count >= 10 ? 4 : count >= 5 ? 3 : count >= 3 ? 2 : 1}`;
     cutin.setAttribute('aria-hidden', 'true');
     cutin.innerHTML = `
       <div class="combo-cutin-panel">
@@ -1429,7 +1592,7 @@
     document.body.classList.remove(className);
     void document.body.offsetWidth;
     document.body.classList.add(className);
-    setTimeout(() => document.body.classList.remove(className), duration);
+    scheduleBattleEffect(() => document.body.classList.remove(className), duration);
   }
 
   function viewportPointToLocal(container, clientX, clientY) {
@@ -1462,23 +1625,25 @@
       spark.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
       spark.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
       fxLayer.appendChild(spark);
-      setTimeout(() => spark.remove(), 760);
+      scheduleBattleEffect(() => spark.remove(), 760);
     }
   }
 
-  function popText(text, el, color = '#d8a444') {
+  function popText(text, el, color = '#d8a444', tier = 0) {
     if (!el || !fxLayer) return;
     const rect = el.getBoundingClientRect();
     const topLeft = viewportPointToLocal(fxLayer, rect.left, rect.top);
     const center = viewportPointToLocal(fxLayer, rect.left + rect.width / 2, rect.top + rect.height / 2);
     const label = document.createElement('span');
     label.className = 'pop-text';
+    label.classList.add(text === 'MISS' ? 'battle-miss-number' : 'battle-damage-number');
+    label.style.setProperty('--damage-scale', String(1 + tier * 0.09));
     label.textContent = text;
-    label.style.left = `${center.x - 44}px`;
+    label.style.left = `${Math.max(60, Math.min((fxLayer.clientWidth || 1366) - 60, center.x))}px`;
     label.style.top = `${topLeft.y + 4}px`;
     label.style.color = color;
     fxLayer.appendChild(label);
-    setTimeout(() => label.remove(), 920);
+    scheduleBattleEffect(() => label.remove(), HIT_FX.damageMs);
   }
 
   // ---------------------------------------------------------------------------
@@ -1534,6 +1699,7 @@
     }
   }
 
+  // Screen-specific asset resolution.
   function getVsImagePath(player, enemyIndex) {
     if (isTwoPlayerMode()) return 'vs/vs.webp';
     const enemyNumber = enemyIndex + 1;
@@ -1607,6 +1773,7 @@
     return `ending/ending_${code}${sceneNumber}.webp`;
   }
 
+  // NDC source loading and battle-card DOM.
   function normalizeNdcCards(raw) {
     return (Array.isArray(raw) ? raw : [])
       .filter(d => d && typeof d.ndc !== 'undefined' && typeof d.subject === 'string')
@@ -1762,6 +1929,22 @@
     if (button) button.style.display = visible ? display : 'none';
   }
 
+  function setBodyScreenState(...activeClasses) {
+    clearBattleEffects();
+    document.body.classList.remove(...SCREEN_BODY_CLASSES);
+    if (activeClasses.length) document.body.classList.add(...activeClasses);
+  }
+
+  function hidePrimaryActionButtons() {
+    PRIMARY_ACTION_BUTTONS.forEach(button => setButtonVisible(button, false));
+  }
+
+  function hideBattlePresentation() {
+    hideGameArea();
+    if (battleHud) battleHud.classList.add('is-hidden');
+    if (skillStrip) skillStrip.classList.add('is-hidden');
+  }
+
   function updateTwoPlayerTitleButtonState() {
     if (!twoPlayerButton) return;
     const unavailable = isSmartphoneOnlyViewport();
@@ -1774,13 +1957,9 @@
 
   function setTitleControls() {
     stopGalleryEqualizerMonitor();
-    document.body.classList.remove('game-playing', 'fighter-flow', 'fighter-playing', 'fighter-result');
-    document.body.classList.remove('fighter-selecting', 'fighter-opening', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
-    document.body.classList.remove('fighter-two-player', 'fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live', 'fighter-artwork-unlock');
-    document.body.classList.add('fighter-title');
-    hideGameArea();
-    if (battleHud) battleHud.classList.add('is-hidden');
-    if (skillStrip) skillStrip.classList.add('is-hidden');
+    setBodyScreenState('fighter-title');
+    hideBattlePresentation();
+    hidePrimaryActionButtons();
     updateContinueTitleButton();
     setButtonVisible(startButton, true);
     setButtonVisible(twoPlayerButton, true);
@@ -1798,76 +1977,37 @@
       howToButton.setAttribute('aria-label', 'HELP');
     }
     setButtonVisible(howToButton, true);
-    setButtonVisible(quitButton, false);
-    setButtonVisible(restartButton, false);
-    setButtonVisible(postButton, false);
     if (cpuLevelPanel) cpuLevelPanel.style.display = 'none';
     if (optionPanel) optionPanel.style.display = 'none';
   }
 
   function setFlowControls() {
     stopGalleryEqualizerMonitor();
-    document.body.classList.remove('game-playing', 'fighter-playing', 'fighter-result', 'fighter-title');
-    document.body.classList.remove('fighter-selecting', 'fighter-opening', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
-    document.body.classList.remove('fighter-two-player', 'fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live', 'fighter-artwork-unlock');
-    document.body.classList.add('fighter-flow');
-    hideGameArea();
-    if (battleHud) battleHud.classList.add('is-hidden');
-    if (skillStrip) skillStrip.classList.add('is-hidden');
-    setButtonVisible(continueButton, false);
-    setButtonVisible(startButton, false);
-    setButtonVisible(twoPlayerButton, false);
-    setButtonVisible(galleryButton, false);
-    setButtonVisible(patchNoteButton, false);
-    setButtonVisible(howToButton, false);
-    setButtonVisible(quitButton, false);
-    setButtonVisible(restartButton, false);
-    setButtonVisible(postButton, false);
+    setBodyScreenState('fighter-flow');
+    hideBattlePresentation();
+    hidePrimaryActionButtons();
     if (optionPanel) optionPanel.style.display = 'none';
   }
 
   function setPlayingControls() {
-    document.body.classList.remove('fighter-flow', 'fighter-result', 'fighter-title');
-    document.body.classList.remove('fighter-selecting', 'fighter-opening', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
-    document.body.classList.remove('fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live', 'fighter-artwork-unlock');
-    document.body.classList.add('game-playing', 'fighter-playing');
+    setBodyScreenState('game-playing', 'fighter-playing');
     document.body.classList.toggle('fighter-two-player', isTwoPlayerMode());
     if (storyRoot) storyRoot.hidden = true;
     if (battleHud) battleHud.classList.remove('is-hidden');
     if (skillStrip) skillStrip.classList.toggle('is-hidden', isTwoPlayerMode());
     showReaderPanel();
-    setButtonVisible(continueButton, false);
-    setButtonVisible(startButton, false);
-    setButtonVisible(twoPlayerButton, false);
-    setButtonVisible(galleryButton, false);
-    setButtonVisible(patchNoteButton, false);
-    setButtonVisible(howToButton, false);
-    setButtonVisible(quitButton, false);
-    setButtonVisible(restartButton, false);
-    setButtonVisible(postButton, false);
+    hidePrimaryActionButtons();
     if (cpuLevelPanel) cpuLevelPanel.style.display = 'none';
   }
 
   function setResultControls() {
-    document.body.classList.remove('game-playing', 'fighter-flow', 'fighter-playing', 'fighter-title');
-    document.body.classList.remove('fighter-selecting', 'fighter-opening', 'fighter-vs-ready', 'fighter-ending', 'fighter-credits');
-    document.body.classList.remove('fighter-two-player-setup', 'fighter-gallery', 'fighter-patch-notes', 'fighter-how-to', 'fighter-debug', 'fighter-debug-live', 'fighter-artwork-unlock');
-    document.body.classList.add('fighter-result');
+    setBodyScreenState('fighter-result');
     document.body.classList.toggle('fighter-two-player', isTwoPlayerMode());
-    hideGameArea();
-    if (battleHud) battleHud.classList.add('is-hidden');
-    if (skillStrip) skillStrip.classList.add('is-hidden');
-    setButtonVisible(continueButton, false);
-    setButtonVisible(startButton, false);
-    setButtonVisible(twoPlayerButton, false);
-    setButtonVisible(galleryButton, false);
-    setButtonVisible(patchNoteButton, false);
-    setButtonVisible(howToButton, false);
-    setButtonVisible(quitButton, false);
-    setButtonVisible(restartButton, false);
-    setButtonVisible(postButton, false);
+    hideBattlePresentation();
+    hidePrimaryActionButtons();
   }
 
+  // Title, debug and support screens.
   function renderTitleScreen() {
     ensureStoryUi();
     playMode = 'story';
@@ -2258,6 +2398,7 @@
     storyRoot?.querySelector('[data-patch-note-back]')?.addEventListener('click', renderTitleScreen);
   }
 
+  // Gallery and sound test screens.
   function renderGalleryImageGrid(category) {
     return getGalleryImageItems(category).map(item => {
       const unlocked = isGalleryAssetUnlocked(category, item.asset);
@@ -2459,6 +2600,7 @@
     storyRoot?.querySelector('[data-gallery-viewer-back]')?.addEventListener('click', () => renderGalleryScreen(category));
   }
 
+  // 2P setup and character selection.
   function bindDifficultyButtons() {
     storyRoot?.querySelectorAll('[data-difficulty]').forEach(button => {
       button.addEventListener('click', () => {
@@ -2658,6 +2800,7 @@
     });
   }
 
+  // Story opening, VS transition and ending flow.
   function renderOpeningParagraphs(lines) {
     return lines.map(line => {
       const item = typeof line === 'string' ? { text: line, emphasis: false } : line;
@@ -2982,6 +3125,7 @@
     );
   }
 
+  // First-play battle tutorial and per-character skill guidance.
   function removeTutorialOverlay() {
     karutaEl?.querySelectorAll('.battle-tutorial-overlay, .battle-tutorial-coach').forEach(element => element.remove());
   }
@@ -3168,7 +3312,7 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Battle setup and turn loop
+  // Battle setup and round initialization
   // ---------------------------------------------------------------------------
   function beginBattle() {
     ensureStoryUi();
@@ -3270,6 +3414,7 @@
     startCountdown(runId);
   }
 
+  // Turn timing, countdown and number reading.
   function resetDigits() {
     [digit1Num, digit2Num, digit3Num].forEach(num => {
       if (!num) return;
@@ -3312,7 +3457,7 @@
     cancelReadingTimeouts();
     clearCpuTimers();
     setReadingHudVisible(false);
-    showCountdownLabel('Prove Your Classification Skill', 'round-call-ready');
+    showCountdownLabel(`ROUND ${battleRound}`, 'round-call-ready');
     setMessage('', '', '');
     countdownTimeouts.push(setTimeout(() => {
       if (runId !== gameRunId) return;
@@ -3337,6 +3482,18 @@
     countdownEl.classList.remove('active', 'round-call', 'round-call-ready', 'round-call-fight', 'ko-call', 'time-up-call', 'perfect-call');
     void countdownEl.offsetWidth;
     countdownEl.textContent = label;
+    if (className === 'round-call-ready' || className === 'round-call-fight') {
+      const title = document.createElement('span');
+      title.className = 'round-call-title';
+      title.textContent = label;
+      countdownEl.replaceChildren(title);
+      if (className === 'round-call-ready') {
+        const subtitle = document.createElement('span');
+        subtitle.className = 'round-call-subtitle';
+        subtitle.textContent = 'PROVE YOUR CLASSIFICATION SKILL';
+        countdownEl.appendChild(subtitle);
+      }
+    }
     countdownEl.classList.add('active', 'round-call');
     if (className) countdownEl.classList.add(className);
   }
@@ -3555,6 +3712,7 @@
     return task;
   }
 
+  // Battle timer cleanup. Called by screen changes, reset and quit paths.
   function pauseReadingTimeouts() {
     const now = Date.now();
     readingTimeouts.forEach(task => {
@@ -3583,6 +3741,7 @@
   }
 
   function clearRoundTimers() {
+    clearBattleEffects();
     clearTimeout(roundTimer);
     clearTimeout(roundResultTimeout);
     clearTimeout(battleFinishDelayTimer);
@@ -3626,7 +3785,7 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Player actions, damage, gauges and skills
+  // Card input and answer resolution
   // ---------------------------------------------------------------------------
   function selectCard(e) {
     if (!roundActive || answered || battlePausedForCutin) return;
@@ -3758,17 +3917,7 @@
       }
     }
 
-    playSoundEffect('correct', Math.min(1.6, 1 + Math.max(0, combo - 1) * 0.08));
-    if (combo >= 2) showComboCutin(owner, combo);
-    pulseBody(isCPU ? 'cpu-hit-flash' : 'hit-flash');
-    burstFromElement(cardEl, isCPU ? '#9d4f58' : '#d8a444', combo >= 2 ? 28 : 18);
-    popText(fightingPowerRushKo ? 'K.O.' : `${damage} DMG`, cardEl, isCPU ? '#9d4f58' : '#d8a444');
     cardEl.classList.add(isCPU ? 'enemy-correct' : 'correct');
-    setTimeout(() => {
-      cardEl.style.visibility = 'hidden';
-      cardEl.style.pointerEvents = 'none';
-      if (isCPU) hideCpuCursor();
-    }, 520);
 
     const actor = isCPU ? currentEnemy.name : selectedPlayer.name;
     const target = isCPU ? selectedPlayer.name : currentEnemy.name;
@@ -3783,8 +3932,10 @@
     updateBattleHud();
 
     if (playerHp <= 0 || enemyHp <= 0) {
+      playHitSequence(cardEl, owner, combo, damage, true);
       roundResultTimeout = setTimeout(finishBattle, 1300);
     } else {
+      playHitSequence(cardEl, owner, combo, damage, false);
       roundResultTimeout = setTimeout(nextRound, 1500);
     }
   }
@@ -3792,7 +3943,6 @@
   function handleMiss(cardEl, isCPU) {
     playSoundEffect('ng');
     clearCpuTimers();
-    pulseBody('miss-flash');
     if (isCPU) {
       cpuDisabledThisRound = true;
       enemyCombo = 0;
@@ -3811,13 +3961,14 @@
     refreshPlayerCardInteractivity();
     const actor = isCPU ? currentEnemy.name : selectedPlayer.name;
     setMessage('warning', isCPU ? `${currentEnemy.name} MISS` : 'MISS', `${actor}はこのターンの解答権を失った`);
-    burstFromElement(cardEl, '#9d4f58', 10);
+    burstFromElement(cardEl, '#9d4f58', reducedBattleMotion() ? 0 : 5);
     popText(isCPU ? 'MISS' : 'MISS', cardEl, '#9d4f58');
     cardEl.classList.remove('shake');
     void cardEl.offsetWidth;
     cardEl.classList.add('shake');
-    setTimeout(() => { cardEl.classList.remove('shake'); }, 300);
-    if (isCPU) setTimeout(hideCpuCursor, 520);
+    animateBattleEffect(cardEl, [{ transform: 'translateX(0)' }, { transform: 'translateX(-4px)' }, { transform: 'translateX(3px)' }, { transform: 'translateX(0)' }], { duration: 180 });
+    scheduleBattleEffect(() => { cardEl.classList.remove('shake'); }, 300);
+    if (isCPU) scheduleBattleEffect(hideCpuCursor, 520);
 
     if (playerDisabledThisRound && cpuDisabledThisRound) {
       roundResultTimeout = setTimeout(() => {
@@ -3826,12 +3977,13 @@
       return;
     }
 
-    setTimeout(() => {
+    scheduleBattleEffect(() => {
       if (!roundActive || answered) return;
       maybeTriggerCpu(getCurrentPrefixLength());
     }, 240);
   }
 
+  // Damage, gauge, combo and battle HUD.
   function calcDamage(combo) {
     const damage = devTuning.damage;
     if (combo < 2) return damage.base;
@@ -3878,6 +4030,7 @@
     const playerIcon = getFighterIconForSide('player');
     const enemyIcon = getFighterIconForSide('enemy');
 
+    const previousHpTracks = [...battleHud.querySelectorAll('.hp-track')];
     battleHud.innerHTML = `
       <div class="fighter-combatant player" data-side="P1">
         <div class="fighter-portrait">
@@ -3904,6 +4057,12 @@
           ${renderRoundMarkers('enemy')}
         </div>
       </div>`;
+
+    [...battleHud.querySelectorAll('.hp-track')].forEach((placeholder, index) => {
+      const track = previousHpTracks[index] || placeholder;
+      if (track !== placeholder) placeholder.replaceWith(track);
+      updateHitHpTrack(track, index === 0 ? playerHpPercent : enemyHpPercent);
+    });
 
     if (isTwoPlayerMode()) {
       playerGauge = 0;
@@ -3934,6 +4093,7 @@
     maybeShowSkillTutorial();
   }
 
+  // Player skills and field-card effects.
   function usePlayerSkill() {
     if (isTwoPlayerMode()) return;
     if (screen !== 'battle' || playerGauge < MAX_GAUGE || battlePausedForCutin || battleFinishing) return;
@@ -4283,6 +4443,7 @@
     selectCard({ currentTarget: el, isCPU: true });
   }
 
+  // Round and match outcome calculation.
   function determineOutcome() {
     if (round >= TURNS_PER_BATTLE_ROUND && playerHp > 0 && enemyHp > 0) {
       return playerHp >= enemyHp ? 'win' : 'lose';
@@ -4350,7 +4511,7 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Round resolution, results and reset
+  // Result presentation, next action and reset
   // ---------------------------------------------------------------------------
   function finishBattle() {
     if (battleFinishing) return;
@@ -4405,13 +4566,13 @@
 
   function showBattleResult(outcomeOverride = null) {
     hideCountdown();
-    pulseBody('finish-flash', 900);
     setReadingHudVisible(false);
     cardGrid.style.display = 'none';
     timeEl.classList.remove('danger');
     playerGauge = 0;
     enemyGauge = 0;
     setResultControls();
+    pulseBody('finish-flash', 900);
 
     const outcome = outcomeOverride || getMatchOutcome();
     const isFinal = !isTwoPlayerMode() && outcome === 'win' && stageIndex >= ENEMIES.length - 1;

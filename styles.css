@@ -1478,6 +1478,62 @@ body.game-playing[data-mode="endless"].awaiting-next-wave .grid {
   display: none;
 }
 
+/* Isolated round-start presentation; KO and result calls are unchanged. */
+body[data-mode="cpu"].fighter-playing .countdown-display:is(.round-call-ready, .round-call-fight) {
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+  isolation: isolate;
+  border-block: 1px solid rgba(255, 215, 143, .7);
+  background: linear-gradient(90deg, transparent, rgba(15, 9, 25, .94) 30%, rgba(15, 9, 25, .94) 70%, transparent);
+  animation: roundBannerEnter 260ms ease-out both;
+}
+.countdown-display:is(.round-call-ready, .round-call-fight)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 223, 159, .3) 50%, transparent 65%);
+  animation: roundLightSweep 1100ms 100ms ease-out both;
+}
+.countdown-display .round-call-title {
+  display: block;
+  font-size: clamp(40px, 5vw, 60px);
+  line-height: .95;
+  letter-spacing: .06em;
+  color: #fff0c9;
+  text-shadow: 0 3px 0 #583015, 0 0 22px rgba(255, 181, 63, .7);
+  animation: roundTitleEnter 420ms ease-out both;
+}
+.countdown-display .round-call-subtitle {
+  font: 600 clamp(9px, 1vw, 12px)/1.2 system-ui, sans-serif;
+  letter-spacing: .12em;
+  color: #e0cbaa;
+  text-shadow: none;
+}
+.countdown-display.round-call-fight .round-call-title {
+  font-size: clamp(58px, 7vw, 78px);
+  color: #ffdc8b;
+  animation: roundFightImpact 720ms ease-out both;
+}
+body[data-mode="cpu"].fighter-smartphone.fighter-playing .countdown-display .round-call-title { font-size: 40px; }
+body[data-mode="cpu"].fighter-smartphone.fighter-playing .countdown-display.round-call-fight .round-call-title { font-size: 58px; }
+@keyframes roundBannerEnter { from { opacity: 0; clip-path: inset(0 48%); } to { opacity: 1; clip-path: inset(0); } }
+@keyframes roundTitleEnter { from { opacity: 0; transform: translateX(-35px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes roundLightSweep { from { transform: translateX(-110%); } to { transform: translateX(110%); } }
+@keyframes roundFightImpact {
+  0% { opacity: 0; transform: scale(1.8); filter: brightness(2); }
+  20% { opacity: 1; transform: scale(.94); filter: brightness(1.5); }
+  32%, 76% { opacity: 1; transform: scale(1); filter: brightness(1); }
+  100% { opacity: 0; transform: scale(1.08); filter: brightness(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body[data-mode="cpu"].fighter-playing .countdown-display:is(.round-call-ready, .round-call-fight),
+  .countdown-display:is(.round-call-ready, .round-call-fight)::before,
+  .countdown-display .round-call-title,
+  .countdown-display.round-call-fight .round-call-title { animation: none; }
+}
+
 .countdown-display {
   display: none;
   height: var(--reader-stage-height);
@@ -10119,4 +10175,77 @@ body[data-mode="cpu"].fighter-smartphone.fighter-portrait-stage .debug-live-back
   min-height: 36px;
   padding: 5px 10px;
   font-size: 0.78rem;
+}
+
+/* Battle feedback: presentation-only, with mirrored stable HP layers. */
+body[data-mode="cpu"].fighter-playing .hp-track span,
+body[data-mode="cpu"].fighter-playing .hp-track .hp-trail {
+  transform-origin: right center;
+  transition: none;
+}
+body[data-mode="cpu"].fighter-playing .hp-track.enemy span,
+body[data-mode="cpu"].fighter-playing .hp-track.enemy .hp-trail {
+  transform-origin: left center;
+}
+body[data-mode="cpu"].fighter-playing .hp-track .hp-trail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #f1d99c;
+  opacity: .78;
+  pointer-events: none;
+}
+body[data-mode="cpu"].fighter-playing .hp-track.enemy .hp-trail {
+  background: #e9b3cb;
+}
+body[data-mode="cpu"].fighter-playing .card.hit-acquired {
+  opacity: 1;
+  transition: none;
+  border-color: #ffe1a1;
+  box-shadow: 0 0 16px rgba(255, 199, 105, .45);
+}
+body[data-mode="cpu"].fighter-playing .card.enemy-correct.hit-acquired {
+  border-color: #eeb3c3;
+  box-shadow: 0 0 16px rgba(194, 89, 119, .4);
+}
+body[data-mode="cpu"] .battle-damage-number {
+  font-size: 30px;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 2px 3px #090811, 0 0 8px currentColor;
+  animation: battleDamagePop 540ms ease-out both;
+}
+body[data-mode="cpu"] .battle-miss-number {
+  font-size: 25px;
+  animation: battleMissPop 400ms ease-out both;
+}
+@keyframes battleDamagePop {
+  0% { opacity: 0; transform: translate(-50%, 5px) scale(.7); }
+  18% { opacity: 1; transform: translate(-50%, -5px) scale(calc(var(--damage-scale, 1) * 1.12)); }
+  38% { opacity: 1; transform: translate(-50%, 0) scale(var(--damage-scale, 1)); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -22px) scale(var(--damage-scale, 1)); }
+}
+@keyframes battleMissPop {
+  0% { opacity: 0; transform: translate(calc(-50% - 4px), 0); }
+  20% { opacity: 1; transform: translate(calc(-50% + 3px), 0); }
+  65% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -8px); }
+}
+body[data-mode="cpu"].fighter-playing .combo-tier-1 .combo-cutin-panel { opacity: .85; }
+body[data-mode="cpu"].fighter-playing .combo-tier-2 .combo-cutin-panel strong { text-shadow: 0 3px 0 #090811, 0 0 10px currentColor; }
+body[data-mode="cpu"].fighter-playing .combo-tier-3 .combo-cutin-panel strong { text-shadow: 0 3px 0 #090811, 0 0 18px currentColor; }
+body[data-mode="cpu"].fighter-playing .combo-tier-4 .combo-cutin-panel { border-block: 2px solid #ffe0a0; }
+body[data-mode="cpu"].fighter-playing .combo-tier-4 .combo-cutin-panel strong { text-shadow: 0 3px 0 #090811, 0 0 24px currentColor; }
+@media (prefers-reduced-motion: reduce) {
+  body[data-mode="cpu"] .battle-damage-number,
+  body[data-mode="cpu"] .battle-miss-number { transform: translateX(-50%); }
+  body[data-mode="cpu"] .battle-damage-number,
+  body[data-mode="cpu"] .battle-miss-number,
+  body[data-mode="cpu"].fighter-playing .combo-cutin .combo-cutin-panel {
+    animation: none;
+  }
+  body[data-mode="cpu"].fighter-playing .game-shell { animation: none; }
+  body[data-mode="cpu"].fighter-playing .spark { display: none; }
 }
