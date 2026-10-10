@@ -18,21 +18,39 @@ export class Sound {
   }
   digit(value) {
     if (!this.settings.sound) return;
+    const audio = this.voice(value);
+    audio.currentTime = 0; audio.volume = this.settings.volume;
+    this.speech.add(audio); this.ducks.set(audio, .58); this.tick();
+    audio.play().catch(() => { this.speech.delete(audio); this.ducks.delete(audio); });
+  }
+  voice(value) {
+    value = Number(value);
     let audio = this.voices.get(value);
     if (!audio) {
       audio = new Audio(`sound/${value}.mp3`); audio.preload = 'auto'; this.voices.set(value, audio);
       const finish = () => { this.speech.delete(audio); this.ducks.delete(audio); };
       audio.addEventListener('ended', finish); audio.addEventListener('error', finish);
     }
-    audio.currentTime = 0; audio.volume = this.settings.volume;
-    this.speech.add(audio); this.ducks.set(audio, .58); this.tick();
-    audio.play().catch(() => { this.speech.delete(audio); this.ducks.delete(audio); });
+    return audio;
+  }
+  unlock(resumeMusic = true) {
+    if (!this.settings.sound) return;
+    // Run synchronously inside a tap/click, before delayed scene transitions.
+    if (resumeMusic) this.resume();
+    for (let value = 0; value < 10; value++) {
+      if (this.voices.has(value)) continue;
+      this.voice(value).load?.();
+    }
   }
   bgm(track) {
     this.fade = null;
     if (this.track === track && this.music) { this.update(); return; }
     this.music?.pause(); this.track = track; this.gain = 1; this.lastMix = performance.now();
-    this.music = new Audio(`sound/${track}.mp3`); this.music.loop = true; this.tick();
+    // Safari's playback permission belongs to the media element. Keep the one
+    // started by the first tap when VS timers later switch to battle music.
+    if (!this.music) { this.music = new Audio(`sound/${track}.mp3`); this.music.loop = true; this.music.preload = 'auto'; }
+    else { this.music.src = `sound/${track}.mp3`; this.music.load?.(); }
+    this.tick();
     if (this.settings.sound) this.music.play().catch(() => {});
   }
   tick(now = performance.now()) {
@@ -59,6 +77,10 @@ export class Sound {
     this.gain = 1; this.lastMix = performance.now(); this.tick();
   }
   pause() { this.music?.pause(); this.stopVoices(); }
-  resume() { if (this.settings.sound && (!this.fade || this.music?.volume > 0)) this.music?.play().catch(() => {}); }
+  resume() {
+    if (!this.settings.sound || !this.music || (this.fade && this.music.volume === 0)) return;
+    if (this.music.error) this.music.load?.();
+    if (this.music.paused) this.music.play().catch(() => {});
+  }
   update() { this.tick(); if (this.settings.sound) this.resume(); else this.pause(); }
 }

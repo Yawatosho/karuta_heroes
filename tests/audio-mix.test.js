@@ -48,14 +48,15 @@ test('pause, mute and screen cleanup remove all speech and duck state',()=>{
 });
 test('a failed SE cannot leave BGM quiet and track changes preserve settings',()=>{
   const {sound,audios,advance}=mixer();sound.bgm('battle1');const special=sound.play('special');special.fail();advance(400);
-  close(audios[0].volume,.17*.8);sound.stopVoices();sound.bgm('victory');close(audios.at(-1).volume,.25*.8);
-  sound.settings.volume=.3;sound.update();close(audios.at(-1).volume,.25*.3);
+  close(audios[0].volume,.17*.8);sound.stopVoices();sound.bgm('victory');close(sound.music.volume,.25*.8);
+  assert.equal(sound.music,audios[0]);assert.equal(sound.music.src,'sound/victory.mp3');
+  sound.settings.volume=.3;sound.update();close(sound.music.volume,.25*.3);
 });
 test('fade-out keeps decreasing during duck release and cannot resume at zero',()=>{
   const {sound,audios,advance}=mixer();sound.bgm('battle1');const special=sound.play('special');sound.fadeOut(700);
   const start=audios[0].volume;special.end();advance(100);assert.ok(audios[0].volume<start);
   const first=audios[0].volume;advance(100);assert.ok(audios[0].volume<first);
   advance(500);advance(400);close(audios[0].volume,0);assert.equal(audios[0].paused,true);
-  sound.resume();assert.equal(audios[0].paused,true);sound.bgm('opening');assert.equal(audios.at(-1).paused,false);
-  close(audios.at(-1).volume,.25*.8);
+  sound.resume();assert.equal(audios[0].paused,true);sound.bgm('opening');assert.equal(sound.music.paused,false);
+  assert.equal(sound.music,audios[0]);close(sound.music.volume,.25*.8);
 });

@@ -2,7 +2,7 @@ import { players, enemies, difficulties, twoPlayer, VERSION } from './config.js'
 import { Battle, shuffle } from './engine.js';
 import { TUNING } from './data.js';
 import { OPENING_COMMON_SCENES, OPENING_CHARACTER_SCENES, ENDINGS } from './story.js';
-import { Sound } from './audio.js?v=20261010-readable-cards';
+import { Sound } from './audio.js?v=20261010-mobile-audio';
 import { specialDecor, strikeGeometry } from './effects.js?v=20261010-readable-cards';
 import { cardLabel, fitCardLabels } from './card-label.js?v=20261010-readable-cards';
 import { syncField } from './ui.js';
@@ -340,6 +340,9 @@ function viewArt(index) {
   modal.querySelector('button').focus();if(item.number)sound.play('artwork');
 }
 async function fullscreen() { try { if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen(); } catch { toast('全画面に対応していないブラウザです。通常表示でプレイできます。'); } }
+for (const event of ['click', 'touchend', 'keydown']) {
+  document.addEventListener(event, () => sound.unlock(!document.hidden && (!modal.children.length || !modalPausesAudio)), { capture: true });
+}
 document.addEventListener('click', event=>{
   const el=event.target.closest('[data-action]');if(!el||el.disabled)return;const action=el.dataset.action;
   if(action==='card'){ if(modal.children.length)return;const owner=mode==='versus'?controls.indexOf('mouse'):0;if(owner>=0)battle?.answer(Number(el.dataset.slot),owner);return; }
