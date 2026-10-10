@@ -25,7 +25,7 @@ export class Battle {
   constructor({ player = players[0], stage = 0, difficulty = 'normal', mode = 'story', training = false, random = Math.random, onEvent = () => {} } = {}) {
     this.player = player; this.stage = stage; this.difficulty = difficulties[difficulty] || difficulties.normal;
     this.enemy = mode === 'versus' ? players[1] : enemies[stage]; this.mode = mode; this.training = training;
-    this.random = random; this.onEvent = onEvent; this.round = 0; this.wins = [0, 0]; this.gauge = [0, 0]; this.paused = false;
+    this.random = random; this.onEvent = onEvent; this.round = 0; this.wins = [0, 0]; this.gauge = [0, 0]; this.paused = false; this.presentationPending = false;
     this.pool = CARDS.filter(c => difficulty !== 'easy' || mode === 'versus' || c.ndc.endsWith('0'));
     this.startRound();
   }
@@ -56,10 +56,11 @@ export class Battle {
     this.emit('turn');
   }
   step(dt) {
-    if (this.paused || this.phase === 'matchOver' || this.phase === 'trainingEnd') return;
+    // The view can hold a timed presentation while its artwork is decoding.
+    if (this.paused || this.presentationPending || this.phase === 'matchOver' || this.phase === 'trainingEnd') return;
     // Small slices make simultaneous timeout / digit / CPU events deterministic after frame stalls.
     let left = Math.max(0, dt);
-    while (left > 0) {
+    while (left > 0 && !this.presentationPending) {
       const slice = Math.min(left, 20); left -= slice;
       if (this.cutin) { this.cutin.remaining -= slice; if (this.cutin.remaining <= 0) { this.cutin = null; this.emit('cutinEnd'); } continue; }
       if (this.phase !== 'turn') {

@@ -1,5 +1,5 @@
 import { players, enemies, difficulties, twoPlayer, VERSION } from './config.js';
-import { Battle, shuffle } from './engine.js';
+import { Battle, shuffle } from './engine.js?v=20261010-art-ready';
 import { TUNING } from './data.js';
 import { OPENING_COMMON_SCENES, OPENING_CHARACTER_SCENES, ENDINGS } from './story.js';
 import { Sound } from './audio.js?v=20261010-mobile-audio';
@@ -8,6 +8,7 @@ import { cardLabel, fitCardLabels } from './card-label.js?v=20261010-readable-ca
 import { syncField } from './ui.js';
 import { arenaLayout, portraitAsset } from './layout.js';
 import { loadSave, SAVE_KEY } from './save.js?v=20261010-legacy-save';
+import { ImageBank, battleArtPaths } from './image-bank.js?v=20261010-art-ready';
 
 const $ = (s, root = document) => root.querySelector(s);
 // Reuse icons within a session, but fetch replacements on the next page load.
@@ -22,10 +23,12 @@ let saved = loadSave(saveStorage, defaults);
 let saveWarning = false;
 function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(saved)); } catch { if (!saveWarning) { toast('このブラウザでは保存できません。現在のプレイは続けられます。'); saveWarning = true; } } }
 const sound = new Sound(saved.settings);
+const battleImages = new ImageBank();
 let current = 'title', hero = players[0], difficulty = 'normal', mode = 'story', stageIndex = 0, storyScene = 0, battle = null;
 let controls = ['mouse', 'keyboardA'], galleryTab = 'cutin', reward = null;
 let timers = new Set(), overlaySignature = '', toastTimer = 0, lastFrame = performance.now(), modalPausesAudio = true;
 let particleList = [], modalPreviousFocus = null;
+let overlayLoad = null, overlayCue = null;
 const ctx = $('#particles').getContext('2d');
 function later(fn, ms) { const t = setTimeout(() => { timers.delete(t); fn(); }, ms); timers.add(t); return t; }
 function toast(message) { clearTimeout(toastTimer); $('#toast').textContent = message; $('#toast').classList.add('show'); toastTimer = setTimeout(() => $('#toast').classList.remove('show'), 3200); }
@@ -38,6 +41,8 @@ function artwork(path, className, alt, lazy = false) {
 }
 function top(kicker, title) { return `<header class="screen-top"><div class="eyebrow">${kicker}</div><h1 class="section-title">${title}</h1></header>`; }
 function setScreen(name, html) {
+  if (overlayLoad) overlayLoad.battle.presentationPending = false;
+  overlayLoad = null; overlayCue = null;
   timers.forEach(clearTimeout); timers.clear(); sound.stopVoices(); effects.innerHTML = ''; modal.innerHTML = ''; modalPausesAudio = true; particleList = [];
   stage.classList.remove('screen-impact', 'finish-impact'); stage.scrollTop = 0; stage.scrollLeft = 0; current = name; document.body.dataset.screen = name; screen.innerHTML = html; screen.classList.remove('page-enter'); void screen.offsetWidth; screen.classList.add('page-enter');
   overlaySignature = ''; $('#announcer').textContent = '';
@@ -125,6 +130,7 @@ function versus() {
 function vs() {
   const path = `vs/vs_${stageIndex + 1}_${hero.vsCode}.webp`;
   if (mode === 'versus') { beginBattle(); return; }
+  prepareBattleImages();
   saveProgress('battle');
   setScreen('vs', `${artwork(path, 'cinema-art', `${hero.name} VS ${enemies[stageIndex].name}`)}<div class="vs-stage">STAGE 0${stageIndex+1} / ${difficulty.toUpperCase()} / FIRST TO 2</div><div class="vs-bar"><i></i></div><button class="btn small vs-skip" data-action="skip-vs">SKIP →</button>`);
   sound.fadeOut(700); sound.play('vs'); later(beginBattle, 4800);
@@ -136,10 +142,15 @@ function guide() {
 function beginBattle(training = false) {
   // First story battle doubles as the original game's interactive tutorial.
   const train = training === true || (mode === 'story' && !saved.tutorialSeen);
+  if (!train) prepareBattleImages();
   battle = new Battle({ player: hero, stage: stageIndex, difficulty, mode, training: train });
   battle.onEvent = onBattleEvent; renderBattle(); sound.bgm(stageIndex === 3 ? 'battle2' : 'battle1');
   if (!train) saveProgress('battle');
   sound.play('roundcall'); syncOverlay(); lastFrame = performance.now();
+}
+function prepareBattleImages() {
+  const enemy = mode === 'versus' ? players[1] : enemies[stageIndex];
+  battleImages.retain(battleArtPaths(hero, enemy, mode, stageIndex));
 }
 function face(f, owner) {
   const name = esc(f.englishName.toUpperCase());
@@ -186,6 +197,7 @@ function renderCards({ deal = false } = {}) {
 function message(main, sub) { const el = $('.battle-message'); if (el) { el.innerHTML = `<b>${esc(main)}</b><span>${esc(sub)}</span>`; $('#announcer').textContent = `${main} ${sub}`; } }
 function updateHud() {
   const b = battle; if (!b || current !== 'battle') return;
+  $('#core-overlay')?.classList.toggle('presentation-paused', b.paused || document.hidden);
   $('#stage-round').textContent = b.training ? 'TRAINING' : mode === 'versus' ? `ROUND ${b.round}` : `ST ${stageIndex+1} / RD ${b.round}`;
   $('#turn-label').textContent = `TURN ${Math.max(1,b.turn)} / 10`;
   for (let owner = 0; owner < 2; owner++) {
@@ -204,17 +216,45 @@ function updateHud() {
   [...$('.card-grid').children].forEach((el,i) => { if(el.tagName === 'BUTTON') { const owner = mode === 'versus' ? controls.indexOf('mouse') : 0; el.disabled = b.phase !== 'turn' || b.paused || !!b.cutin || owner < 0 || b.disabled[owner]; } });
 }
 function fighterIcon(owner, state = '') { const f = owner ? battle.enemy : hero; return iconAsset(f.icon.replace('.webp',state ? `_${state}.webp` : '.webp')); }
+function playOverlayCue() {
+  if (!overlayCue || overlayCue.battle !== battle || overlayCue.signature !== overlaySignature || battle.paused || document.hidden) return;
+  const cue = overlayCue; overlayCue = null; sound.play(cue.name);
+}
+function showBattleArt(path, owner, sig, mount, cue) {
+  const b = battle, root = $('#core-overlay');
+  const request = { battle: b, signature: sig }; overlayLoad = request;
+  const show = image => {
+    if (overlayLoad !== request || battle !== b || current !== 'battle' || overlaySignature !== sig) return;
+    if (!image) { image = $(`#face-${owner}`).cloneNode(false); image.removeAttribute('id'); image.classList.add('art-fallback'); }
+    mount(image);
+    root.classList.toggle('presentation-paused', b.paused || document.hidden);
+    b.presentationPending = false; overlayLoad = null;
+    overlayCue = { battle: b, signature: sig, name: cue }; playOverlayCue();
+  };
+  const ready = battleImages.peek(path);
+  if (ready) { show(ready); return; }
+  b.presentationPending = true;
+  root.innerHTML = `<div class="overlay-art-wait" role="status"><span></span><p>画像を準備しています…</p></div>`;
+  battleImages.ensure(path).then(show);
+}
 function syncOverlay() {
   const b = battle, root = $('#core-overlay'); if (!b || !root) return;
+  root.classList.toggle('presentation-paused', b.paused || document.hidden);
+  playOverlayCue();
   let sig = b.phase;
   if (b.cutin) sig = `cutin-${b.cutin.owner}`;
   else if (b.phase === 'intro') sig = b.phaseTime > 1700 ? 'round-call' : 'fight-call';
   else if (b.phase === 'roundOver') sig = b.perfect && b.phaseTime < 1600 ? 'perfect' : b.finishLabel;
-  if (sig === overlaySignature) return; overlaySignature = sig;
+  if (sig === overlaySignature) return;
+  if (overlayLoad) overlayLoad.battle.presentationPending = false;
+  overlayLoad = null; overlayCue = null; overlaySignature = sig;
   root.innerHTML = '';
   if (sig.startsWith('cutin-')) {
     const owner = b.cutin.owner, f = owner ? b.enemy : hero, look = specialDecor(f);
-    root.innerHTML = `<div class="cutin cinematic-special ${owner ? 'enemy' : ''}" style="--special-color:${look.color};--art-focus:${look.focus}">${look.html}<div class="special-entry" aria-hidden="true"></div><img src="${f.cutin}" alt=""><div class="cutin-caption"><small>${owner ? 'CPU' : 'PLAYER 1'} / SPECIAL ART</small>${f.skillName}</div></div>`;
+    showBattleArt(f.cutin, owner, sig, image => {
+      root.innerHTML = `<div class="cutin cinematic-special ${owner ? 'enemy' : ''}" style="--special-color:${look.color};--art-focus:${look.focus}">${look.html}<div class="special-entry" aria-hidden="true"></div><div class="cutin-caption"><small>${owner ? 'CPU' : 'PLAYER 1'} / SPECIAL ART</small>${f.skillName}</div></div>`;
+      image.alt = `${f.name}の必殺技`; root.firstElementChild.prepend(image);
+    }, 'special');
   } else if (sig === 'round-call') root.innerHTML = `<div class="fight-call"><small>PROVE YOUR CLASSIFICATION SKILL</small><b>${b.training ? 'TRAINING' : `ROUND ${b.round}`}</b></div>`;
   else if (sig === 'fight-call') root.innerHTML = '<div class="fight-call"><small>KNOWLEDGE IS YOUR WEAPON</small><b>FIGHT</b></div>';
   else if (b.phase === 'roundOver') {
@@ -224,7 +264,12 @@ function syncOverlay() {
   } else if (b.phase === 'roundWinner') {
     const f = b.roundOwner ? b.enemy : hero, code = b.roundOwner && mode === 'story' ? `enemy${stageIndex+1}` : f.vsCode;
     const path = `round/round_${code}.webp`; unlock(path);
-    root.innerHTML = `<div class="round-winner"><img class="round-winner-backdrop" src="${path}" alt=""><img class="round-winner-art" src="${path}" alt="${f.name}のラウンド勝利"><div class="round-winner-text"><small>ROUND ${b.round}</small>${f.englishName.toUpperCase()}<span>WINS</span></div></div>`;
+    showBattleArt(path, b.roundOwner, sig, image => {
+      root.innerHTML = `<div class="round-winner"><div class="round-winner-text"><small>ROUND ${b.round}</small>${f.englishName.toUpperCase()}<span>WINS</span></div></div>`;
+      const backdrop = image.cloneNode(false); backdrop.className = 'round-winner-backdrop'; backdrop.alt = '';
+      image.classList.add('round-winner-art'); image.alt = `${f.name}のラウンド勝利`;
+      root.firstElementChild.prepend(backdrop, image);
+    }, `win_${b.roundOwner && mode === 'story' ? 'enemy' : f.vsCode}`);
   }
 }
 function addEffect(html, duration = 1000) { const e = document.createElement('div'); e.innerHTML = html; while (e.firstChild) { const child = e.firstChild; effects.appendChild(child); later(()=>child.remove(),duration); } }
@@ -271,10 +316,9 @@ function onBattleEvent(e) {
     message(e.owner ? 'CPU STRIKE' : 'GOOD HIT', `${e.card.ndc} / ${e.card.subject} — ${e.damage} DAMAGE`);
     addEffect(`<div class="damage-pop ${e.owner === 0 ? 'enemy' : ''}">−${e.damage}</div>`,900);
     if(e.combo>=2) { effects.querySelectorAll('.combo-pop').forEach(el=>el.remove()); addEffect(`<div class="combo-pop ${e.owner ? 'right' : ''}"><b>${e.combo}</b><span>HIT COMBO</span><small>${e.damage} DAMAGE</small></div>`,1400); }
-  } else if(e.type === 'cutin') { unlock(e.fighter.cutin); renderCards(); sound.stopVoices(); sound.play('special'); message('SPECIAL ART',e.fighter.skillName); }
+  } else if(e.type === 'cutin') { unlock(e.fighter.cutin); renderCards(); sound.stopVoices(); message('SPECIAL ART',e.fighter.skillName); }
   else if(e.type === 'noAnswer') message('NO ANSWER','ダメージなし。次のターンへ');
   else if(e.type === 'roundOver') { sound.stopVoices(); sound.play(e.label === 'K.O.' ? 'KO' : 'timeup'); }
-  else if(e.type === 'roundWinner') sound.play(`win_${e.owner && mode === 'story' ? 'enemy' : (e.owner ? b.enemy.vsCode : hero.vsCode)}`);
   else if(e.type === 'matchOver') { result(e.owner,b.wins); return; }
   else if(e.type === 'trainingComplete') {
     sound.play('correct'); $('.card-grid').children[e.slot].classList.add('hint','correct');
@@ -415,4 +459,4 @@ function frame(now){
 }
 title();requestAnimationFrame(frame);
 // A deliberate read-only diagnostic snapshot for reproducible browser QA.
-window.karutaHeroes = Object.freeze({ version:VERSION, snapshot:()=>({screen:current,mode,stage:stageIndex,hero:hero.id,phase:battle?.phase,turn:battle?.turn,round:battle?.round,hp:battle?[...battle.hp]:null,wins:battle?[...battle.wins]:null,paused:battle?.paused}) });
+window.karutaHeroes = Object.freeze({ version:VERSION, snapshot:()=>({screen:current,mode,stage:stageIndex,hero:hero.id,phase:battle?.phase,turn:battle?.turn,round:battle?.round,hp:battle?[...battle.hp]:null,wins:battle?[...battle.wins]:null,paused:battle?.paused,artLoading:battle?.presentationPending}) });
