@@ -2,243 +2,32 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NDC Karuta Heroes</title>
-  <meta name="description" content="NDCを読み解き、札を取り、4人の強敵を倒すストーリー対戦カルタ。">
-  <meta property="og:title" content="NDC Karuta Heroes">
-  <meta property="og:description" content="分類コードを読み解き、NDC Karuta Heroesの頂点へ。">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0c0b13">
+  <meta name="description" content="知識を、連撃に。NDC番号を聞いて分類札を取り、必殺技で戦うカルタ格闘ゲーム。NDC Karuta Heroes アップグレード版。">
+  <meta property="og:title" content="NDC KARUTA HEROES — UPGRADED EDITION">
+  <meta property="og:description" content="知識を、連撃に。5人の英雄で挑むNDCカルタバトル。">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yawatosho.github.io/karuta_heroes/">
   <meta property="og:image" content="https://yawatosho.github.io/karuta_heroes/image/ogp.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="NDC Karuta Heroes">
-  <meta name="twitter:description" content="分類コードを読み解き、NDC Karuta Heroesの頂点へ。">
-  <meta name="twitter:image" content="https://yawatosho.github.io/karuta_heroes/image/ogp.png">
-  <link rel="icon" href="image/favicon.ico" sizes="any">
+  <link rel="icon" href="image/favicon.ico">
   <link rel="apple-touch-icon" href="image/apple-touch-icon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-J6NS8CCNWN"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-J6NS8CCNWN', { send_page_view: false });
-  </script>
-  <link rel="preload" href="sound/0.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/1.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/2.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/3.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/4.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/5.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/6.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/7.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/8.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/9.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/character.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/correct.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/ng.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/start.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/roundcall.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/KO.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/timeup.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/perfect.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/win_lib.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/win_det.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/win_lily.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/win_prof.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/win_flib.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/win_enemy.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/victory.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/ending.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/result.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/artwork.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/select.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/opening.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/vs.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/battle1.mp3" as="audio" type="audio/mpeg">
-  <link rel="preload" href="sound/battle2.mp3" as="audio" type="audio/mpeg">
-  <link rel="stylesheet" href="styles.css?v=fighters164">
-  <script src="audio_manager.js?v=fighters165" defer></script>
-  <script src="fighters_config.js?v=fighters163" defer></script>
-  <script src="mode_loader.js?v=fighters165" defer></script>
+  <title>NDC KARUTA HEROES — UPGRADED EDITION</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="src/analytics.js?v=20261010"></script>
 </head>
-<body data-mode="cpu">
-  <main id="main" class="arena">
-    <div class="ambient-lines" aria-hidden="true"></div>
-    <div class="scan-grid" aria-hidden="true"></div>
-    <div id="fxLayer" aria-hidden="true"></div>
-
-    <section class="game-shell" aria-label="スーパー日本十進分類カルタ">
-      <header class="game-hero">
-        <div class="fighter-brand" aria-label="NDC Karuta Heroes">
-          <span>NDC KARUTA</span>
-          <strong>HEROES</strong>
-        </div>
-      </header>
-
-      <div id="karuta">
-        <div id="cpuCursor" class="cpu-cursor" aria-hidden="true"></div>
-
-        <p class="action-row">
-          <button id="continueButton" type="button" aria-label="CONTINUE" hidden>
-            <span>CONTINUE<small id="continueButtonDetail"></small></span>
-          </button>
-          <button id="startButton" type="button" aria-label="STORY MODE">STORY MODE</button>
-          <button id="twoPlayerButton" type="button" aria-label="2P BATTLE">2P BATTLE</button>
-          <button id="galleryButton" type="button" aria-label="GALLERY">GALLERY</button>
-          <button id="howToButton" type="button" aria-label="HELP">HELP</button>
-          <button id="patchNoteButton" type="button" aria-label="PATCH NOTE">PATCH NOTE</button>
-          <button id="quitButton" type="button">QUIT</button>
-          <button id="restartButton" type="button">RETRY</button>
-        </p>
-
-        <section id="optionPanel" class="option-panel" aria-label="OPTION">
-          <p class="option-title">OPTION</p>
-          <fieldset class="voice-options">
-            <legend>VOICE</legend>
-            <label class="voice-choice">
-              <input type="radio" name="voiceVariant" value="a" checked>
-              <span>VOICE A</span>
-            </label>
-            <label class="voice-choice">
-              <input type="radio" name="voiceVariant" value="b">
-              <span>VOICE B</span>
-            </label>
-          </fieldset>
-        </section>
-
-        <section class="cpu-level-panel" aria-label="CPU難易度">
-          <label for="cpuLevel">CPU LEVEL</label>
-          <select id="cpuLevel">
-            <option value="beginner">風の目録使い / Beginner</option>
-            <option selected value="normal">分類の魔術師 / Normal</option>
-            <option value="expert">デジタルライブラリアン / Expert</option>
-            <option value="god">至高の司書 / God</option>
-          </select>
-        </section>
-
-        <section class="reader-panel is-hidden" aria-label="読み札">
-          <div id="countdownDisplay" class="countdown-display" aria-live="polite"></div>
-          <div id="reading">
-            <div id="digit1" class="digit"><div class="num">&nbsp;</div></div>
-            <div id="digit2" class="digit"><div class="num">&nbsp;</div></div>
-            <div id="digit3" class="digit"><div class="num">&nbsp;</div></div>
-          </div>
-          <div class="hud">
-            <div id="scoreDisplayPlayer">YOU: 0pt</div>
-            <div id="scoreDisplayCPU">CPU: 0pt</div>
-            <div id="comboDisplay"></div>
-            <div id="timeDisplay">TIME: 15.0 sec</div>
-          </div>
-        </section>
-
-        <div id="cardGrid" class="grid" style="display: none;"></div>
-        <div id="message"></div>
-
-        <audio id="correctSound" preload="auto" playsinline>
-          <source src="sound/correct.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="characterSound" preload="auto" playsinline>
-          <source src="sound/character.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="ngSound" preload="auto" playsinline>
-          <source src="sound/ng.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="startSound" preload="auto" playsinline>
-          <source src="sound/start.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="roundCallSound" preload="auto" playsinline>
-          <source src="sound/roundcall.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="koSound" preload="auto" playsinline>
-          <source src="sound/KO.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="timeUpSound" preload="auto" playsinline>
-          <source src="sound/timeup.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="perfectSound" preload="auto" playsinline>
-          <source src="sound/perfect.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="winLibSound" preload="auto" playsinline>
-          <source src="sound/win_lib.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="winDetSound" preload="auto" playsinline>
-          <source src="sound/win_det.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="winLilySound" preload="auto" playsinline>
-          <source src="sound/win_lily.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="winProfSound" preload="auto" playsinline>
-          <source src="sound/win_prof.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="winFlibSound" preload="auto" playsinline>
-          <source src="sound/win_flib.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="winEnemySound" preload="auto" playsinline>
-          <source src="sound/win_enemy.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="victorySound" preload="auto" playsinline>
-          <source src="sound/victory.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="resultSound" preload="auto" playsinline>
-          <source src="sound/result.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="artworkSound" preload="auto" playsinline>
-          <source src="sound/artwork.mp3" type="audio/mpeg">
-        </audio>
-      </div>
-    </section>
-
-    <dialog id="howToModal" class="game-modal">
-      <div class="modal-frame">
-        <div class="modal-head">
-          <h2>HELP</h2>
-          <button class="modal-close" type="button" data-close-modal="howToModal" aria-label="閉じる">×</button>
-        </div>
-        <div class="rules-grid">
-          <section>
-            <h3 id="ruleTitle1">1. ファイターを選ぶ</h3>
-            <p id="ruleText1">5人のキャラクターから一人を選び、知識の闘技場へ挑みます。</p>
-          </section>
-          <section>
-            <h3 id="ruleTitle2">2. 分類札をつかむ</h3>
-            <p id="ruleText2">3桁のNDCを読み解き、相手より早く対応する分類札を取ります。</p>
-          </section>
-          <section>
-            <h3 id="ruleTitle3">3. 栄冠をつかむ</h3>
-            <p id="ruleText3">SPECIALを駆使し、10TURNで構成されるROUNDを2本先取すれば勝利です。</p>
-          </section>
-        </div>
-      </div>
-    </dialog>
-
-    <dialog id="resultModal" class="game-modal result-modal">
-      <div class="modal-frame">
-        <div class="modal-head">
-          <h2>RESULT</h2>
-          <button class="modal-close" type="button" data-close-modal="resultModal" aria-label="閉じる">×</button>
-        </div>
-        <div id="resultDisplay">
-          <div id="battleResult"></div>
-          <div id="resultCards"></div>
-        </div>
-        <div class="result-actions">
-          <button id="resultTopButton" type="button" data-close-modal="resultModal">TOP</button>
-        </div>
-      </div>
-    </dialog>
-
-    <footer class="credits">
-      <p>NDC9：日本図書館協会 / 作成：やわらか図書館学</p>
-      <a class="yawatosho-games-link" href="https://yawatosho.github.io/" target="_blank" rel="noopener noreferrer">
-        <span>YAWATOSHO GAMES</span>
-        <span aria-hidden="true">↗</span>
-      </a>
-    </footer>
-  </main>
+<body>
+  <div id="viewport"><main id="stage" aria-label="NDC Karuta Heroes">
+    <div class="library-bg" aria-hidden="true"></div><div class="ambient" aria-hidden="true"></div>
+    <div class="stage-frame" aria-hidden="true"></div>
+    <div id="screen"></div><canvas id="particles" width="1366" height="768" aria-hidden="true"></canvas>
+    <div id="effects" aria-hidden="true"></div><div id="announcer" aria-live="polite" class="sr-only"></div>
+    <nav class="utility" aria-label="ゲーム設定"><button data-action="sound" id="sound-toggle" title="サウンド切替" aria-label="サウンド切替">SOUND ON</button><button data-action="settings" aria-label="設定を開く">⚙</button><button data-action="fullscreen" aria-label="全画面表示">⛶</button></nav>
+    <div id="modal"></div><div id="toast" role="status"></div><div id="transition" aria-hidden="true"></div>
+  </main></div>
+  <noscript>このゲームにはJavaScriptが必要です。</noscript>
+  <script type="module" src="src/app.js?v=20261010-analytics"></script>
+  <script>if(location.protocol==='file:'){document.getElementById('screen').innerHTML='<div class="file-notice"><h1>NDC KARUTA HEROES</h1><p>ダブルクリックで遊ぶ場合は、こちらを開いてください。</p><a class="btn gold" href="offline.html">ローカル版をプレイ</a></div>';}</script>
 </body>
 </html>

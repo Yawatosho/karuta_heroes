@@ -1,0 +1,1431 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0c0b13">
+  <meta name="description" content="知識を、連撃に。NDC番号を聞いて分類札を取り、必殺技で戦うカルタ格闘ゲーム。NDC Karuta Heroes アップグレード版。">
+  <meta property="og:title" content="NDC KARUTA HEROES — UPGRADED EDITION">
+  <meta property="og:description" content="知識を、連撃に。5人の英雄で挑むNDCカルタバトル。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yawatosho.github.io/karuta_heroes/">
+  <meta property="og:image" content="https://yawatosho.github.io/karuta_heroes/image/ogp.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="image/favicon.ico">
+  <link rel="apple-touch-icon" href="image/apple-touch-icon.png">
+  <title>NDC KARUTA HEROES — UPGRADED EDITION</title>
+  <style>:root{color-scheme:dark;--gold:#eac77d;--gold2:#aa763e;--ink:#090b13;--white:#f6f1e7;--dim:#aba8ac;--blue:#6de0f5;--red:#ff7687;--line:rgba(232,205,148,.25);--jp:'Hiragino Mincho ProN','Yu Mincho',serif;--display:Impact,'Arial Black',sans-serif;--ui:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN',sans-serif}
+#viewport{display:flex!important;align-items:center;justify-content:center}.btn{white-space:nowrap}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#06070d;color:var(--white);font-family:var(--ui)}button,a{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button{font:inherit;color:inherit;cursor:pointer}button:disabled{cursor:default}button:focus-visible,a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}button{border:0;background:none}a{color:inherit}#viewport{position:absolute;inset:0;display:grid;place-items:center}#stage{position:relative;width:1366px;height:768px;flex-shrink:0;overflow:hidden;transform-origin:center;background:var(--ink);isolation:isolate}#screen{position:absolute;inset:0;z-index:2}.library-bg{position:absolute;inset:-14px;background:linear-gradient(90deg,rgba(6,9,18,.9),rgba(6,9,18,.3) 55%,rgba(6,9,18,.65)),url('image/ancient-library-bg.png') center/cover;filter:saturate(.72);transition:filter .5s}.ambient{position:absolute;inset:0;background:radial-gradient(ellipse at 75% 55%,#2d52653b,transparent 55%),linear-gradient(0deg,#060912 0%,transparent 45%);pointer-events:none}.stage-frame{position:absolute;inset:20px;border:1px solid var(--line);z-index:6;pointer-events:none}.stage-frame:before,.stage-frame:after{content:'';position:absolute;width:62px;height:62px;border-color:var(--gold);border-style:solid;opacity:.7}.stage-frame:before{top:-1px;left:-1px;border-width:2px 0 0 2px}.stage-frame:after{bottom:-1px;right:-1px;border-width:0 2px 2px 0}.utility{position:absolute;right:40px;top:33px;display:flex;gap:10px;z-index:7;align-items:center}.utility button{height:30px;padding:4px 10px;border:1px solid #ffffff23;font-size:12px;letter-spacing:1px;background:#0b101a9c;color:#cfceca}.utility button:last-child,.utility button:nth-child(2){font-size:20px;width:34px;padding:0}.utility button:hover{border-color:var(--gold);color:var(--gold)}body[data-screen=battle] .utility{top:auto;bottom:35px;right:648px;gap:5px}body[data-screen=battle] .utility #sound-toggle{display:none}body[data-screen=battle] .utility button{height:26px;font-size:17px;width:29px}.eyebrow{font-size:13px;letter-spacing:4px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:14px}.eyebrow:before{content:'';width:30px;height:1px;background:var(--gold)}.screen-top{position:absolute;top:47px;left:56px}.small-brand{font-family:var(--display);font-size:23px;letter-spacing:2px}.small-brand span{color:var(--gold)}.section-title{font-family:var(--display);font-size:70px;line-height:1;margin:19px 0 0;font-style:italic;letter-spacing:2px}.section-title em{color:var(--gold);font-style:inherit}.btn{height:54px;display:inline-flex;align-items:center;justify-content:center;gap:15px;padding:0 28px;border:1px solid #a59b834f;background:#0c111ce6;font-size:17px;font-weight:800;letter-spacing:1.2px;text-decoration:none;transition:background .2s,box-shadow .2s,transform .2s}.btn:hover{background:#24212c;border-color:var(--gold);transform:translateY(-2px)}.btn.gold{background:linear-gradient(110deg,#f4d795,#bb8b4f);color:#161219;border-color:#ffe5b1;box-shadow:0 0 30px #e6b95d18}.btn.gold:hover{box-shadow:0 0 30px #e6b95d55;background:#f4d795}.btn.small{height:40px;font-size:12px;padding:0 18px}.bottom-nav{position:absolute;left:56px;right:56px;bottom:50px;display:flex;align-items:center;justify-content:space-between}.bottom-note{font-size:12px;color:var(--dim);letter-spacing:1px}.page-enter{animation:page-in .45s both}.divider{height:1px;background:linear-gradient(90deg,var(--gold),transparent);margin:26px 0}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+/* Shared character-selection ornament. */
+.magic-circle{position:absolute;right:-50px;top:48px;width:670px;height:670px;border:1px solid #e8c8873d;border-radius:50%;box-shadow:0 0 90px #40d2ff15,inset 0 0 100px #a46cdf15;animation:orbit 90s linear infinite}.magic-circle:before{content:'';position:absolute;inset:40px;border:1px dashed #e8c88740;border-radius:50%}.magic-circle:after{content:'✧';position:absolute;inset:80px;display:grid;place-items:center;font-size:450px;color:#deb65b15}
+/* Character select */
+.select-portrait{position:absolute;height:1120px;right:63px;bottom:-410px;filter:drop-shadow(0 0 45px #6dd6ff30);animation:select-in .4s both;pointer-events:none}.select-shadow{position:absolute;inset:0;background:linear-gradient(90deg,#080b13eb 0%,#080b13ba 33%,transparent 73%),linear-gradient(0deg,#080b13,transparent 40%);pointer-events:none}.ghost-name{position:absolute;left:657px;top:201px;writing-mode:vertical-rl;font-family:var(--display);font-size:102px;font-style:italic;letter-spacing:6px;color:#ffffff08;white-space:nowrap;pointer-events:none}.select-info{position:absolute;left:65px;top:220px;width:580px;z-index:3}.fighter-number{font-family:var(--display);font-size:28px;font-style:italic;color:var(--gold);letter-spacing:2px}.fighter-name{font-family:var(--jp);font-size:49px;margin:15px 0 10px;letter-spacing:4px;line-height:1.3}.fighter-english{font-size:13px;letter-spacing:4px;text-transform:uppercase;color:#b9c2ce}.fighter-skill{border-left:2px solid var(--gold);padding-left:17px;margin:20px 0 0}.fighter-skill small{font-size:10px;color:var(--gold);letter-spacing:3px;display:block;margin-bottom:10px}.fighter-skill strong{font-size:20px;letter-spacing:.5px}.fighter-skill p{font-size:13px;color:#aeb7c2;margin:9px 0 0;line-height:1.6}.stats{display:flex;gap:28px;margin-top:22px}.stat{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:bold;letter-spacing:2px}.stat i{display:block;width:17px;height:8px;transform:skew(-18deg);background:#ffffff15}.stat i.on{background:var(--gold);box-shadow:0 0 8px #f0bd5950}.fighter-roster{display:flex;position:absolute;left:65px;bottom:113px;gap:11px;z-index:4}.roster-icon{position:relative;width:79px;height:79px;padding:0;border:1px solid #ffffff35;background:#09101b;transform:skew(-5deg);overflow:hidden;transition:border .2s,box-shadow .2s}.roster-icon img{width:100%;height:100%;object-fit:cover;filter:grayscale(.5) brightness(.65);transform:skew(5deg) scale(1.08)}.roster-icon.active{border:2px solid var(--gold);box-shadow:0 0 22px #e3b96255;transform:skew(-5deg) translateY(-7px)}.roster-icon.active img,.roster-icon:hover img{filter:none}.roster-icon .p1-tag{position:absolute;left:0;top:0;background:var(--gold);color:#111;font-size:10px;padding:2px 6px}.difficulty{position:absolute;left:767px;bottom:131px;display:flex;gap:5px;z-index:4;align-items:center;background:#0b0f19d9;border:1px solid var(--line);padding:6px}.difficulty span{font-size:10px;letter-spacing:2px;margin:0 8px;color:#c6bba4}.difficulty button{padding:12px 18px;font-size:12px;font-weight:800;letter-spacing:1px;color:#979ca6}.difficulty button.active{background:var(--gold);color:#161219}.select-bottom .btn.gold{min-width:293px}.select-bottom{z-index:4}.select-bottom .bottom-note{margin-left:20px}
+/* Battle HUD and field */
+.battle-bg-fighter{position:absolute;top:124px;height:623px;width:400px;object-fit:cover;opacity:.09;filter:grayscale(.5);pointer-events:none;mask-image:linear-gradient(0deg,transparent,black 30%,black 70%,transparent)}.battle-bg-fighter.left{left:-175px}.battle-bg-fighter.right{right:-175px}.battle-floor{position:absolute;left:280px;top:178px;width:800px;height:800px;border:1px solid #dfb86416;border-radius:50%;transform:rotateX(65deg);box-shadow:0 0 90px #a082e11a}.battle-hud{position:absolute;top:40px;left:45px;right:45px;height:112px;display:flex;gap:24px;align-items:flex-start}.combatant{display:flex;width:537px;gap:13px;align-items:center;position:relative}.combatant.right{flex-direction:row-reverse;text-align:right}.face{width:80px;height:80px;flex-shrink:0;border:2px solid #ccac7333;transform:skew(-5deg);background:#1d2634;position:relative}.face img{width:100%;height:100%;object-fit:cover}.face:after{content:'';position:absolute;inset:-2px;border-top:2px solid var(--gold);pointer-events:none}.combatant.right .face{transform:skew(5deg)}.life-panel{flex:1;min-width:0}.combatant-name{display:flex;justify-content:space-between;align-items:center;height:31px;font-size:19px;font-weight:bold;white-space:nowrap}.combatant-name span{font-size:11px;letter-spacing:2px;color:var(--blue)}.combatant.right .combatant-name span{color:var(--red)}.life-track{height:25px;position:relative;background:#321e26;border:1px solid #e1d6b944;transform:skew(-8deg);overflow:hidden}.life-trail,.life-fill{position:absolute;inset:3px;right:auto;width:100%;background:#f5f1dd;transition:width .65s .16s}.life-fill{background:linear-gradient(0deg,#b5914e,#fff0b9);transition:width .16s;z-index:2}.combatant.right .life-track{transform:skew(8deg)}.combatant.right .life-fill,.combatant.right .life-trail{right:3px;left:auto}.life-fill:after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent 32px,#050b1725 33px,#050b1725 34px)}.combatant-meta{display:flex;justify-content:space-between;align-items:center;margin-top:9px;color:#a8a8b3;font-size:10px;letter-spacing:2px}.round-markers{display:flex;gap:7px}.round-markers i{width:9px;height:9px;border:1px solid #bbab8f;transform:rotate(45deg)}.round-markers i.won{background:var(--gold);box-shadow:0 0 10px var(--gold)}.clock{width:126px;flex-shrink:0;text-align:center;margin-top:-1px}.clock small{font-size:11px;font-weight:bold;letter-spacing:2px;color:var(--gold);display:block}.clock strong{display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:400;font-size:40px;height:56px;line-height:56px;color:#c7c3b9;text-shadow:none;letter-spacing:0}.clock strong span{display:block;width:.64em;font:inherit;letter-spacing:0;color:inherit;text-align:center}.clock strong .clock-dot{width:.24em}.clock strong.danger{color:var(--red)}.clock span{font-size:10px;color:#bbb4ae;letter-spacing:1.6px}.reading{position:absolute;top:178px;left:415px;right:415px;text-align:center}.reading-label{font-size:10px;color:#c4b894;font-weight:700;letter-spacing:4px;margin-bottom:9px;display:flex;justify-content:center;gap:16px}.reading-label span{color:#858ba0;letter-spacing:2px}.digits{display:flex;gap:14px;justify-content:center}.digit{width:86px;height:92px;border-bottom:1px solid #e9c8814a;background:#070c16b3;font-family:var(--display);font-size:74px;line-height:92px;color:#fff8e9;position:relative}.digit:empty:after{content:'·';color:#ffffff30;font-size:43px}.digit.revealed{animation:digit-in .2s both;text-shadow:0 0 28px #faf2dc55}.reading.reverse .digit{border-color:var(--red)}.turn-progress{display:flex;justify-content:center;gap:4px;position:absolute;top:308px;left:0;right:0}.turn-progress i{width:23px;height:3px;background:#ffffff20}.turn-progress i.past{background:#a28b64}.turn-progress i.current{background:var(--gold);box-shadow:0 0 12px #f8c573}.card-grid{position:absolute;left:96px;right:96px;top:345px;display:grid;grid-template-columns:repeat(12,1fr);gap:17px 16px}.card{grid-column:span 2;height:112px;position:relative;border:1px solid #c1a57b66;border-top:2px solid #ddc390;background:linear-gradient(140deg,#262326f5,#111621f5);box-shadow:0 8px 17px #0004,inset 0 0 24px #e2b45106;padding:17px 12px;color:#f7f0e4;display:flex;align-items:center;justify-content:center;transition:border .15s,background .15s;animation:card-in .4s both;animation-delay:calc(var(--i)*26ms)}.card:nth-child(7){grid-column:2/span 2}.card:before,.card:after{content:'';position:absolute;width:7px;height:7px;border:1px solid #ccab6c6b;pointer-events:none}.card:before{left:5px;top:6px;border-width:1px 0 0 1px}.card:after{right:5px;bottom:6px;border-width:0 1px 1px 0}.card:hover{background:linear-gradient(140deg,#3b3430,#1c2534);border-color:#f4cf8e}.card:disabled{color:#f7f0e4}.card-subject{font-family:var(--jp);font-size:20px;font-weight:bold;line-height:1.5;overflow-wrap:anywhere}.card-subject.long{font-size:16px}.card-subject.very-long{font-size:13px}.card.empty{visibility:hidden;pointer-events:none}.key-badge{position:absolute;bottom:5px;left:7px;font-family:var(--ui);font-size:9px;color:#b2b4bb;letter-spacing:.5px}.key-badge.p2{left:auto;right:7px;color:#ffa4ad}.card.cpu-aim{border-color:var(--red);box-shadow:0 0 24px #ff68746b}.card.cpu-aim:after{content:'CPU';width:auto;height:auto;right:8px;bottom:7px;border:0;color:var(--red);font:10px var(--ui);letter-spacing:1px}.card.hint{border:2px solid var(--gold);box-shadow:0 0 25px #efcf987a,inset 0 0 20px #efcf9826}.card.hint:after{content:'CANDIDATE';width:auto;height:auto;right:7px;bottom:5px;border:0;color:var(--gold);font:9px var(--ui);letter-spacing:1px}.card.hint.correct{border-color:var(--blue);box-shadow:0 0 35px #62daffc9}.card.hint.correct:after{content:'CORRECT';color:var(--blue)}.card.miss{animation:shake .25s;box-shadow:inset 0 0 40px #a621354d;border-color:var(--red)}.battle-message{position:absolute;top:613px;left:246px;right:246px;height:34px;display:flex;align-items:center;justify-content:center;gap:13px;text-align:center;font-size:13px;letter-spacing:1px;background:#060c1680;border-top:1px solid #d1b98b18;color:#d2d2d8}.battle-message b{font-size:12px;color:var(--gold)}.super-row{position:absolute;left:48px;right:48px;bottom:39px;display:flex;justify-content:space-between}.super-panel{width:437px;position:relative;display:flex;gap:16px;align-items:flex-end}.super-panel.right{flex-direction:row-reverse;text-align:right}.super-info{flex:1}.super-label{display:flex;justify-content:space-between;font-size:10px;font-weight:bold;letter-spacing:2px;color:#7e8b9e;margin-bottom:8px}.super-label strong{font-family:var(--display);font-style:italic;color:#d0c8b6;font-size:18px;letter-spacing:1px}.super-track{height:13px;background:#09111c;border:1px solid #6ce1fa50;transform:skew(-12deg);position:relative;overflow:hidden}.super-fill{display:block;position:absolute;inset:2px;right:auto;width:0;background:var(--blue);box-shadow:0 0 18px var(--blue);transition:width .25s}.super-panel.right .super-track{border-color:#fc889f50;transform:skew(12deg)}.super-panel.right .super-fill{left:auto;right:2px;background:var(--red)}.special-btn{height:42px;border:1px solid #586777;color:#8c9aaa;font-family:var(--display);font-size:21px;font-style:italic;letter-spacing:1px;padding:0 18px}.special-btn.ready{border-color:var(--blue);color:var(--blue);background:#62dffa12;box-shadow:0 0 20px #6de0f53b;animation:ready-pulse 1s infinite}.special-key{font-size:9px;letter-spacing:2px;color:#9ca6b1;margin-top:6px;text-align:right}.battle-hud.locked .face{filter:grayscale(1)}.battle-training{position:absolute;top:150px;left:62px;width:270px;padding:18px;border-left:2px solid var(--gold);background:#080e18d9;font-size:13px;line-height:1.7}.battle-training b{display:block;color:var(--gold);letter-spacing:2px;margin-bottom:8px}.battle-training .btn{margin-top:12px}
+/* Full-frame artwork, polished cinematic captions */
+.cinema-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:cinema-zoom 7s both}.cinema-shade{position:absolute;inset:0;background:linear-gradient(0deg,#070b12f7 0%,#070b12c9 28%,transparent 67%)}.cinema-caption{position:absolute;left:70px;right:70px;bottom:97px;font-family:var(--jp);font-size:20px;line-height:1.85;text-shadow:0 2px 6px black}.cinema-caption p{margin:0}.cinema-caption .eyebrow{font-family:var(--ui);margin-bottom:20px}.cinema-bottom{position:absolute;bottom:42px;left:70px;right:70px;display:flex;justify-content:space-between;align-items:center}.cinema-bottom small{color:#c7bba5;letter-spacing:2px;font-size:11px}.vs-stage{position:absolute;left:53px;top:45px;font-size:12px;letter-spacing:3px;background:#0a0e17db;border-left:2px solid var(--gold);padding:12px 21px}.vs-bar{position:absolute;left:0;right:0;bottom:0;height:8px;background:#0006}.vs-bar i{display:block;height:100%;background:var(--gold);animation:vs-load 4.8s linear both}.vs-skip{position:absolute;bottom:35px;right:47px;background:#070c15ce}.result-label{position:absolute;left:65px;top:90px;font-family:var(--display);font-style:italic;font-size:91px;line-height:1;color:var(--gold);text-shadow:0 4px 0 #161018,0 0 30px #eec36b55}.result-label small{display:block;font:11px var(--ui);letter-spacing:6px;color:#f6dfad;margin-bottom:10px}.result-summary{position:absolute;top:214px;left:70px;display:flex;gap:13px;align-items:center}.result-summary b{font-family:var(--display);font-size:40px;color:white}.result-summary span{font-size:12px;letter-spacing:3px}.result-quote{position:absolute;left:80px;right:80px;bottom:155px;font-family:var(--jp);font-size:24px;text-align:center;line-height:1.7;white-space:pre-line;text-shadow:0 0 18px #fff8}.result-actions{position:absolute;left:0;right:0;bottom:55px;display:flex;justify-content:center;gap:15px}.result-actions .gold{min-width:210px}.round-winner{position:absolute;inset:0;display:grid;place-items:center;background:#080b14dd;z-index:10;animation:page-in .25s}.round-winner img{height:768px;width:100%;object-fit:cover;opacity:.95}.round-winner-text{position:absolute;bottom:85px;left:0;right:0;text-align:center;font-family:var(--display);font-size:37px;letter-spacing:3px;text-shadow:0 4px 8px #000}.round-winner-text span{color:var(--gold)}
+/* Gallery, guide, local 2P setup */
+.content-area{position:absolute;top:199px;left:65px;right:65px;bottom:124px;overflow-y:auto;scrollbar-color:#887146 #0a0e17;scrollbar-width:thin}.gallery-tabs{position:absolute;top:145px;left:65px;display:flex;gap:6px}.gallery-tabs button{border-bottom:2px solid transparent;padding:10px 19px;font-size:11px;letter-spacing:1.5px;color:#a9adb6}.gallery-tabs .active{border-color:var(--gold);color:var(--gold);background:#dbc3870d}.gallery-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}.gallery-item{border:1px solid var(--line);background:#0b111bd9;padding:0;text-align:left;overflow:hidden;position:relative;min-height:135px}.gallery-item img{width:100%;height:111px;object-fit:cover;display:block;transition:transform .3s}.gallery-item:hover img{transform:scale(1.05)}.gallery-item span{display:block;padding:10px;font-size:11px;letter-spacing:1px;color:#c7c4bb}.gallery-item.locked{cursor:default}.gallery-item.locked .lock{height:111px;display:grid;place-items:center;color:#626773;font-family:var(--display);font-size:25px;letter-spacing:4px;background:repeating-linear-gradient(135deg,#ffffff02 0,#ffffff02 1px,transparent 1px,transparent 10px)}.sound-item{height:137px;padding:19px}.sound-item small{color:var(--gold);letter-spacing:2px}.sound-item b{font-family:var(--display);font-size:30px;margin-top:13px;display:block}.sound-item span{padding:0;margin-top:8px;font-size:10px;color:#999eac}.gallery-status{position:absolute;right:64px;bottom:65px;color:#bda575;font-size:12px;letter-spacing:2px}.guide-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}.guide-block{padding:27px;background:#0d121dcc;border:1px solid var(--line)}.guide-block .step{font-family:var(--display);font-size:52px;color:#ddbf81}.guide-block h3{font-family:var(--jp);font-size:23px;margin:12px 0}.guide-block p{font-size:14px;line-height:1.9;color:#bec0c6;margin:0}.guide-example{display:flex;align-items:center;justify-content:center;gap:8px;height:76px;margin:15px 0;background:#070b13;font-size:14px;color:var(--gold)}.guide-example b{font-family:var(--display);font-size:44px;color:white;letter-spacing:6px}.guide-controls{display:flex;gap:22px;margin-top:19px;font-size:13px;color:#b5b7c0}.guide-controls p{margin:0;line-height:1.8}.guide-controls b{color:var(--gold)}.setup-sides{display:grid;grid-template-columns:1fr 1fr;gap:42px}.setup-panel{padding:27px;background:#0d1421df;border:1px solid var(--line)}.setup-fighter{display:flex;align-items:center;gap:24px}.setup-fighter img{width:105px;height:105px;object-fit:cover;border:1px solid var(--gold)}.setup-fighter h3{font-family:var(--jp);font-size:28px;margin:6px 0}.setup-fighter small{color:var(--gold);letter-spacing:3px}.control-options{display:flex;gap:7px;margin:25px 0}.control-options button{padding:11px 19px;border:1px solid #ffffff24;font-size:12px}.control-options .active{border-color:var(--gold);background:#dbc38721;color:var(--gold)}.control-options button:disabled{opacity:.25}.keyboard-map{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;width:352px}.keyboard-map kbd{border:1px solid #ffffff25;padding:8px;text-align:center;font-family:var(--ui);font-size:13px;background:#111b2c}.keyboard-map kbd:nth-child(7){grid-column:1}.setup-panel p{font-size:13px;color:#aeb2bd;line-height:1.8}.credits-window{position:absolute;top:110px;bottom:116px;left:150px;right:150px;overflow:hidden;mask-image:linear-gradient(transparent,black 12%,black 90%,transparent)}.credits-roll{text-align:center;animation:credits-roll 38s linear both}.credits-roll p{font-size:18px;line-height:2;margin:30px 0 50px}.credits-roll small{display:block;font-size:11px;letter-spacing:4px;color:var(--gold)}.credits-roll h2{font-family:var(--display);font-size:58px;margin:0 0 70px}.credits-end{text-align:center;position:absolute;top:260px;left:0;right:0;animation:page-in 2s both}.credits-end h2{font-family:var(--display);font-style:italic;font-size:73px;color:var(--gold);margin:24px 0}.credits-end p{font-family:var(--jp);font-size:24px}
+/* Impact, cut-ins and overlays */
+#particles{position:absolute;inset:0;z-index:9;pointer-events:none}#effects{position:absolute;inset:0;z-index:8;pointer-events:none}.fight-call{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(0deg,transparent,#060b16a3,transparent);animation:call-in .38s both}.fight-call b{font-family:var(--display);font-size:151px;line-height:1;font-style:italic;letter-spacing:5px;color:#ffe7aa;text-shadow:0 5px 0 #503821,0 0 45px #ddaa557a;transform:skew(-5deg)}.fight-call small{font-size:16px;font-weight:bold;letter-spacing:8px;color:#ece2ce;margin-bottom:18px}.fight-call.ko b{font-size:208px;color:#ffd28d}.fight-call.perfect b{font-size:143px;color:#dff9ff;text-shadow:0 5px 0 #16495c,0 0 50px #70dbff7a}.fight-call.timeup b{font-size:141px}.combo-pop{position:absolute;top:157px;left:51px;color:var(--blue);animation:combo-in 1.4s both;font-family:var(--display);font-style:italic}.combo-pop.right{left:auto;right:51px;color:var(--red);text-align:right;animation-name:combo-in-right}.combo-pop b{font-size:86px;line-height:1;letter-spacing:3px}.combo-pop span{display:block;font-size:22px;letter-spacing:5px}.combo-pop small{color:#e9e6e1;font-family:var(--ui);font-style:normal;font-size:12px;display:block;margin-top:10px;letter-spacing:2px}.hit-ring{position:absolute;width:145px;height:145px;border:3px solid var(--blue);border-radius:50%;transform:translate(-50%,-50%);animation:hit-ring .4s both;box-shadow:0 0 30px #6ddaff}.hit-ring.enemy{border-color:var(--red);box-shadow:0 0 30px var(--red)}.damage-pop{position:absolute;top:117px;left:375px;font-family:var(--display);font-size:40px;font-style:italic;color:var(--red);animation:damage-pop .8s both;text-shadow:0 2px 7px #000}.damage-pop.enemy{left:auto;right:375px;color:var(--blue)}.cutin{position:absolute;inset:0;display:flex;align-items:center;z-index:12;background:#0207119c;overflow:hidden;animation:page-in .12s both}.cutin:before{content:'';position:absolute;inset:135px -80px;background:#65dbff22;transform:rotate(-5deg);border-block:2px solid #6bdefabb;box-shadow:0 0 40px #7ee3ff45}.cutin.enemy:before{background:#ff708222;border-color:var(--red)}.cutin img{position:absolute;width:1366px;height:490px;object-fit:cover;left:0;top:139px;animation:cutin-left .3s both}.cutin.enemy img{animation-name:cutin-right}.cutin-caption{position:absolute;left:80px;bottom:93px;right:80px;font-size:36px;font-weight:900;font-style:italic;letter-spacing:1px;text-shadow:0 3px 12px #000;background:#050a1599;padding:16px;border-left:3px solid var(--blue)}.cutin-caption small{display:block;font-size:12px;letter-spacing:5px;color:var(--blue);margin-bottom:10px;font-style:normal}.cutin.enemy .cutin-caption{border-color:var(--red);text-align:right}.cutin.enemy small{color:var(--red)}.screen-impact{animation:screen-impact .24s}.hit-flash{position:absolute;inset:0;background:#fff2cd;animation:flash .21s both}.slash-hit{position:absolute;inset:0;background:linear-gradient(125deg,transparent 45%,#d7fbffb0 49%,#faffff 50%,#94deff6b 51%,transparent 55%);animation:flash .25s both}.new-reward{font-size:13px;color:var(--gold);text-align:center;margin-top:14px}.pause-shade,.modal-shade{position:absolute;inset:0;z-index:20;background:#030711ca;backdrop-filter:blur(12px);display:grid;place-items:center;pointer-events:auto}.modal-panel{width:660px;max-height:644px;overflow-y:auto;background:linear-gradient(140deg,#1d2230,#0b101c);border:1px solid var(--gold2);box-shadow:0 15px 90px #000a;padding:42px;position:relative}.modal-panel h2{font-family:var(--display);font-style:italic;font-size:52px;letter-spacing:2px;margin:0 0 28px;color:var(--gold)}.modal-panel h3{font-size:20px}.modal-panel p{font-size:15px;line-height:1.8;color:#ccc9c3}.modal-panel .modal-close{position:absolute;right:22px;top:22px;font-size:28px;color:#a6a3a0}.settings-row{display:flex;justify-content:space-between;align-items:center;padding:20px 0;border-bottom:1px solid #ffffff19;font-size:15px}.settings-row input[type=range]{accent-color:var(--gold);width:220px}.settings-row button{border:1px solid var(--line);padding:8px 16px;color:var(--gold)}.settings-row small{font-size:11px;color:#8c96a3}.modal-actions{margin-top:27px;display:flex;gap:14px;justify-content:flex-end}.gallery-view{position:absolute;inset:32px;display:flex;flex-direction:column;background:#080c16;border:1px solid var(--line);padding:16px}.gallery-view img{width:100%;height:calc(100% - 85px);object-fit:contain;flex:1;min-height:0}.gallery-view-footer{display:flex;justify-content:space-between;align-items:center;margin-top:15px;font-size:14px;color:var(--gold)}.gallery-view .ending-lines{position:absolute;left:90px;right:90px;bottom:95px;max-height:216px;overflow:auto;background:#030811d9;padding:18px;font-family:var(--jp);font-size:17px;line-height:1.8;color:white}#toast{position:absolute;left:50%;bottom:110px;z-index:30;transform:translateX(-50%);background:#171c2be8;border:1px solid var(--gold2);padding:13px 22px;color:#f2e3c4;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}#toast.show{opacity:1}#transition{position:absolute;inset:0;background:linear-gradient(120deg,#1e1c28,#ba985e,#090e1c);z-index:19;pointer-events:none;transform:translateX(-130%) skew(-20deg)}#transition.wipe{animation:wipe .55s both}.orientation-hint{position:fixed;bottom:8px;left:0;right:0;text-align:center;font-size:10px;color:#7b7b86;pointer-events:none;display:none}.file-notice{display:grid;place-content:center;height:100%;text-align:center}.file-notice h1{font-family:var(--display);font-size:70px;color:var(--gold)}
+@keyframes page-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@keyframes hero-in{from{opacity:0;translate:55px 0}to{opacity:1;translate:0 0}}@keyframes select-in{from{opacity:0;translate:40px 0}to{opacity:1;translate:0 0}}@keyframes orbit{to{transform:rotate(360deg)}}@keyframes card-in{from{opacity:0;transform:translateY(15px) scale(.96)}to{opacity:1;transform:none}}@keyframes digit-in{from{opacity:.2;transform:translateY(-8px)}to{opacity:1;transform:none}}@keyframes ready-pulse{50%{box-shadow:0 0 30px #6de0f56b}}@keyframes cinema-zoom{from{transform:scale(1.03)}to{transform:scale(1)}}@keyframes vs-load{from{width:0}to{width:100%}}@keyframes call-in{from{opacity:0;transform:scale(1.15)}to{opacity:1;transform:scale(1)}}@keyframes combo-in{0%{opacity:0;transform:translateX(-160px)}15%,70%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(0)}}@keyframes combo-in-right{0%{opacity:0;transform:translateX(160px)}15%,70%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(0)}}@keyframes cutin-left{from{transform:translateX(-100%)}to{transform:translateX(0)}}@keyframes cutin-right{from{transform:translateX(100%)}to{transform:translateX(0)}}@keyframes hit-ring{from{opacity:1;scale:.4}to{opacity:0;scale:1.6}}@keyframes damage-pop{from{opacity:1;transform:translateY(10px)}to{opacity:0;transform:translateY(-27px)}}@keyframes shake{25%,75%{transform:translateX(-4px)}50%{transform:translateX(4px)}}@keyframes screen-impact{20%{translate:-4px 2px}50%{translate:5px -2px}75%{translate:-2px 1px}}@keyframes flash{from{opacity:.5}to{opacity:0}}@keyframes wipe{0%{transform:translateX(-130%) skew(-20deg)}45%{transform:translateX(0) skew(-20deg)}100%{transform:translateX(130%) skew(-20deg)}}@keyframes credits-roll{from{transform:translateY(560px)}to{transform:translateY(-1350px)}}
+body.reduced-motion *,body.reduced-motion *:before,body.reduced-motion *:after{animation-duration:.001s!important;animation-iteration-count:1!important;scroll-behavior:auto!important}body.reduced-motion .vs-bar i{width:100%}body.reduced-motion .combo-pop{animation:none;opacity:1}body.reduced-motion .credits-roll{animation:none;transform:none;overflow:auto;height:520px}body.reduced-motion .cinema-art{transform:none}body.reduced-motion .cutin img{transform:none}body.reduced-motion .magic-circle{animation:none}body.reduced-motion .life-fill,body.reduced-motion .life-trail{transition:none}body[data-screen=battle] .stage-frame{border-color:#e2ccab14}
+/* Prevent browser focus/click auto-scroll from moving the fixed arena. */
+#stage{overflow:clip}.card.no-deal{animation:none}
+/* Stateful UI: only a new deal plays the card entrance animation. */
+.card{animation:none}.card.deal{animation:card-in .4s both;animation-delay:calc(var(--i)*26ms)}
+/* Portrait-format round artwork is shown in full; side space carries the HUD. */
+.round-winner{display:block;background:#080b14}
+.round-winner .round-winner-backdrop{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(22px) brightness(.23);opacity:1;transform:scale(1.08)}
+.round-winner .round-winner-art{position:absolute;inset:0;width:100%;height:100%;padding:18px 0;object-fit:contain;opacity:1}
+.round-winner-text{left:52px;right:auto;top:285px;bottom:auto;width:295px;text-align:left;font-size:34px;line-height:1.3;letter-spacing:1.5px}
+.round-winner-text small{display:block;font:11px var(--ui);letter-spacing:4px;color:#c6bda9;margin-bottom:19px}
+.round-winner-text span{display:block;font-size:81px;line-height:1.1;font-style:italic;margin-top:12px}
+/* Match artwork already contains WINNER and the name. Keep its frame intact. */
+.result-art{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+.result-quote{left:13.5%;right:12.4%;top:79%;bottom:auto;height:15.5%;display:flex;align-items:center;justify-content:center;padding:12px 24px;font-size:25px;line-height:1.65;text-shadow:0 0 12px #b9e0ff70,0 2px 4px #000}
+.result-actions{left:65px;right:auto;top:524px;bottom:auto;justify-content:flex-start;gap:12px}
+.result-actions .btn{height:48px;font-size:14px;padding:0 23px}
+.result-reward{position:absolute;left:65px;top:478px;width:470px;font-size:12px;letter-spacing:1px;color:#ffe9a9;text-shadow:0 2px 7px #000}
+
+/* Round points sit toward the clock on both sides of the HUD. */
+.combatant:not(.right) .combatant-meta{flex-direction:row-reverse}
+
+/* Portrait mode uses a 480px arena, scaled to the available safe viewport. */
+#viewport{position:fixed;height:100dvh;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+#particles{width:100%;height:100%}
+.portrait .stage-frame{inset:10px}.portrait .stage-frame:before,.portrait .stage-frame:after{width:30px;height:30px}
+.portrait .utility,.portrait[data-screen=battle] .utility{top:16px;right:20px;bottom:auto;gap:8px}
+.portrait .utility button,.portrait[data-screen=battle] .utility button{height:44px;min-width:44px;font-size:13px;padding:5px 9px}
+.portrait .utility button:nth-child(n+2),.portrait[data-screen=battle] .utility button{font-size:22px;width:44px}
+.portrait .btn{min-height:54px;padding:0 16px;font-size:15px}.portrait .btn.small{height:54px;font-size:13px}
+.portrait .screen-top{left:24px;right:24px;top:78px}.portrait .eyebrow{font-size:10px;letter-spacing:2px;gap:10px}.portrait .eyebrow:before{width:20px}
+.portrait .section-title{font-size:46px;margin-top:15px;letter-spacing:1px}
+.portrait .bottom-nav{left:24px;right:24px;bottom:30px;gap:12px}.portrait .bottom-nav .bottom-note{display:none}
+.portrait .magic-circle{width:520px;height:520px;right:-180px;top:160px}
+.portrait .select-portrait{height:min(800px,calc(100% - 180px));right:-190px;bottom:165px}.portrait .select-shadow{background:linear-gradient(90deg,#080b13dc,transparent 95%),linear-gradient(0deg,#080b13 16%,transparent 80%)}
+.portrait .ghost-name{left:auto;right:12px;top:180px;font-size:58px}
+.portrait .select-info{left:24px;top:188px;width:310px}.portrait .fighter-number{font-size:22px}.portrait .fighter-name{font-size:40px;margin:10px 0}.portrait .fighter-english{font-size:12px;letter-spacing:2px}
+.portrait .fighter-skill{margin-top:24px;padding-left:12px}.portrait .fighter-skill strong{font-size:19px}.portrait .fighter-skill p{font-size:16px;line-height:1.6}.portrait .stats{gap:20px;margin-top:22px}
+.portrait .fighter-roster{left:24px;bottom:200px;gap:12px}.portrait .roster-icon{width:72px;height:76px}
+.portrait .difficulty{left:24px;right:24px;bottom:120px;justify-content:center}.portrait .difficulty button{height:54px;padding:0 14px;font-size:14px}.portrait .difficulty span{font-size:10px;letter-spacing:1px}
+.portrait .select-bottom .btn.gold{min-width:0;flex:1;font-size:13px}.portrait .select-bottom>div{flex-shrink:0}
+.portrait .battle-hud{top:70px;left:18px;right:18px;height:82px;display:grid;grid-template-columns:1fr 66px 1fr;gap:8px;align-items:center}
+.portrait .combatant{width:100%;gap:6px}.portrait .face{width:38px;height:48px;border-width:1px}.portrait .combatant-name{height:30px;gap:4px;white-space:normal;font-size:11px;line-height:1.15}.portrait .combatant-name b{max-width:100px}.portrait .combatant-name span{font-size:9px;letter-spacing:0}
+.portrait .life-track{height:18px}.portrait .combatant-meta{margin-top:7px;font-size:8px;letter-spacing:0}.portrait .round-markers{gap:6px}.portrait .round-markers i{width:8px;height:8px}
+.portrait .clock{width:66px}.portrait .clock small{font-size:9px;letter-spacing:0}.portrait .clock strong{font-size:27px;height:38px;line-height:38px}.portrait .clock>span{font-size:8px;letter-spacing:0}
+.portrait .reading{top:172px;left:18px;right:18px}.portrait .reading-label{font-size:10px;letter-spacing:2px}.portrait .digits{gap:12px}.portrait .digit{width:64px;height:66px;line-height:66px;font-size:55px}
+.portrait .turn-progress{top:260px}.portrait .turn-progress i{width:20px}
+.portrait .card-grid{left:18px;right:18px;top:286px;bottom:204px;grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:10px}
+.portrait .card{height:auto;min-width:0;padding:12px 7px}.portrait .card:nth-child(n){grid-column:span 2}.portrait .card:nth-child(10){grid-column:2/span 2}.portrait .card:nth-child(11){grid-column:4/span 2}
+.portrait .card-subject{font-size:19px;line-height:1.45}.portrait .card-subject.long{font-size:16px}.portrait .card-subject.very-long{font-size:13px}.portrait .key-badge{display:none}
+.portrait .battle-message{top:auto;bottom:159px;left:18px;right:18px;height:35px;gap:5px;font-size:11px;letter-spacing:0}.portrait .battle-message b{font-size:11px;white-space:nowrap}
+.portrait .super-row{left:18px;right:18px;bottom:24px;gap:14px;min-height:116px}.portrait .super-panel,.portrait .super-panel.right{width:calc(50% - 7px);flex-direction:column;align-items:stretch;justify-content:flex-start;gap:12px}
+.portrait .super-info{flex:none}.portrait .super-label{font-size:10px;letter-spacing:1px}.portrait .super-label strong{font-size:17px}.portrait .super-track{height:13px}.portrait .special-btn{width:100%;height:54px;font-size:22px}.portrait .special-key{display:none}
+.portrait .super-row>.bottom-note{font-size:12px;line-height:1.7;max-width:360px;margin-top:25px}.portrait .battle-training{top:auto;left:18px;right:18px;bottom:24px;width:auto;padding:12px;font-size:13px;line-height:1.6}.portrait .battle-training .btn{position:absolute;right:10px;bottom:10px;font-size:11px;padding:0 10px}.portrait .battle-training b{font-size:11px}
+.portrait .battle-bg-fighter{height:70%;top:130px}.portrait .battle-bg-fighter.left{left:-245px}.portrait .battle-bg-fighter.right{right:-255px}
+.portrait .fight-call b{font-size:90px;letter-spacing:2px}.portrait .fight-call small{font-size:11px;letter-spacing:2px}.portrait .fight-call.ko b{font-size:150px}.portrait .fight-call.perfect b,.portrait .fight-call.timeup b{font-size:74px}
+.portrait .combo-pop{left:20px;top:170px}.portrait .combo-pop.right{left:auto;right:20px}.portrait .combo-pop b{font-size:43px}.portrait .combo-pop span{font-size:12px;letter-spacing:1px}.portrait .combo-pop small{font-size:9px;letter-spacing:0;margin-top:5px}
+.portrait .damage-pop{left:60px;top:126px;font-size:28px}.portrait .damage-pop.enemy{left:auto;right:60px}
+.portrait .cutin:before{inset:28% -80px 30%}.portrait .cutin img{width:100%;height:280px;top:calc(50% - 140px);object-fit:contain;background:#08111cd9}.portrait .cutin-caption{left:20px;right:20px;bottom:25%;font-size:25px;padding:16px}.portrait .cutin-caption small{font-size:10px;letter-spacing:2px}
+.portrait .round-winner .round-winner-art{padding:30px 0 160px}.portrait .round-winner-text{left:20px;right:20px;top:auto;bottom:34px;width:auto;text-align:center;font-size:24px}.portrait .round-winner-text small{margin-bottom:9px}.portrait .round-winner-text span{font-size:48px;margin-top:5px}
+.portrait .cinema-art{object-position:center;animation:none}.portrait .cinema-shade{background:linear-gradient(0deg,#070b12f7,#070b12bf 45%,transparent 80%)}
+.portrait .cinema-caption{left:24px;right:24px;bottom:118px;max-height:50%;overflow-y:auto;font-size:18px;line-height:1.75;overscroll-behavior:contain}.portrait .cinema-caption .eyebrow{margin-bottom:18px;font-size:11px}
+.portrait .cinema-bottom{bottom:30px;left:24px;right:24px;gap:10px}.portrait .cinema-bottom small{font-size:11px;letter-spacing:0}.portrait .cinema-bottom .btn{font-size:12px;padding:0 12px}
+.portrait .vs-stage{left:20px;top:80px;font-size:11px;letter-spacing:1px}.portrait .vs-skip{right:24px;bottom:30px}.portrait[data-screen=vs] .cinema-art{object-fit:contain;background:#080b14;animation:none}
+.portrait .content-area{top:168px;left:24px;right:24px;bottom:110px;overscroll-behavior:contain}.portrait .gallery-tabs{top:170px;left:24px;right:24px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}.portrait .gallery-tabs button{grid-column:span 2;height:66px;padding:8px 10px;font-size:14px;letter-spacing:0}.portrait .gallery-tabs button:nth-child(4){grid-column:2/span 2}.portrait .gallery-tabs button:nth-child(5){grid-column:4/span 2}
+.portrait[data-screen=gallery] .content-area{top:320px}.portrait .gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.portrait .gallery-item span{font-size:13px;letter-spacing:0;line-height:1.5}.portrait .sound-item{padding:13px}.portrait .sound-item b{font-size:24px}
+.portrait .guide-grid,.portrait .setup-sides{grid-template-columns:1fr;gap:16px}.portrait .guide-block{padding:20px}.portrait .guide-block h3{font-size:24px}.portrait .guide-block p{font-size:17px}.portrait .guide-controls{flex-direction:column;font-size:15px}
+.portrait .setup-panel{padding:18px}.portrait .setup-fighter{gap:16px}.portrait .setup-fighter img{width:68px;height:68px}.portrait .setup-fighter h3{font-size:25px}.portrait .setup-fighter .fighter-english{font-size:10px}.portrait .control-options{gap:5px;margin:18px 0}.portrait .control-options button{padding:10px 12px;min-height:54px;font-size:13px}.portrait .keyboard-map{width:100%;gap:6px}.portrait .setup-panel p{font-size:16px}
+.portrait .modal-panel{width:432px;max-height:calc(100% - 48px);padding:28px 24px}.portrait .modal-panel h2{font-size:43px}.portrait .modal-panel p{font-size:17px}.portrait .settings-row{font-size:17px;gap:15px}.portrait .settings-row input[type=range]{width:150px}.portrait .settings-row small{display:block}.portrait .settings-row button{min-height:48px}.portrait .modal-panel .modal-close{width:44px;height:44px;top:12px;right:12px}
+.portrait .gallery-view{inset:16px;padding:12px}.portrait .gallery-view .ending-lines{left:20px;right:20px;bottom:95px;max-height:35%;font-size:17px;padding:12px}.portrait .gallery-view-footer{font-size:13px}
+.portrait #toast{width:420px;bottom:145px;font-size:14px;text-align:center}
+.portrait .credits-window{left:24px;right:24px;top:130px;bottom:112px}.portrait .credits-roll h2{font-size:38px}.portrait .credits-end{top:35%}.portrait .credits-end h2{font-size:38px}.portrait .credits-end p{font-size:19px}
+.responsive-art{display:contents}
+.portrait .result-art{object-fit:contain;object-position:center top;mask-image:none}
+.portrait .result-quote{isolation:isolate;left:18px;right:18px;top:auto;bottom:154px;min-height:140px;height:auto;padding:20px 24px;font-size:19px;line-height:1.65;background:linear-gradient(135deg,#141521f2,#262124ed);border:1px solid var(--gold2);box-shadow:0 12px 35px #0008}
+.portrait .result-actions{left:24px;right:24px;top:auto;bottom:65px;justify-content:center;height:54px;gap:12px}
+.portrait .result-actions .btn{height:54px;font-size:15px;padding:0 18px}.portrait .result-actions .gold{min-width:190px}
+.portrait .result-reward{left:24px;right:24px;top:auto;bottom:312px;width:auto;font-size:12px;letter-spacing:.5px;text-align:center}
+/* Keep the tall screen completely clear after a diagonal transition. */
+.portrait #transition{inset:0 -50%}
+.portrait .card{padding:7px 6px}.portrait .card-subject.tight{font-size:13px;line-height:1.2}
+
+/* A 66-unit target remains 44 CSS pixels wide on a 320px phone. */
+.portrait .btn,.portrait .special-btn,.portrait .difficulty button,.portrait .control-options button,.portrait .gallery-tabs button,.portrait .settings-row button{min-height:66px}
+.portrait .utility,.portrait[data-screen=battle] .utility{top:8px}
+.portrait .utility button,.portrait[data-screen=battle] .utility button{min-width:66px;height:66px}
+.portrait .modal-panel .modal-close{width:66px;height:66px}
+.portrait .battle-training{padding-right:150px;min-height:116px}
+.portrait .super-row.training{display:none}
+
+.portrait.compact-portrait .card-subject{font-size:16px;line-height:1.3}
+.portrait.compact-portrait .card-subject.long{font-size:13px;line-height:1.25}
+.portrait.compact-portrait .card-subject.tight,.portrait.compact-portrait .card-subject.very-long{font-size:12px;line-height:1.2}
+
+/* Full-screen OGP art, with controls over the darker lower edge. */
+body[data-screen=title] .library-bg{background:#080d14;filter:none}
+body[data-screen=title] .ambient{background:radial-gradient(ellipse at 50% 30%,#28405c28,transparent 72%)}
+.title-scene{position:absolute;inset:0;background:linear-gradient(180deg,#0a1019,#080c14 65%,#060910)}
+.title-scene:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,#05091130 70%,#050911bf 100%);pointer-events:none}
+.title-art{position:absolute;inset:0;pointer-events:none}
+.title-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.title-dock{position:absolute;z-index:1;left:64px;right:64px;bottom:26px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.title-menu{position:static;display:flex;align-items:center;justify-content:center;gap:14px;width:100%}
+.title-menu .btn{height:58px;font-size:16px;letter-spacing:1px}
+.title-menu .primary{width:250px}.title-menu .secondary{width:210px}
+.title-dock .continue-title{position:static;width:470px;height:36px;padding:0 18px;font-size:12px;letter-spacing:.5px;color:#c3d2dd;border-color:#8da9c14d;background:#0b121be6}
+.title-footer{position:static;width:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;color:#7e8a96;font-size:11px;letter-spacing:.5px}
+.title-help{width:44px;height:44px;padding:0;font-size:20px;color:#c3d2dd;border-color:#8da9c14d}
+body[data-screen=title] .utility{top:auto;bottom:33px;right:120px}
+.portrait .title-art img{height:100%;object-position:34% top}
+.portrait .title-dock{left:24px;right:24px;bottom:26px;gap:14px}
+.portrait .title-menu{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.portrait .title-menu .primary{grid-column:1/-1;width:100%}
+.portrait .title-menu .secondary{width:100%}
+.portrait .title-menu .btn{height:66px;font-size:16px}
+.portrait .title-dock .continue-title{width:100%;height:66px;font-size:13px;padding:0 12px}
+.portrait .title-footer{position:relative;height:100px;font-size:11px;line-height:1.6;letter-spacing:0;justify-content:flex-end;align-items:flex-end}
+.portrait .title-footer span{position:absolute;left:0;right:0;top:0;font-size:10px;text-align:center;color:#a4acb6;text-shadow:0 1px 5px #000}
+.portrait .title-help{width:66px;min-width:66px;height:66px;font-size:24px}
+.portrait[data-screen=title] .utility{top:auto;bottom:26px;right:108px}
+
+/* Publisher link shares the title footer without covering the artwork. */
+.title-credits{display:flex;align-items:center;gap:20px}
+.title-site-link{display:inline-flex;align-items:center;min-height:44px;color:#b9c8d5;font-size:11px;letter-spacing:1px;text-decoration:none;text-shadow:0 1px 5px #000}
+.title-site-link:hover{color:var(--gold);text-decoration:underline;text-underline-offset:4px}
+.portrait .title-credits{display:contents}
+.portrait .title-site-link{position:absolute;left:0;bottom:0;width:96px;min-height:66px;padding:0 5px;justify-content:center;text-align:center;font-size:13px;letter-spacing:.6px;line-height:1.4}
+
+/* A picked card becomes a short afterimage; the remaining field stays still. */
+.pickup-ghost{position:absolute!important;margin:0;pointer-events:none;z-index:2;border-color:var(--strike-color);box-shadow:0 0 26px color-mix(in srgb,var(--strike-color) 45%,transparent);animation:pickup-lift .5s ease-out both!important}
+.pickup-ghost .key-badge{display:none}.strike-flight{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 5px var(--strike-color))}
+.strike-flight path{fill:none;stroke:var(--strike-color);stroke-width:3;stroke-linecap:round;stroke-dasharray:12 100;stroke-dashoffset:12;animation:strike-travel .24s cubic-bezier(.2,.75,.4,1) both}
+.strike-flight.combo path{stroke-width:5}.strike-flight.final path{stroke-width:8}
+.impact-spark{position:absolute;width:140px;height:55px;border-radius:50%;background:radial-gradient(ellipse,#fff 0,var(--strike-color) 13%,transparent 65%);transform:translate(-50%,-50%);animation:bar-spark .42s .17s both}
+.impact-spark.final{width:290px;height:140px}.life-struck{animation:life-struck .38s both}
+.finish-focus{position:absolute;inset:0;background:radial-gradient(ellipse at var(--finish-x) var(--finish-y),transparent 0,transparent 14%,#03071299 70%);animation:finish-focus 1.1s both}
+.finish-burst{position:absolute;width:1px;height:1px;color:#ffe2a2}.finish-burst i{position:absolute;top:0;left:0;width:8px;height:140px;transform-origin:50% 0;background:linear-gradient(#fff8cd,#ffce7977,transparent);rotate:calc(var(--n)*30deg);animation:finish-ray .65s both}
+.finish-impact{animation:finish-impact .35s both}.fight-call.ko{isolation:isolate;animation:ko-stamp .38s cubic-bezier(.15,.8,.25,1) both;background:radial-gradient(ellipse,#2e1d0b77,transparent 68%)}
+.ko-strike{position:absolute;inset:0;z-index:-1;background:linear-gradient(155deg,transparent 45%,#f7d78e55 49.5%,#ffefc399 50%,transparent 51%);animation:ko-light .6s both}.fight-call.ko b{filter:drop-shadow(0 0 18px #ffd28d44)}
+@keyframes pickup-lift{0%{opacity:1;transform:scale(1)}35%{opacity:.85;transform:translateY(-22px) scale(1.08)}100%{opacity:0;transform:translateY(-50px) scale(1.12)}}
+@keyframes strike-travel{0%{stroke-dashoffset:12;opacity:0}12%{opacity:1}75%{opacity:1}100%{stroke-dashoffset:-100;opacity:0}}
+@keyframes bar-spark{0%{opacity:0;scale:.35}18%{opacity:.9;scale:1}100%{opacity:0;scale:1.5}}
+@keyframes life-struck{0%,100%{filter:none}25%{filter:brightness(2);box-shadow:0 0 18px #ffdda5}}
+@keyframes finish-focus{0%{opacity:0}12%,65%{opacity:1}100%{opacity:0}}
+@keyframes finish-ray{0%{opacity:1;scale:1 .15}25%{opacity:1;scale:1 1.2}100%{opacity:0;scale:.1 1.7}}
+@keyframes finish-impact{15%{translate:-7px 3px}35%{translate:7px -3px}60%{translate:-3px 1px}85%{translate:1px 0}100%{translate:0 0}}
+@keyframes ko-stamp{0%{opacity:0;transform:scale(1.65)}65%{opacity:1;transform:scale(.98)}100%{opacity:1;transform:scale(1)}}
+@keyframes ko-light{0%{opacity:0;transform:scaleX(.1)}25%{opacity:1;transform:scaleX(1)}100%{opacity:0;transform:scaleX(1.3)}}
+
+/* All nine cut-ins share the 1.3s game pause, with distinct artwork-led accents. */
+.cinematic-special{background:#020711c9;animation:special-dark 1.3s both}
+.cinematic-special:before,.cinematic-special.enemy:before{inset:90px -80px;background:color-mix(in srgb,var(--special-color) 13%,transparent);border-color:var(--special-color);box-shadow:0 0 40px color-mix(in srgb,var(--special-color) 35%,transparent);animation:special-band .32s both}
+.cinematic-special img,.cinematic-special.enemy img{top:104px;height:560px;width:100%;object-fit:contain;background:none;mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);animation:special-art 1.3s both}
+.cinematic-special.enemy img{animation-name:special-art-enemy}
+.cinematic-special .cutin-caption{bottom:64px;left:72px;right:72px;padding:17px 24px;border-color:var(--special-color);background:linear-gradient(90deg,#030812ed,#03081277);animation:special-caption 1.3s both;z-index:3}
+.cinematic-special .cutin-caption small,.cinematic-special.enemy small{color:var(--special-color)}
+.cinematic-special.enemy .cutin-caption{border-left:0;border-right:3px solid var(--special-color);background:linear-gradient(-90deg,#030812ed,#03081277)}
+.special-entry{position:absolute;inset:27% 0 27%;background:linear-gradient(105deg,transparent 30%,#fff9 48%,transparent 65%);animation:special-entry .35s both;z-index:2}
+.special-motif{position:absolute;inset:0;color:var(--special-color);pointer-events:none;opacity:.65}
+.special-motif i{position:absolute;left:calc(5% + var(--n)*8%);top:calc(14% + var(--row)*19%);animation:motif-drift 1.3s both;animation-delay:calc(var(--n)*8ms)}
+.motif-pages i{width:22px;height:30px;border:1px solid currentColor;border-left:3px solid currentColor;background:color-mix(in srgb,currentColor 12%,transparent);rotate:calc(var(--n)*27deg)}
+.motif-stars i{width:13px;height:13px;background:currentColor;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%)}
+.motif-reticle i,.motif-orbits i,.motif-celestial i,.motif-shock i{width:260px;height:260px;left:calc(10% + var(--col)*28%);top:calc(8% + var(--pair)*46%);border:1px solid currentColor;border-radius:50%;animation:motif-ring 1.3s both}
+.motif-reticle i{border:1px dashed currentColor}.motif-reticle i:after{content:'';position:absolute;inset:20px;border:1px solid currentColor;clip-path:polygon(0 0,30% 0,30% 2%,2% 2%,2% 30%,0 30%,0 0,100% 100%,70% 100%,70% 98%,98% 98%,98% 70%,100% 70%,100% 100%)}
+.motif-orbits i{height:120px;rotate:calc(var(--n)*32deg)}.motif-celestial i{border-radius:0;rotate:calc(var(--n)*15deg);width:360px;height:360px;left:calc(50% - 180px);top:calc(50% - 180px)}
+.motif-shock i{left:calc(50% - 130px);top:calc(50% - 130px);border-width:2px;animation-delay:calc(var(--n)*40ms)}
+.motif-wind i{width:70%;height:28px;left:calc(-20% + var(--col)*20%);top:calc(8% + var(--n)*7%);border-top:2px solid currentColor;border-radius:50%;rotate:-12deg}
+.motif-scan{background:repeating-linear-gradient(0deg,transparent 0,transparent 30px,#78efff16 31px),repeating-linear-gradient(90deg,transparent 0,transparent 30px,#78efff16 31px)}
+.motif-scan i{width:42px;height:14px;border:1px solid currentColor;background:linear-gradient(90deg,currentColor 20%,transparent 20%,transparent 40%,currentColor 40%,currentColor 60%,transparent 60%);animation:scan-line 1.3s both}
+@keyframes special-dark{0%{opacity:0}7%,88%{opacity:1}100%{opacity:0}}
+@keyframes special-band{from{transform:rotate(-5deg) scaleX(.1);opacity:0}to{transform:rotate(-5deg) scaleX(1);opacity:1}}
+@keyframes special-art{0%{opacity:0;transform:translateX(-18%) scale(1.06)}17%{opacity:1;transform:translateX(0) scale(1.02)}85%{opacity:1;transform:translateX(0) scale(1)}100%{opacity:0;transform:translateX(3%) scale(1)}}
+@keyframes special-art-enemy{0%{opacity:0;transform:translateX(18%) scale(1.06)}17%{opacity:1;transform:translateX(0) scale(1.02)}85%{opacity:1;transform:translateX(0) scale(1)}100%{opacity:0;transform:translateX(-3%) scale(1)}}
+@keyframes special-caption{0%,12%{opacity:0;transform:translateY(16px)}24%,87%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(0)}}
+@keyframes special-entry{0%{opacity:0;transform:translateX(-60%)}20%{opacity:.7}100%{opacity:0;transform:translateX(60%)}}
+@keyframes motif-drift{0%{opacity:0;translate:-30px 30px}20%,70%{opacity:1}100%{opacity:0;translate:40px -40px}}
+@keyframes motif-ring{0%{opacity:0;scale:.7}25%,70%{opacity:.8}100%{opacity:0;scale:1.25}}
+@keyframes scan-line{0%{opacity:0;translate:-50px 0}20%,65%{opacity:1}100%{opacity:0;translate:80px 0}}
+.portrait .cinematic-special:before{inset:21% -80px 22%}
+.portrait .cinematic-special img{top:23%;height:43%;object-fit:cover;object-position:var(--art-focus) center;mask-image:linear-gradient(0deg,transparent,#000 10%,#000 90%,transparent)}
+.portrait .cinematic-special .cutin-caption{left:20px;right:20px;bottom:18%;font-size:25px;padding:16px 18px;line-height:1.35}
+.portrait .cinematic-special .cutin-caption small{letter-spacing:2px;font-size:10px}
+.portrait .motif-reticle i,.portrait .motif-orbits i{width:170px;height:170px}.portrait .motif-orbits i{height:80px}
+.portrait .finish-burst i{height:90px}
+body.reduced-motion .cinematic-special,body.reduced-motion .cinematic-special img,body.reduced-motion .cinematic-special .cutin-caption{animation:none;opacity:1;transform:none}
+body.reduced-motion .special-entry,body.reduced-motion .special-motif,body.reduced-motion .ko-strike{display:none}
+body.reduced-motion .life-struck{animation:none}
+
+/* Classification names wrap at phrases/words; subordinate classes have a smaller tier. */
+.card-subject{display:block;min-width:0;width:100%;max-width:100%;font-size:20px;line-height:1.28;overflow-wrap:normal;word-break:normal;text-align:center;letter-spacing:0}
+.subject-main,.subject-detail{display:block}.subject-detail{margin-top:3px;font-size:.84em;font-weight:600;color:#eee5d7}
+.subject-term{display:inline-block;white-space:nowrap}.subject-note{font-size:.84em;font-weight:600;color:#eee5d7}
+.subject-detail .subject-note{font-size:inherit}
+.portrait .card-subject{font-size:19px;line-height:1.28}
+.portrait.compact-portrait .card-subject{font-size:17px;line-height:1.24}
+.portrait .subject-detail{margin-top:2px}
+.privacy-notice{border-top:1px solid var(--line);padding-top:14px;color:#ccc9c3;font-size:14px;line-height:1.8}.privacy-notice summary{cursor:pointer;color:var(--gold)}.privacy-notice a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+</style>
+</head>
+<body>
+  <div id="viewport"><main id="stage" aria-label="NDC Karuta Heroes">
+    <div class="library-bg" aria-hidden="true"></div><div class="ambient" aria-hidden="true"></div>
+    <div class="stage-frame" aria-hidden="true"></div>
+    <div id="screen"></div><canvas id="particles" width="1366" height="768" aria-hidden="true"></canvas>
+    <div id="effects" aria-hidden="true"></div><div id="announcer" aria-live="polite" class="sr-only"></div>
+    <nav class="utility" aria-label="ゲーム設定"><button data-action="sound" id="sound-toggle" title="サウンド切替" aria-label="サウンド切替">SOUND ON</button><button data-action="settings" aria-label="設定を開く">⚙</button><button data-action="fullscreen" aria-label="全画面表示">⛶</button></nav>
+    <div id="modal"></div><div id="toast" role="status"></div><div id="transition" aria-hidden="true"></div>
+  </main></div>
+  <noscript>このゲームにはJavaScriptが必要です。</noscript>
+  <script>(()=>{
+'use strict';
+const players = [
+    {
+      id: 'librarian',
+      name: '司書さん',
+      englishName: 'The Librarian',
+      shortName: '司書',
+      image: 'character/librarian_icon.webp',
+      vsCode: 'lib',
+      icon: 'character/librarian_icon.webp',
+      selectImage: 'character/librarian_select.webp',
+      cutin: 'cutin/cutin_lib.webp',
+      skillName: 'LIBRARY FREEDAM',
+      skillEffect: '次の問題で正解の札が光る',
+      skillType: 'revealNext',
+      stats: { atk: 3, def: 3 },
+      damageDealtMultiplier: 1,
+      damageTakenMultiplier: 1,
+      story: '少し天然で優しい大学図書館の司書。図書館のことが大好き。',
+      winLine: '静かに、でも確実に勝利です。',
+      loseLine: 'まだ、分類の棚は読み切れていませんね。'
+    },
+    {
+      id: 'detective',
+      name: '探偵さん',
+      englishName: 'The Detective',
+      shortName: '探偵',
+      image: 'character/detective_icon.webp',
+      vsCode: 'det',
+      icon: 'character/detective_icon.webp',
+      selectImage: 'character/detective_select.webp',
+      cutin: 'cutin/cutin_det.webp',
+      skillName: '謎は全て解けたよ！',
+      skillEffect: '使われない札を1枚除外する',
+      skillType: 'removeDecoy',
+      stats: { atk: 4, def: 2 },
+      damageDealtMultiplier: 1.2,
+      damageTakenMultiplier: 1.2,
+      story: '明るく元気な大学生の探偵。司書さんと仲良し。',
+      winLine: '謎は全て解けた。勝利の分類番号もね。',
+      loseLine: 'むむ、次の事件では必ず見抜くよ。'
+    },
+    {
+      id: 'lily',
+      name: 'リリー',
+      englishName: 'Lily',
+      shortName: 'リリー',
+      image: 'character/lily_icon.webp',
+      vsCode: 'lily',
+      icon: 'character/lily_icon.webp',
+      selectImage: 'character/lily_select.webp',
+      cutin: 'cutin/cutin_lily.webp',
+      skillName: 'みんな、お願いっ！',
+      skillEffect: '次の2ターン、相手の解答権を封じる',
+      skillType: 'skipCpu',
+      stats: { atk: 2, def: 4 },
+      damageDealtMultiplier: 0.8,
+      damageTakenMultiplier: 0.8,
+      story: '本の声を聞くことができる、明るく元気なひよっこ司書。',
+      winLine: 'みんなの声が、正しい棚まで導いてくれました。',
+      loseLine: '本の声を、もっとちゃんと聞けるようになります。'
+    },
+    {
+      id: 'professor',
+      name: '教授',
+      englishName: 'The Professor',
+      shortName: '教授',
+      image: 'character/prof_icon.webp',
+      vsCode: 'prof',
+      icon: 'character/prof_icon.webp',
+      selectImage: 'character/professor_select.webp',
+      cutin: 'cutin/cutin_prof.webp',
+      skillName: 'SCHRÖDINGER SELECTION',
+      skillEffect: '次の２ターン、正解候補のカードが2枚光る',
+      skillType: 'revealTwoCandidatesNextTwo',
+      stats: { atk: 3, def: 3 },
+      damageDealtMultiplier: 1,
+      damageTakenMultiplier: 1,
+      story: '物理学を専門とする、穏やかで知的な大学教授。学生からの信頼も厚い。',
+      winLine: '理論どおりですね。良い実験結果です。',
+      loseLine: '興味深い結果です。仮説を組み直しましょう。'
+    },
+    {
+      id: 'fightingLibrarian',
+      name: '格闘系司書',
+      englishName: 'FIGHTING LIBRARIAN',
+      shortName: '格闘系司書',
+      image: 'character/flib_select.webp',
+      vsCode: 'flib',
+      icon: 'character/flib_icon.webp',
+      selectImage: 'character/flib_select.webp',
+      cutin: 'cutin/cutin_flib.webp',
+      skillName: '格闘系スペシャル',
+      skillEffect: '次のターンから3ターン攻撃力が上がる。3ターン連続正解すると…？',
+      skillType: 'fightingPowerRush',
+      stats: { atk: 4, def: 2 },
+      damageDealtMultiplier: 1.2,
+      damageTakenMultiplier: 1.2,
+      story: '体を動かすことと楽しい図書館イベントが大好きな、元気いっぱいの司書。',
+      winLine: '楽しく体を動かせば、分類だって自然に身につきます！',
+      loseLine: 'いい運動になりました！次はもっと早く札を取りますよ！'
+    }
+  ];
+
+  // STORY MODE opponents, ordered by stage.
+const enemies = [
+    {
+      id: 'wind',
+      name: '風の目録使い',
+      englishName: 'The Wind Cataloger',
+      image: 'character/enemy1_icon.webp',
+      icon: 'character/enemy1_icon.webp',
+      cutin: 'cutin/cutin_enemy1.webp',
+      skillName: '風配列',
+      skillType: 'shuffle',
+      preset: { correctRate: 0.80, reactionMinMs: 3800, reactionMaxMs: 5900 },
+      winLine: '風向きは、こちらにあります。',
+      loseLine: '見事です。あなたの索引は迷わない。'
+    },
+    {
+      id: 'magician',
+      name: '分類の魔術師',
+      englishName: 'The Classification Mage',
+      image: 'character/enemy2_icon.webp',
+      icon: 'character/enemy2_icon.webp',
+      cutin: 'cutin/cutin_enemy2.webp',
+      skillName: '十進幻術',
+      skillType: 'decimalIllusion',
+      preset: { correctRate: 0.90, reactionMinMs: 2100, reactionMaxMs: 3900 },
+      winLine: '分類の妙、味わっていただけましたかな。',
+      loseLine: 'その読み、魔術より鮮やかだ。'
+    },
+    {
+      id: 'digital',
+      name: 'デジタルライブラリアン',
+      englishName: 'The Digital Librarian',
+      image: 'character/enemy3_icon.webp',
+      icon: 'character/enemy3_icon.webp',
+      cutin: 'cutin/cutin_enemy3.webp',
+      skillName: 'グリッチ・インデックス',
+      skillType: 'glitchIndex',
+      preset: { correctRate: 0.95, reactionMinMs: 800, reactionMaxMs: 1900 },
+      winLine: 'ショウリ ログヲ キロク シマシタ。',
+      loseLine: 'データ コウシン。アナタハ ツヨイ。'
+    },
+    {
+      id: 'supreme',
+      name: '至高の司書',
+      englishName: 'The Supreme Librarian',
+      image: 'character/enemy4_icon.webp',
+      icon: 'character/enemy4_icon.webp',
+      cutin: 'cutin/cutin_enemy4.webp',
+      skillName: 'Η ΑΛΗΘΕΙΑ ΕΛΕΥΘΕΡΩΣΕΙ ΥΜΑΣ',
+      skillType: 'reverseRead',
+      preset: { correctRate: 0.985, reactionMinMs: 540, reactionMaxMs: 1450 },
+      winLine: '分類は宇宙、我はその座標を知る者。',
+      loseLine: '汝の知の座標、確かに届いた。'
+    }
+  ];
+
+const difficulties = {
+    easy: { label: 'EASY', playerHp: 120, cpuSpeed: 1.16, cpuGauge: 0.86, cpuCorrectDelta: -0.04 },
+    normal: { label: 'NORMAL', playerHp: 100, cpuSpeed: 1, cpuGauge: 1, cpuCorrectDelta: 0 },
+    hard: { label: 'HARD', playerHp: 90, cpuSpeed: 0.86, cpuGauge: 1.18, cpuCorrectDelta: 0.025 }
+  };
+
+const twoPlayer = {
+    controlOrder: ['mouse', 'keyboardA', 'keyboardB'],
+    controlTypes: {
+      mouse: { label: 'マウス', shortLabel: 'MOUSE' },
+      keyboardA: { label: 'キーボードA', shortLabel: 'KEY A' },
+      keyboardB: { label: 'キーボードB', shortLabel: 'KEY B' }
+    },
+    keyboardLayouts: {
+      keyboardA: [
+        { label: '1', keys: ['1'], codes: ['Digit1'] },
+        { label: '2', keys: ['2'], codes: ['Digit2'] },
+        { label: '3', keys: ['3'], codes: ['Digit3'] },
+        { label: '4', keys: ['4'], codes: ['Digit4'] },
+        { label: '5', keys: ['5'], codes: ['Digit5'] },
+        { label: '6', keys: ['6'], codes: ['Digit6'] },
+        { label: 'Q', keys: ['q'], codes: ['KeyQ'] },
+        { label: 'W', keys: ['w'], codes: ['KeyW'] },
+        { label: 'E', keys: ['e'], codes: ['KeyE'] },
+        { label: 'R', keys: ['r'], codes: ['KeyR'] },
+        { label: 'T', keys: ['t'], codes: ['KeyT'] }
+      ],
+      keyboardB: [
+        { label: '8', keys: ['8'], codes: ['Digit8'] },
+        { label: '9', keys: ['9'], codes: ['Digit9'] },
+        { label: '0', keys: ['0'], codes: ['Digit0'] },
+        { label: '-', keys: ['-'], codes: ['Minus'] },
+        { label: '^', keys: ['^'], codes: ['Equal'] },
+        { label: '¥', keys: ['¥', '￥', '\\'], codes: ['IntlYen', 'Backslash'] },
+        { label: 'I', keys: ['i'], codes: ['KeyI'] },
+        { label: 'O', keys: ['o'], codes: ['KeyO'] },
+        { label: 'P', keys: ['p'], codes: ['KeyP'] },
+        { label: '@', keys: ['@'], codes: ['BracketLeft', 'Quote'] },
+        { label: '[', keys: ['['], codes: ['BracketRight'] }
+      ]
+    },
+    victoryLines: {
+      player: [
+        'ふふ、今日は私のほうが少しだけ早く本を見つけられましたね',
+        '推理中の本も、返却期限だけは忘れないでくださいね',
+        '探偵さんと勝負すると、いつもの図書館が少し冒険みたいですね'
+      ],
+      enemy: [
+        'やった、司書さんに勝てたなら今日の調査は大成功です',
+        '司書さんのおすすめ本で鍛えた推理力、ちゃんと役に立ちました',
+        '事件解決、ついでに勝利もいただきました'
+      ]
+    }
+  };
+
+const fallbackCards = [
+    { ndc: '000', subject: '総記' },
+    { ndc: '010', subject: '図書館. 図書館情報学' },
+    { ndc: '020', subject: '図書. 書誌学' },
+    { ndc: '100', subject: '哲学' },
+    { ndc: '200', subject: '歴史' },
+    { ndc: '210', subject: '日本史' },
+    { ndc: '289', subject: '個人伝記' },
+    { ndc: '300', subject: '社会科学' },
+    { ndc: '330', subject: '経済' },
+    { ndc: '400', subject: '自然科学' },
+    { ndc: '410', subject: '数学' },
+    { ndc: '450', subject: '地球科学' },
+    { ndc: '500', subject: '技術. 工学' },
+    { ndc: '590', subject: '家政学. 生活科学' },
+    { ndc: '600', subject: '産業' },
+    { ndc: '700', subject: '芸術. 美術' },
+    { ndc: '720', subject: '絵画' },
+    { ndc: '800', subject: '言語' },
+    { ndc: '900', subject: '文学' },
+    { ndc: '913', subject: '小説. 物語' }
+  ];
+
+
+const VERSION = "2.0.1";
+
+const CARDS = [{"ndc": "002", "subject": "知識．学問．学術"}, {"ndc": "007", "subject": "情報科学"}, {"ndc": "010", "subject": "図書館．図書館学"}, {"ndc": "011", "subject": "図書館政策．図書館行財政"}, {"ndc": "012", "subject": "図書館建築．図書館設備"}, {"ndc": "013", "subject": "図書館管理"}, {"ndc": "014", "subject": "資料の収集．資料の整理．資料の保管"}, {"ndc": "015", "subject": "図書館奉仕．図書館活動"}, {"ndc": "016", "subject": "各種の図書館"}, {"ndc": "017", "subject": "学校図書館"}, {"ndc": "018", "subject": "専門図書館"}, {"ndc": "019", "subject": "読書．読書法"}, {"ndc": "020", "subject": "図書．書誌学"}, {"ndc": "021", "subject": "著作．編集"}, {"ndc": "022", "subject": "写本．刊本．造本"}, {"ndc": "023", "subject": "出版"}, {"ndc": "024", "subject": "図書の販売"}, {"ndc": "025", "subject": "一般書誌．全国書誌"}, {"ndc": "026", "subject": "稀書目録．善本目録"}, {"ndc": "027", "subject": "特種目録"}, {"ndc": "028", "subject": "選定図書目録．参考図書目録"}, {"ndc": "029", "subject": "蔵書目録．総合目録"}, {"ndc": "030", "subject": "百科事典"}, {"ndc": "031", "subject": "百科事典--日本語"}, {"ndc": "032", "subject": "百科事典--中国語"}, {"ndc": "033", "subject": "百科事典--英語"}, {"ndc": "034", "subject": "百科事典--ドイツ語"}, {"ndc": "035", "subject": "百科事典--フランス語"}, {"ndc": "036", "subject": "百科事典--スペイン語"}, {"ndc": "037", "subject": "百科事典--イタリア語"}, {"ndc": "038", "subject": "百科事典--ロシア語"}, {"ndc": "039", "subject": "用語索引＜一般＞"}, {"ndc": "040", "subject": "一般論文集．一般講演集"}, {"ndc": "041", "subject": "一般論文集．一般講演集--日本語"}, {"ndc": "042", "subject": "一般論文集．一般講演集--中国語"}, {"ndc": "043", "subject": "一般論文集．一般講演集--英語"}, {"ndc": "044", "subject": "一般論文集．一般講演集--ドイツ語"}, {"ndc": "045", "subject": "一般論文集．一般講演集--フランス語"}, {"ndc": "046", "subject": "一般論文集．一般講演集--スペイン語"}, {"ndc": "047", "subject": "一般論文集．一般講演集--イタリア語"}, {"ndc": "048", "subject": "一般論文集．一般講演集--ロシア語"}, {"ndc": "049", "subject": "雑著"}, {"ndc": "050", "subject": "逐次刊行物"}, {"ndc": "051", "subject": "逐次刊行物--日本の雑誌"}, {"ndc": "052", "subject": "逐次刊行物--中国語"}, {"ndc": "053", "subject": "逐次刊行物--英語"}, {"ndc": "054", "subject": "逐次刊行物--ドイツ語"}, {"ndc": "055", "subject": "逐次刊行物--フランス語"}, {"ndc": "056", "subject": "逐次刊行物--スペイン語"}, {"ndc": "057", "subject": "逐次刊行物--イタリア語"}, {"ndc": "058", "subject": "逐次刊行物--ロシア語"}, {"ndc": "059", "subject": "一般年鑑"}, {"ndc": "060", "subject": "団体：学会，協会，会議"}, {"ndc": "061", "subject": "学術・研究機関"}, {"ndc": "063", "subject": "文化交流機関"}, {"ndc": "065", "subject": "親睦団体．その他の団体"}, {"ndc": "069", "subject": "博物館"}, {"ndc": "070", "subject": "ジャーナリズム．新聞"}, {"ndc": "071", "subject": "ジャーナリズム．新聞--日本"}, {"ndc": "072", "subject": "ジャーナリズム．新聞--アジア"}, {"ndc": "073", "subject": "ジャーナリズム．新聞--ヨーロッパ"}, {"ndc": "074", "subject": "ジャーナリズム．新聞--アフリカ"}, {"ndc": "075", "subject": "ジャーナリズム．新聞--北アメリカ"}, {"ndc": "076", "subject": "ジャーナリズム．新聞--南アメリカ"}, {"ndc": "077", "subject": "ジャーナリズム．新聞--オセアニア．両極地方"}, {"ndc": "080", "subject": "叢書．全集．選集"}, {"ndc": "081", "subject": "叢書．全集．選集--日本語"}, {"ndc": "082", "subject": "叢書．全集．選集--中国語"}, {"ndc": "083", "subject": "叢書．全集．選集--英語"}, {"ndc": "084", "subject": "叢書．全集．選集--ドイツ語"}, {"ndc": "085", "subject": "叢書．全集．選集--フランス語"}, {"ndc": "086", "subject": "叢書．全集．選集--スペイン語"}, {"ndc": "087", "subject": "叢書．全集．選集--イタリア語"}, {"ndc": "088", "subject": "叢書．全集．選集--ロシア語"}, {"ndc": "089", "subject": "叢書．全集．選集--その他の諸言語"}, {"ndc": "090", "subject": "貴重書．郷土資料．その他の特別コレクション"}, {"ndc": "100", "subject": "哲学"}, {"ndc": "101", "subject": "哲学理論"}, {"ndc": "102", "subject": "哲学史"}, {"ndc": "103", "subject": "哲学--参考図書［レファレンス ブック］"}, {"ndc": "104", "subject": "哲学--論文集．評論集．講演集"}, {"ndc": "105", "subject": "哲学--逐次刊行物"}, {"ndc": "106", "subject": "哲学--団体：学会，協会，会議"}, {"ndc": "107", "subject": "哲学--研究法．指導法．哲学教育"}, {"ndc": "108", "subject": "哲学--叢書．全集．選集"}, {"ndc": "110", "subject": "哲学各論"}, {"ndc": "111", "subject": "形而上学．存在論"}, {"ndc": "112", "subject": "自然哲学．宇宙論"}, {"ndc": "113", "subject": "人生観．世界観"}, {"ndc": "114", "subject": "人間学"}, {"ndc": "115", "subject": "認識論"}, {"ndc": "116", "subject": "論理学．弁証法［弁証法的論理学］．方法論"}, {"ndc": "117", "subject": "価値哲学"}, {"ndc": "118", "subject": "文化哲学．技術哲学"}, {"ndc": "120", "subject": "東洋思想"}, {"ndc": "121", "subject": "日本思想"}, {"ndc": "122", "subject": "中国思想．中国哲学"}, {"ndc": "123", "subject": "東洋思想--経書"}, {"ndc": "124", "subject": "先秦思想．諸子百家"}, {"ndc": "125", "subject": "東洋思想--中世思想．近代思想"}, {"ndc": "126", "subject": "インド哲学．バラモン教"}, {"ndc": "129", "subject": "その他のアジア・アラブ哲学"}, {"ndc": "130", "subject": "西洋哲学"}, {"ndc": "131", "subject": "古代哲学"}, {"ndc": "132", "subject": "中世哲学"}, {"ndc": "133", "subject": "近代哲学"}, {"ndc": "134", "subject": "ドイツ・オーストリア哲学"}, {"ndc": "135", "subject": "フランス・オランダ哲学"}, {"ndc": "136", "subject": "スペイン・ポルトガル哲学"}, {"ndc": "137", "subject": "イタリア哲学"}, {"ndc": "138", "subject": "ロシア哲学"}, {"ndc": "139", "subject": "その他の哲学"}, {"ndc": "140", "subject": "心理学"}, {"ndc": "141", "subject": "普通心理学．心理各論"}, {"ndc": "143", "subject": "発達心理学"}, {"ndc": "145", "subject": "異常心理学"}, {"ndc": "146", "subject": "臨床心理学．精神分析学"}, {"ndc": "147", "subject": "超心理学．心霊研究"}, {"ndc": "148", "subject": "相法．易占"}, {"ndc": "150", "subject": "倫理学．道徳"}, {"ndc": "151", "subject": "倫理各論"}, {"ndc": "152", "subject": "家庭倫理．性倫理"}, {"ndc": "153", "subject": "職業倫理"}, {"ndc": "154", "subject": "社会倫理［社会道徳］"}, {"ndc": "155", "subject": "国体論．詔勅"}, {"ndc": "156", "subject": "倫理学．道徳--武士道"}, {"ndc": "157", "subject": "倫理学．道徳--報徳教．石門心学"}, {"ndc": "158", "subject": "倫理学．道徳--その他の特定主題"}, {"ndc": "159", "subject": "倫理学．道徳--人生訓．教訓"}, {"ndc": "160", "subject": "宗教"}, {"ndc": "161", "subject": "宗教学．宗教思想"}, {"ndc": "162", "subject": "宗教史・事情"}, {"ndc": "163", "subject": "原始宗教．宗教民族学"}, {"ndc": "164", "subject": "神話．神話学"}, {"ndc": "165", "subject": "比較宗教"}, {"ndc": "166", "subject": "道教"}, {"ndc": "167", "subject": "イスラム"}, {"ndc": "168", "subject": "ヒンズー教．ジャイナ教"}, {"ndc": "169", "subject": "その他の宗教．新興宗教"}, {"ndc": "170", "subject": "神道"}, {"ndc": "171", "subject": "神道思想．神道説"}, {"ndc": "172", "subject": "神祇・神道史"}, {"ndc": "173", "subject": "神典"}, {"ndc": "174", "subject": "信仰録．説教集"}, {"ndc": "175", "subject": "神社．神職"}, {"ndc": "176", "subject": "祭祀"}, {"ndc": "177", "subject": "布教．伝道"}, {"ndc": "178", "subject": "各教派．教派神道"}, {"ndc": "180", "subject": "仏教"}, {"ndc": "181", "subject": "仏教教理．仏教哲学"}, {"ndc": "182", "subject": "仏教史"}, {"ndc": "183", "subject": "経典"}, {"ndc": "184", "subject": "法話・説教集"}, {"ndc": "185", "subject": "寺院．僧職"}, {"ndc": "186", "subject": "仏会"}, {"ndc": "187", "subject": "仏教--布教．伝道"}, {"ndc": "188", "subject": "仏教--各宗"}, {"ndc": "190", "subject": "キリスト教"}, {"ndc": "191", "subject": "教義．キリスト教神学"}, {"ndc": "192", "subject": "キリスト教史．迫害史"}, {"ndc": "193", "subject": "聖書"}, {"ndc": "194", "subject": "信仰録．説教集"}, {"ndc": "195", "subject": "教会．聖職"}, {"ndc": "196", "subject": "典礼．祭式．礼拝"}, {"ndc": "197", "subject": "布教．伝道"}, {"ndc": "198", "subject": "各教派．教会史"}, {"ndc": "199", "subject": "ユダヤ教"}, {"ndc": "200", "subject": "歴史"}, {"ndc": "201", "subject": "歴史学"}, {"ndc": "202", "subject": "歴史補助学"}, {"ndc": "203", "subject": "歴史--参考図書［レファレンス ブック］"}, {"ndc": "204", "subject": "歴史--論文集．評論集．講演集"}, {"ndc": "205", "subject": "歴史--逐次刊行物"}, {"ndc": "206", "subject": "歴史--団体：学会，協会，会議"}, {"ndc": "207", "subject": "歴史--研究法．指導法．歴史教育"}, {"ndc": "208", "subject": "歴史--叢書．全集．選集"}, {"ndc": "209", "subject": "世界史．文化史"}, {"ndc": "210", "subject": "日本史"}, {"ndc": "211", "subject": "日本史--北海道地方"}, {"ndc": "212", "subject": "日本史--東北地方"}, {"ndc": "213", "subject": "日本史--関東地方"}, {"ndc": "214", "subject": "日本史--北陸地方"}, {"ndc": "215", "subject": "日本史--中部地方：東山・東海地方"}, {"ndc": "216", "subject": "日本史--近畿地方"}, {"ndc": "217", "subject": "日本史--中国地方"}, {"ndc": "218", "subject": "日本史--四国地方"}, {"ndc": "219", "subject": "日本史--九州地方"}, {"ndc": "220", "subject": "アジア史．東洋史"}, {"ndc": "221", "subject": "アジア史．東洋史--朝鮮"}, {"ndc": "222", "subject": "アジア史．東洋史--中国"}, {"ndc": "223", "subject": "アジア史．東洋史--東南アジア"}, {"ndc": "224", "subject": "アジア史．東洋史--インドネシア"}, {"ndc": "225", "subject": "アジア史．東洋史--インド"}, {"ndc": "227", "subject": "アジア史．東洋史--西南アジア．中東［近東］"}, {"ndc": "229", "subject": "アジア史．東洋史--アジア・ロシア"}, {"ndc": "230", "subject": "ヨーロッパ史．西洋史"}, {"ndc": "231", "subject": "ヨーロッパ史．西洋史--古代ギリシア"}, {"ndc": "232", "subject": "ヨーロッパ史．西洋史--古代ローマ"}, {"ndc": "233", "subject": "ヨーロッパ史．西洋史--イギリス．英国"}, {"ndc": "234", "subject": "ヨーロッパ史．西洋史--ドイツ．中欧"}, {"ndc": "235", "subject": "ヨーロッパ史．西洋史--フランス"}, {"ndc": "236", "subject": "ヨーロッパ史．西洋史--スペイン［イスパニア］"}, {"ndc": "237", "subject": "ヨーロッパ史．西洋史--イタリア"}, {"ndc": "238", "subject": "ヨーロッパ史．西洋史--ロシア［ソビエト連邦．独立国家共同体］"}, {"ndc": "239", "subject": "ヨーロッパ史．西洋史--バルカン諸国"}, {"ndc": "240", "subject": "アフリカ史"}, {"ndc": "241", "subject": "アフリカ史--北アフリカ"}, {"ndc": "242", "subject": "アフリカ史--エジプト"}, {"ndc": "243", "subject": "アフリカ史--バーバリ諸国"}, {"ndc": "244", "subject": "アフリカ史--西アフリカ"}, {"ndc": "245", "subject": "アフリカ史--東アフリカ"}, {"ndc": "248", "subject": "アフリカ史--南アフリカ"}, {"ndc": "249", "subject": "アフリカ史--インド洋のアフリカ諸島"}, {"ndc": "250", "subject": "北アメリカ史"}, {"ndc": "251", "subject": "北アメリカ史--カナダ"}, {"ndc": "253", "subject": "北アメリカ史--アメリカ合衆国"}, {"ndc": "255", "subject": "北アメリカ史--ラテン・アメリカ［中南米］"}, {"ndc": "256", "subject": "北アメリカ史--メキシコ"}, {"ndc": "257", "subject": "北アメリカ史--中央アメリカ［中米諸国］"}, {"ndc": "259", "subject": "北アメリカ史--西インド諸島"}, {"ndc": "260", "subject": "南アメリカ史"}, {"ndc": "261", "subject": "南アメリカ史--北部諸国［カリブ沿海諸国］"}, {"ndc": "262", "subject": "南アメリカ史--ブラジル"}, {"ndc": "263", "subject": "南アメリカ史--パラグアイ"}, {"ndc": "264", "subject": "南アメリカ史--ウルグアイ"}, {"ndc": "265", "subject": "南アメリカ史--アルゼンチン"}, {"ndc": "266", "subject": "南アメリカ史--チリ"}, {"ndc": "267", "subject": "南アメリカ史--ボリビア"}, {"ndc": "268", "subject": "南アメリカ史--ペルー"}, {"ndc": "270", "subject": "オセアニア史．両極地方史"}, {"ndc": "271", "subject": "オセアニア史．両極地方史--オーストラリア"}, {"ndc": "272", "subject": "オセアニア史．両極地方史--ニュージーランド"}, {"ndc": "273", "subject": "オセアニア史．両極地方史--メラネシア"}, {"ndc": "274", "subject": "オセアニア史．両極地方史--ミクロネシア"}, {"ndc": "275", "subject": "オセアニア史．両極地方史--ポリネシア"}, {"ndc": "276", "subject": "オセアニア史．両極地方史--ハワイ"}, {"ndc": "277", "subject": "オセアニア史．両極地方史--両極地方"}, {"ndc": "278", "subject": "オセアニア史．両極地方史--北極．北極地方"}, {"ndc": "279", "subject": "オセアニア史．両極地方史--南極．南極地方"}, {"ndc": "280", "subject": "伝記"}, {"ndc": "281", "subject": "伝記--日本"}, {"ndc": "282", "subject": "伝記--アジア"}, {"ndc": "283", "subject": "伝記--ヨーロッパ"}, {"ndc": "284", "subject": "伝記--アフリカ"}, {"ndc": "285", "subject": "伝記--北アメリカ"}, {"ndc": "286", "subject": "伝記--南アメリカ"}, {"ndc": "287", "subject": "伝記--オセアニア．両極地方"}, {"ndc": "288", "subject": "伝記--系譜．家史．皇室"}, {"ndc": "289", "subject": "伝記--個人伝記"}, {"ndc": "290", "subject": "地理．地誌．紀行"}, {"ndc": "291", "subject": "地理．地誌．紀行--日本"}, {"ndc": "292", "subject": "地理．地誌．紀行--アジア"}, {"ndc": "293", "subject": "地理．地誌．紀行--ヨーロッパ"}, {"ndc": "294", "subject": "地理．地誌．紀行--アフリカ"}, {"ndc": "295", "subject": "地理．地誌．紀行--北アメリカ"}, {"ndc": "296", "subject": "地理．地誌．紀行--南アメリカ"}, {"ndc": "297", "subject": "地理．地誌．紀行--オセアニア．両極地方"}, {"ndc": "299", "subject": "地理．地誌．紀行--海洋"}, {"ndc": "300", "subject": "社会科学"}, {"ndc": "301", "subject": "社会科学--理論．方法論"}, {"ndc": "302", "subject": "政治・経済・社会・文化事情"}, {"ndc": "303", "subject": "社会科学--参考図書［レファレンス ブック］"}, {"ndc": "304", "subject": "社会科学--論文集．評論集．講演集"}, {"ndc": "305", "subject": "社会科学--逐次刊行物"}, {"ndc": "306", "subject": "社会科学--団体：学会，協会，会議"}, {"ndc": "307", "subject": "社会科学--研究法．指導法．社会科学教育"}, {"ndc": "308", "subject": "社会科学--叢書．全集．選集"}, {"ndc": "309", "subject": "社会思想"}, {"ndc": "310", "subject": "政治"}, {"ndc": "311", "subject": "政治学．政治思想"}, {"ndc": "312", "subject": "政治史・事情"}, {"ndc": "313", "subject": "国家の形態．政治体制"}, {"ndc": "314", "subject": "議会"}, {"ndc": "315", "subject": "政党．政治結社"}, {"ndc": "316", "subject": "国家と個人・宗教・民族"}, {"ndc": "317", "subject": "行政"}, {"ndc": "318", "subject": "地方自治．地方行政"}, {"ndc": "319", "subject": "外交．国際問題"}, {"ndc": "320", "subject": "法律"}, {"ndc": "321", "subject": "法学"}, {"ndc": "322", "subject": "法制史"}, {"ndc": "323", "subject": "憲法"}, {"ndc": "324", "subject": "民法"}, {"ndc": "325", "subject": "商法"}, {"ndc": "326", "subject": "刑法．刑事法"}, {"ndc": "327", "subject": "司法．訴訟手続法"}, {"ndc": "329", "subject": "国際法"}, {"ndc": "330", "subject": "経済"}, {"ndc": "331", "subject": "経済学．経済思想"}, {"ndc": "332", "subject": "経済史・事情．経済体制"}, {"ndc": "333", "subject": "経済政策．国際経済"}, {"ndc": "334", "subject": "人口．土地．資源"}, {"ndc": "335", "subject": "企業．経営"}, {"ndc": "336", "subject": "経営管理"}, {"ndc": "337", "subject": "貨幣．通貨"}, {"ndc": "338", "subject": "金融．銀行．信託"}, {"ndc": "339", "subject": "保険"}, {"ndc": "340", "subject": "財政"}, {"ndc": "341", "subject": "財政学．財政思想"}, {"ndc": "342", "subject": "財政史・事情"}, {"ndc": "343", "subject": "財政政策．財務行政"}, {"ndc": "344", "subject": "予算．決算"}, {"ndc": "345", "subject": "租税"}, {"ndc": "347", "subject": "公債．国債"}, {"ndc": "348", "subject": "専売．国有財産"}, {"ndc": "349", "subject": "地方財政"}, {"ndc": "350", "subject": "統計"}, {"ndc": "351", "subject": "統計--日本"}, {"ndc": "352", "subject": "統計--アジア"}, {"ndc": "353", "subject": "統計--ヨーロッパ"}, {"ndc": "354", "subject": "統計--アフリカ"}, {"ndc": "355", "subject": "統計--北アメリカ"}, {"ndc": "356", "subject": "統計--南アメリカ"}, {"ndc": "357", "subject": "統計--オセアニア．両極地方"}, {"ndc": "358", "subject": "人口統計．国勢調査"}, {"ndc": "360", "subject": "社会"}, {"ndc": "361", "subject": "社会学"}, {"ndc": "362", "subject": "社会史．社会体制"}, {"ndc": "364", "subject": "社会保障"}, {"ndc": "365", "subject": "生活・消費者問題"}, {"ndc": "366", "subject": "労働経済．労働問題"}, {"ndc": "367", "subject": "家族問題．男性・女性問題．老人問題"}, {"ndc": "368", "subject": "社会病理"}, {"ndc": "369", "subject": "社会福祉"}, {"ndc": "370", "subject": "教育"}, {"ndc": "371", "subject": "教育学．教育思想"}, {"ndc": "372", "subject": "教育史・事情"}, {"ndc": "373", "subject": "教育政策．教育制度．教育行財政"}, {"ndc": "374", "subject": "学校経営・管理．学校保健"}, {"ndc": "375", "subject": "教育課程．学習指導．教科別教育"}, {"ndc": "376", "subject": "幼児・初等・中等教育"}, {"ndc": "377", "subject": "大学．高等・専門教育．学術行政"}, {"ndc": "378", "subject": "障害児教育"}, {"ndc": "379", "subject": "社会教育"}, {"ndc": "380", "subject": "風俗習慣．民俗学．民族学"}, {"ndc": "382", "subject": "風俗史．民俗誌．民族誌"}, {"ndc": "383", "subject": "衣食住の習俗"}, {"ndc": "384", "subject": "社会・家庭生活の習俗"}, {"ndc": "385", "subject": "通過儀礼．冠婚葬祭"}, {"ndc": "386", "subject": "年中行事．祭礼"}, {"ndc": "387", "subject": "民間信仰．迷信［俗信］"}, {"ndc": "388", "subject": "伝説．民話［昔話］"}, {"ndc": "389", "subject": "民族学．文化人類学"}, {"ndc": "390", "subject": "国防．軍事"}, {"ndc": "391", "subject": "戦争．戦略．戦術"}, {"ndc": "392", "subject": "国防史・事情．軍事史・事情"}, {"ndc": "393", "subject": "国防政策・行政・法令"}, {"ndc": "394", "subject": "軍事医学．兵食"}, {"ndc": "395", "subject": "軍事施設．軍需品"}, {"ndc": "396", "subject": "陸軍"}, {"ndc": "397", "subject": "海軍"}, {"ndc": "398", "subject": "空軍"}, {"ndc": "399", "subject": "古代兵法．軍学"}, {"ndc": "400", "subject": "自然科学"}, {"ndc": "401", "subject": "科学理論．科学哲学"}, {"ndc": "402", "subject": "科学史・事情"}, {"ndc": "403", "subject": "自然科学--参考図書［レファレンス ブック］"}, {"ndc": "404", "subject": "自然科学--論文集．評論集．講演集"}, {"ndc": "405", "subject": "自然科学--逐次刊行物"}, {"ndc": "406", "subject": "自然科学--団体：学会，協会，会議"}, {"ndc": "407", "subject": "自然科学--研究法．指導法．科学教育"}, {"ndc": "408", "subject": "自然科学--叢書．全集．選集"}, {"ndc": "409", "subject": "科学技術政策．科学技術行政"}, {"ndc": "410", "subject": "数学"}, {"ndc": "411", "subject": "代数学"}, {"ndc": "412", "subject": "数論［整数論］"}, {"ndc": "413", "subject": "解析学"}, {"ndc": "414", "subject": "幾何学"}, {"ndc": "415", "subject": "位相数学"}, {"ndc": "417", "subject": "確率論．数理統計学"}, {"ndc": "418", "subject": "計算法"}, {"ndc": "419", "subject": "和算．中国算法"}, {"ndc": "420", "subject": "物理学"}, {"ndc": "421", "subject": "理論物理学"}, {"ndc": "423", "subject": "力学"}, {"ndc": "424", "subject": "振動学．音響学"}, {"ndc": "425", "subject": "光学"}, {"ndc": "426", "subject": "熱学"}, {"ndc": "427", "subject": "電磁気学"}, {"ndc": "428", "subject": "物性物理学"}, {"ndc": "429", "subject": "原子物理学"}, {"ndc": "430", "subject": "化学"}, {"ndc": "431", "subject": "物理化学．理論化学"}, {"ndc": "432", "subject": "実験化学［化学実験法］"}, {"ndc": "433", "subject": "分析化学［化学分析］"}, {"ndc": "434", "subject": "合成化学［化学合成］"}, {"ndc": "435", "subject": "無機化学"}, {"ndc": "436", "subject": "金属元素とその化合物"}, {"ndc": "437", "subject": "有機化学"}, {"ndc": "438", "subject": "環式化合物の化学"}, {"ndc": "439", "subject": "天然物質の化学"}, {"ndc": "440", "subject": "天文学．宇宙科学"}, {"ndc": "441", "subject": "理論天文学．数理天文学"}, {"ndc": "442", "subject": "実地天文学．天体観測法"}, {"ndc": "443", "subject": "恒星．恒星天文学"}, {"ndc": "444", "subject": "太陽．太陽物理学"}, {"ndc": "445", "subject": "惑星．衛星"}, {"ndc": "446", "subject": "月"}, {"ndc": "447", "subject": "彗星．流星"}, {"ndc": "448", "subject": "地球．天文地理学"}, {"ndc": "449", "subject": "時法．暦学"}, {"ndc": "450", "subject": "地球科学．地学"}, {"ndc": "451", "subject": "気象学"}, {"ndc": "452", "subject": "海洋学"}, {"ndc": "453", "subject": "地震学"}, {"ndc": "454", "subject": "地形学"}, {"ndc": "455", "subject": "地質学"}, {"ndc": "456", "subject": "地史学．層位学"}, {"ndc": "457", "subject": "古生物学．化石"}, {"ndc": "458", "subject": "岩石学"}, {"ndc": "459", "subject": "鉱物学"}, {"ndc": "460", "subject": "生物科学．一般生物学"}, {"ndc": "461", "subject": "理論生物学．生命論"}, {"ndc": "462", "subject": "生物地理．生物誌"}, {"ndc": "463", "subject": "細胞学"}, {"ndc": "464", "subject": "生化学"}, {"ndc": "465", "subject": "微生物学"}, {"ndc": "467", "subject": "遺伝学"}, {"ndc": "468", "subject": "生態学"}, {"ndc": "469", "subject": "人類学"}, {"ndc": "470", "subject": "植物学"}, {"ndc": "471", "subject": "一般植物学"}, {"ndc": "472", "subject": "植物地理．植物誌"}, {"ndc": "473", "subject": "葉状植物"}, {"ndc": "474", "subject": "藻類．菌類"}, {"ndc": "475", "subject": "コケ植物［蘚苔類］"}, {"ndc": "476", "subject": "シダ植物"}, {"ndc": "477", "subject": "種子植物"}, {"ndc": "478", "subject": "裸子植物"}, {"ndc": "479", "subject": "被子植物"}, {"ndc": "480", "subject": "動物学"}, {"ndc": "481", "subject": "一般動物学"}, {"ndc": "482", "subject": "動物地理．動物誌"}, {"ndc": "483", "subject": "無脊椎動物"}, {"ndc": "484", "subject": "軟体動物．貝類学"}, {"ndc": "485", "subject": "節足動物"}, {"ndc": "486", "subject": "昆虫類"}, {"ndc": "487", "subject": "脊椎動物"}, {"ndc": "488", "subject": "鳥類"}, {"ndc": "489", "subject": "哺乳類"}, {"ndc": "490", "subject": "医学"}, {"ndc": "491", "subject": "基礎医学"}, {"ndc": "492", "subject": "臨床医学．診断・治療"}, {"ndc": "493", "subject": "内科学"}, {"ndc": "494", "subject": "外科学"}, {"ndc": "495", "subject": "婦人科学．産科学"}, {"ndc": "496", "subject": "眼科学．耳鼻咽喉科学"}, {"ndc": "497", "subject": "歯科学"}, {"ndc": "498", "subject": "衛生学．公衆衛生．予防医学"}, {"ndc": "499", "subject": "薬学"}, {"ndc": "500", "subject": "技術．工学"}, {"ndc": "501", "subject": "工業基礎学"}, {"ndc": "502", "subject": "技術史．工学史"}, {"ndc": "503", "subject": "技術．工学--参考図書［レファレンス ブック］"}, {"ndc": "504", "subject": "技術．工学--論文集．評論集．講演集"}, {"ndc": "505", "subject": "技術．工学--逐次刊行物"}, {"ndc": "506", "subject": "技術．工学--団体：学会，協会，会議"}, {"ndc": "507", "subject": "技術．工学--研究法．指導法．技術教育"}, {"ndc": "508", "subject": "技術．工学--叢書．全集．選集"}, {"ndc": "509", "subject": "工業．工業経済"}, {"ndc": "510", "subject": "建設工学．土木工学"}, {"ndc": "511", "subject": "土木力学．建設材料"}, {"ndc": "512", "subject": "測量"}, {"ndc": "513", "subject": "土木設計・施工法"}, {"ndc": "514", "subject": "道路工学"}, {"ndc": "515", "subject": "橋梁工学"}, {"ndc": "516", "subject": "鉄道工学"}, {"ndc": "517", "subject": "河海工学．河川工学"}, {"ndc": "518", "subject": "衛生工学．都市工学"}, {"ndc": "519", "subject": "公害．環境工学"}, {"ndc": "520", "subject": "建築学"}, {"ndc": "521", "subject": "日本の建築"}, {"ndc": "522", "subject": "東洋の建築．アジアの建築"}, {"ndc": "523", "subject": "西洋の建築．その他の様式の建築"}, {"ndc": "524", "subject": "建築構造"}, {"ndc": "525", "subject": "建築計画・施工"}, {"ndc": "526", "subject": "各種の建築"}, {"ndc": "527", "subject": "住宅建築"}, {"ndc": "528", "subject": "建築設備．設備工学"}, {"ndc": "529", "subject": "建築意匠・装飾"}, {"ndc": "530", "subject": "機械工学"}, {"ndc": "531", "subject": "機械力学・材料・設計"}, {"ndc": "532", "subject": "機械工作．工作機械"}, {"ndc": "533", "subject": "熱機関．熱工学"}, {"ndc": "534", "subject": "流体機械．流体工学"}, {"ndc": "535", "subject": "精密機器．光学機器"}, {"ndc": "536", "subject": "運輸工学．車輌．運搬機械"}, {"ndc": "537", "subject": "自動車工学"}, {"ndc": "538", "subject": "航空宇宙工学"}, {"ndc": "539", "subject": "原子力工学"}, {"ndc": "540", "subject": "電気工学"}, {"ndc": "541", "subject": "電気回路・計測・材料"}, {"ndc": "542", "subject": "電気機器"}, {"ndc": "543", "subject": "発電"}, {"ndc": "544", "subject": "送電．変電．配電"}, {"ndc": "545", "subject": "電灯．照明．電熱"}, {"ndc": "546", "subject": "電気鉄道"}, {"ndc": "547", "subject": "通信工学．電気通信"}, {"ndc": "548", "subject": "情報工学"}, {"ndc": "549", "subject": "電子工学"}, {"ndc": "550", "subject": "海洋工学．船舶工学"}, {"ndc": "551", "subject": "理論造船学"}, {"ndc": "552", "subject": "船体構造・材料・施工"}, {"ndc": "553", "subject": "船体艤装．船舶設備"}, {"ndc": "554", "subject": "舶用機関［造機］"}, {"ndc": "555", "subject": "船舶修理．保守"}, {"ndc": "556", "subject": "各種の船舶・艦艇"}, {"ndc": "557", "subject": "航海．航海学"}, {"ndc": "558", "subject": "海洋開発"}, {"ndc": "559", "subject": "兵器．軍事工学"}, {"ndc": "560", "subject": "金属工学．鉱山工学"}, {"ndc": "561", "subject": "採鉱．選鉱"}, {"ndc": "562", "subject": "各種の金属鉱床・採掘"}, {"ndc": "563", "subject": "冶金．合金"}, {"ndc": "564", "subject": "鉄鋼"}, {"ndc": "565", "subject": "非鉄金属"}, {"ndc": "566", "subject": "金属加工．製造冶金"}, {"ndc": "567", "subject": "石炭"}, {"ndc": "568", "subject": "石油"}, {"ndc": "569", "subject": "非金属鉱物．土石採取業"}, {"ndc": "570", "subject": "化学工業"}, {"ndc": "571", "subject": "化学工学．化学機器"}, {"ndc": "572", "subject": "電気化学工業"}, {"ndc": "573", "subject": "セラミックス．窯業．珪酸塩化学工業"}, {"ndc": "574", "subject": "化学薬品"}, {"ndc": "575", "subject": "燃料．爆発物"}, {"ndc": "576", "subject": "油脂類"}, {"ndc": "577", "subject": "染料"}, {"ndc": "578", "subject": "高分子化学工業"}, {"ndc": "579", "subject": "その他の化学工業"}, {"ndc": "580", "subject": "製造工業"}, {"ndc": "581", "subject": "金属製品"}, {"ndc": "582", "subject": "事務機器．家庭機器．楽器"}, {"ndc": "583", "subject": "木工業．木製品"}, {"ndc": "584", "subject": "皮革工業．皮革製品"}, {"ndc": "585", "subject": "パルプ・製紙工業"}, {"ndc": "586", "subject": "繊維工学"}, {"ndc": "587", "subject": "染色加工．染色業"}, {"ndc": "588", "subject": "食品工業"}, {"ndc": "589", "subject": "製造工業--その他の雑工業"}, {"ndc": "590", "subject": "家政学．生活科学"}, {"ndc": "591", "subject": "家庭経済・経営"}, {"ndc": "592", "subject": "家庭理工学"}, {"ndc": "593", "subject": "衣服．裁縫"}, {"ndc": "594", "subject": "手芸"}, {"ndc": "595", "subject": "理容．美容"}, {"ndc": "596", "subject": "食品．料理"}, {"ndc": "597", "subject": "住居．家具調度"}, {"ndc": "598", "subject": "家庭衛生"}, {"ndc": "599", "subject": "育児"}, {"ndc": "600", "subject": "産業"}, {"ndc": "601", "subject": "産業政策・行政．総合開発"}, {"ndc": "602", "subject": "産業史・事情．物産誌"}, {"ndc": "603", "subject": "産業--参考図書［レファレンス ブック］"}, {"ndc": "604", "subject": "産業--論文集．評論集．講演集"}, {"ndc": "605", "subject": "産業--逐次刊行物"}, {"ndc": "606", "subject": "産業--団体：学会，協会，会議"}, {"ndc": "607", "subject": "産業--研究法．指導法．産業教育"}, {"ndc": "608", "subject": "産業--叢書．全集．選集"}, {"ndc": "609", "subject": "度量衡．計量法"}, {"ndc": "610", "subject": "農業"}, {"ndc": "611", "subject": "農業経済"}, {"ndc": "612", "subject": "農業史・事情"}, {"ndc": "613", "subject": "農業基礎学"}, {"ndc": "614", "subject": "農業工学"}, {"ndc": "615", "subject": "作物栽培．作物学"}, {"ndc": "616", "subject": "農業--食用作物"}, {"ndc": "617", "subject": "農業--工芸作物"}, {"ndc": "618", "subject": "農業--繊維作物"}, {"ndc": "619", "subject": "農産物製造・加工"}, {"ndc": "620", "subject": "園芸"}, {"ndc": "621", "subject": "園芸経済・行政・経営"}, {"ndc": "622", "subject": "園芸史・事情"}, {"ndc": "623", "subject": "園芸植物学．病虫害"}, {"ndc": "624", "subject": "温室．温床．園芸用具"}, {"ndc": "625", "subject": "果樹園芸"}, {"ndc": "626", "subject": "蔬菜園芸"}, {"ndc": "627", "subject": "花卉園芸［草花］"}, {"ndc": "628", "subject": "園芸利用"}, {"ndc": "629", "subject": "造園"}, {"ndc": "630", "subject": "蚕糸業"}, {"ndc": "631", "subject": "蚕糸経済・行政・経営"}, {"ndc": "632", "subject": "蚕糸業史・事情"}, {"ndc": "633", "subject": "蚕学．蚕業基礎学"}, {"ndc": "634", "subject": "蚕種"}, {"ndc": "635", "subject": "飼育法"}, {"ndc": "636", "subject": "くわ．栽桑"}, {"ndc": "637", "subject": "蚕室．蚕具"}, {"ndc": "638", "subject": "まゆ"}, {"ndc": "639", "subject": "製糸．生糸．蚕糸利用"}, {"ndc": "640", "subject": "畜産業"}, {"ndc": "641", "subject": "畜産経済・行政・経営"}, {"ndc": "642", "subject": "畜産史・事情"}, {"ndc": "643", "subject": "家畜の繁殖．家畜飼料"}, {"ndc": "644", "subject": "家畜の管理．畜舎．用具"}, {"ndc": "645", "subject": "家畜・畜産動物各論"}, {"ndc": "646", "subject": "家禽各論．飼鳥"}, {"ndc": "648", "subject": "畜産製造．畜産物"}, {"ndc": "649", "subject": "獣医学．比較医学"}, {"ndc": "650", "subject": "林業"}, {"ndc": "651", "subject": "林業経済・行政・経営"}, {"ndc": "652", "subject": "森林史．林業史・事情"}, {"ndc": "653", "subject": "森林立地．造林"}, {"ndc": "654", "subject": "森林保護"}, {"ndc": "655", "subject": "森林施業"}, {"ndc": "656", "subject": "森林工学"}, {"ndc": "657", "subject": "森林利用．林産物．木材学"}, {"ndc": "658", "subject": "林産製造"}, {"ndc": "659", "subject": "狩猟"}, {"ndc": "660", "subject": "水産業"}, {"ndc": "661", "subject": "水産経済・行政・経営"}, {"ndc": "662", "subject": "水産業および漁業史・事情"}, {"ndc": "663", "subject": "水産基礎学"}, {"ndc": "664", "subject": "漁労．漁業各論"}, {"ndc": "665", "subject": "漁船．漁具"}, {"ndc": "666", "subject": "水産増殖．養殖業"}, {"ndc": "667", "subject": "水産製造．水産食品"}, {"ndc": "668", "subject": "水産物利用．水産利用工業"}, {"ndc": "669", "subject": "製塩．塩業"}, {"ndc": "670", "subject": "商業"}, {"ndc": "671", "subject": "商業政策・行政"}, {"ndc": "672", "subject": "商業史・事情"}, {"ndc": "673", "subject": "商業経営．商店"}, {"ndc": "674", "subject": "広告．宣伝"}, {"ndc": "675", "subject": "マーケティング"}, {"ndc": "676", "subject": "取引所"}, {"ndc": "678", "subject": "貿易"}, {"ndc": "680", "subject": "運輸．交通"}, {"ndc": "681", "subject": "交通政策・行政・経営"}, {"ndc": "682", "subject": "交通史・事情"}, {"ndc": "683", "subject": "海運"}, {"ndc": "684", "subject": "内水・運河交通"}, {"ndc": "685", "subject": "陸運．自動車運送"}, {"ndc": "686", "subject": "鉄道"}, {"ndc": "687", "subject": "航空運送"}, {"ndc": "688", "subject": "倉庫業"}, {"ndc": "689", "subject": "観光事業"}, {"ndc": "690", "subject": "通信事業"}, {"ndc": "691", "subject": "通信政策・行政・法令"}, {"ndc": "692", "subject": "通信事業史・事情"}, {"ndc": "693", "subject": "郵便．郵政事業"}, {"ndc": "694", "subject": "電気通信事業"}, {"ndc": "699", "subject": "放送事業：テレビ，ラジオ"}, {"ndc": "700", "subject": "芸術．美術"}, {"ndc": "701", "subject": "芸術理論．美学"}, {"ndc": "702", "subject": "芸術史．美術史"}, {"ndc": "703", "subject": "芸術．美術--参考図書［レファレンス ブック］"}, {"ndc": "704", "subject": "芸術．美術--論文集．評論集．講演集"}, {"ndc": "705", "subject": "芸術．美術--逐次刊行物"}, {"ndc": "706", "subject": "芸術．美術--団体：学会，協会，会議"}, {"ndc": "707", "subject": "芸術．美術--研究法．指導法．芸術教育"}, {"ndc": "708", "subject": "芸術．美術--叢書．全集．選集"}, {"ndc": "709", "subject": "芸術政策．文化財"}, {"ndc": "710", "subject": "彫刻"}, {"ndc": "711", "subject": "彫塑材料・技法"}, {"ndc": "712", "subject": "彫刻史．各国の彫刻"}, {"ndc": "713", "subject": "木彫"}, {"ndc": "714", "subject": "石彫"}, {"ndc": "715", "subject": "金属彫刻．鋳造"}, {"ndc": "717", "subject": "粘土彫刻．塑造"}, {"ndc": "718", "subject": "仏像"}, {"ndc": "719", "subject": "オブジェ"}, {"ndc": "720", "subject": "絵画"}, {"ndc": "721", "subject": "日本画"}, {"ndc": "722", "subject": "東洋画"}, {"ndc": "723", "subject": "洋画"}, {"ndc": "724", "subject": "絵画材料・技法"}, {"ndc": "725", "subject": "素描．描画"}, {"ndc": "726", "subject": "漫画．挿絵．童画"}, {"ndc": "727", "subject": "グラフィック デザイン．図案"}, {"ndc": "728", "subject": "書．書道"}, {"ndc": "730", "subject": "版画"}, {"ndc": "731", "subject": "版画材料・技法"}, {"ndc": "732", "subject": "版画史．各国の版画"}, {"ndc": "733", "subject": "木版画"}, {"ndc": "734", "subject": "石版画"}, {"ndc": "735", "subject": "銅版画．鋼版画"}, {"ndc": "736", "subject": "リノリウム版画．ゴム版画"}, {"ndc": "737", "subject": "写真版画．孔版画"}, {"ndc": "739", "subject": "印章．篆刻．印譜"}, {"ndc": "740", "subject": "写真"}, {"ndc": "742", "subject": "写真器械・材料"}, {"ndc": "743", "subject": "写真--撮影技術"}, {"ndc": "744", "subject": "写真--現像．印画"}, {"ndc": "745", "subject": "写真--複写技術"}, {"ndc": "746", "subject": "特殊写真"}, {"ndc": "747", "subject": "写真の応用"}, {"ndc": "748", "subject": "写真集"}, {"ndc": "749", "subject": "印刷"}, {"ndc": "750", "subject": "工芸"}, {"ndc": "751", "subject": "陶磁工芸"}, {"ndc": "752", "subject": "漆工芸"}, {"ndc": "753", "subject": "染織工芸"}, {"ndc": "754", "subject": "木竹工芸"}, {"ndc": "755", "subject": "宝石・牙角・皮革工芸"}, {"ndc": "756", "subject": "金工芸"}, {"ndc": "757", "subject": "デザイン．装飾美術"}, {"ndc": "758", "subject": "美術家具"}, {"ndc": "759", "subject": "人形．玩具"}, {"ndc": "760", "subject": "音楽"}, {"ndc": "761", "subject": "音楽の一般理論．音楽学"}, {"ndc": "762", "subject": "音楽史．各国の音楽"}, {"ndc": "763", "subject": "楽器．器楽"}, {"ndc": "764", "subject": "器楽合奏"}, {"ndc": "765", "subject": "宗教音楽．聖楽"}, {"ndc": "766", "subject": "劇音楽"}, {"ndc": "767", "subject": "声楽"}, {"ndc": "768", "subject": "邦楽"}, {"ndc": "769", "subject": "舞踊．バレエ"}, {"ndc": "770", "subject": "演劇"}, {"ndc": "771", "subject": "劇場．演出．演技"}, {"ndc": "772", "subject": "演劇史．各国の演劇"}, {"ndc": "773", "subject": "能楽．狂言"}, {"ndc": "774", "subject": "歌舞伎"}, {"ndc": "775", "subject": "各種の演劇"}, {"ndc": "777", "subject": "人形劇"}, {"ndc": "778", "subject": "映画"}, {"ndc": "779", "subject": "大衆演芸"}, {"ndc": "780", "subject": "スポーツ．体育"}, {"ndc": "781", "subject": "体操．遊戯"}, {"ndc": "782", "subject": "陸上競技"}, {"ndc": "783", "subject": "球技"}, {"ndc": "784", "subject": "冬季競技"}, {"ndc": "785", "subject": "水上競技"}, {"ndc": "786", "subject": "戸外レクリエーション"}, {"ndc": "787", "subject": "釣魚．遊猟"}, {"ndc": "788", "subject": "相撲．拳闘．競馬"}, {"ndc": "789", "subject": "武術"}, {"ndc": "790", "subject": "諸芸．娯楽"}, {"ndc": "791", "subject": "茶道"}, {"ndc": "792", "subject": "香道"}, {"ndc": "793", "subject": "花道"}, {"ndc": "794", "subject": "撞球"}, {"ndc": "795", "subject": "囲碁"}, {"ndc": "796", "subject": "将棋"}, {"ndc": "797", "subject": "射倖ゲーム"}, {"ndc": "798", "subject": "室内娯楽"}, {"ndc": "799", "subject": "ダンス"}, {"ndc": "800", "subject": "言語"}, {"ndc": "801", "subject": "言語学"}, {"ndc": "802", "subject": "言語史・事情．言語政策"}, {"ndc": "803", "subject": "言語--参考図書［レファレンス ブック］"}, {"ndc": "804", "subject": "言語--論文集．評論集．講演集"}, {"ndc": "805", "subject": "言語--逐次刊行物"}, {"ndc": "806", "subject": "言語--団体：学会，協会，会議"}, {"ndc": "807", "subject": "言語--研究法．指導法．言語教育"}, {"ndc": "808", "subject": "言語--叢書．全集．選集"}, {"ndc": "809", "subject": "言語生活"}, {"ndc": "810", "subject": "日本語"}, {"ndc": "811", "subject": "日本語--音声．音韻．文字"}, {"ndc": "812", "subject": "日本語--語源．意味"}, {"ndc": "813", "subject": "日本語--辞典"}, {"ndc": "814", "subject": "日本語--語彙"}, {"ndc": "815", "subject": "日本語--文法．語法"}, {"ndc": "816", "subject": "日本語--文章．文体．作文"}, {"ndc": "817", "subject": "日本語--読本．解釈．会話"}, {"ndc": "818", "subject": "日本語--方言．訛語"}, {"ndc": "820", "subject": "中国語"}, {"ndc": "821", "subject": "中国語--音声．音韻．文字"}, {"ndc": "822", "subject": "中国語--語源．意味"}, {"ndc": "823", "subject": "中国語--辞典"}, {"ndc": "824", "subject": "中国語--語彙"}, {"ndc": "825", "subject": "中国語--文法．語法"}, {"ndc": "826", "subject": "中国語--文章．文体．作文"}, {"ndc": "827", "subject": "中国語--読本．解釈．会話"}, {"ndc": "828", "subject": "中国語--方言．訛語"}, {"ndc": "829", "subject": "その他の東洋の諸言語"}, {"ndc": "830", "subject": "英語"}, {"ndc": "831", "subject": "英語--音声．音韻．文字"}, {"ndc": "832", "subject": "英語--語源．意味"}, {"ndc": "833", "subject": "英語--辞典"}, {"ndc": "834", "subject": "英語--語彙"}, {"ndc": "835", "subject": "英語--文法．語法"}, {"ndc": "836", "subject": "英語--文章．文体．作文"}, {"ndc": "837", "subject": "英語--読本．解釈．会話"}, {"ndc": "838", "subject": "英語--方言．訛語"}, {"ndc": "840", "subject": "ドイツ語"}, {"ndc": "841", "subject": "ドイツ語--音声．音韻．文字"}, {"ndc": "842", "subject": "ドイツ語--語源．語義．意味"}, {"ndc": "843", "subject": "ドイツ語--辞典"}, {"ndc": "844", "subject": "ドイツ語--語彙"}, {"ndc": "845", "subject": "ドイツ語--文法．語法"}, {"ndc": "846", "subject": "ドイツ語--文章．文体．作文"}, {"ndc": "847", "subject": "ドイツ語--読本．解釈．会話"}, {"ndc": "848", "subject": "ドイツ語--方言．訛語"}, {"ndc": "849", "subject": "その他のゲルマン諸語"}, {"ndc": "850", "subject": "フランス語"}, {"ndc": "851", "subject": "フランス語--音声．音韻．文字"}, {"ndc": "852", "subject": "フランス語--語源．語義．意味"}, {"ndc": "853", "subject": "フランス語--辞典"}, {"ndc": "854", "subject": "フランス語--語彙"}, {"ndc": "855", "subject": "フランス語--文法．語法"}, {"ndc": "856", "subject": "フランス語--文章．文体．作文"}, {"ndc": "857", "subject": "フランス語--読本．解釈．会話"}, {"ndc": "858", "subject": "フランス語--方言．訛語"}, {"ndc": "859", "subject": "プロヴァンス語"}, {"ndc": "860", "subject": "スペイン語"}, {"ndc": "861", "subject": "スペイン語--音声．音韻．文字"}, {"ndc": "862", "subject": "スペイン語--語源．語義．意味"}, {"ndc": "863", "subject": "スペイン語--辞典"}, {"ndc": "864", "subject": "スペイン語--語彙"}, {"ndc": "865", "subject": "スペイン語--文法．語法"}, {"ndc": "866", "subject": "スペイン語--文章．文体．作文"}, {"ndc": "867", "subject": "スペイン語--読本．解釈．会話"}, {"ndc": "868", "subject": "スペイン語--方言．訛語"}, {"ndc": "869", "subject": "ポルトガル語"}, {"ndc": "870", "subject": "イタリア語"}, {"ndc": "871", "subject": "イタリア語--音声．音韻．文字"}, {"ndc": "872", "subject": "イタリア語--語源．語義．意味"}, {"ndc": "873", "subject": "イタリア語--辞典"}, {"ndc": "874", "subject": "イタリア語--語彙"}, {"ndc": "875", "subject": "イタリア語--文法．語法"}, {"ndc": "876", "subject": "イタリア語--文章．文体．作文"}, {"ndc": "877", "subject": "イタリア語--読本．解釈．会話"}, {"ndc": "878", "subject": "イタリア語--方言．訛語"}, {"ndc": "879", "subject": "その他のロマンス諸語"}, {"ndc": "880", "subject": "ロシア語"}, {"ndc": "881", "subject": "ロシア語--音声．音韻．文字"}, {"ndc": "882", "subject": "ロシア語--語源．語義．意味"}, {"ndc": "883", "subject": "ロシア語--辞典"}, {"ndc": "884", "subject": "ロシア語--語彙"}, {"ndc": "885", "subject": "ロシア語--文法．語法"}, {"ndc": "886", "subject": "ロシア語--文章．文体．作文"}, {"ndc": "887", "subject": "ロシア語--読本．解釈．会話"}, {"ndc": "888", "subject": "ロシア語--方言．訛語"}, {"ndc": "889", "subject": "その他のスラヴ諸語"}, {"ndc": "890", "subject": "その他の諸言語"}, {"ndc": "891", "subject": "ギリシア語"}, {"ndc": "892", "subject": "ラテン語"}, {"ndc": "893", "subject": "その他のヨーロッパの諸言語"}, {"ndc": "894", "subject": "アフリカの諸言語"}, {"ndc": "895", "subject": "アメリカの諸言語"}, {"ndc": "897", "subject": "オーストラリアの諸言語"}, {"ndc": "899", "subject": "国際語［人工語］"}, {"ndc": "900", "subject": "文学"}, {"ndc": "901", "subject": "文学理論・作法"}, {"ndc": "902", "subject": "文学史．文学思想史"}, {"ndc": "903", "subject": "文学--参考図書［レファレンス ブック］"}, {"ndc": "904", "subject": "文学--論文集．評論集．講演集"}, {"ndc": "905", "subject": "文学--逐次刊行物"}, {"ndc": "906", "subject": "文学--団体：学会，協会，会議"}, {"ndc": "907", "subject": "文学--研究法．指導法．文学教育"}, {"ndc": "908", "subject": "文学--叢書．全集．選集"}, {"ndc": "909", "subject": "児童文学研究"}, {"ndc": "910", "subject": "日本文学"}, {"ndc": "911", "subject": "日本文学--詩歌"}, {"ndc": "912", "subject": "日本文学--戯曲"}, {"ndc": "913", "subject": "日本文学--小説．物語"}, {"ndc": "914", "subject": "日本文学--評論．エッセイ．随筆"}, {"ndc": "915", "subject": "日本文学--日記．書簡．紀行"}, {"ndc": "916", "subject": "日本文学--記録．手記．ルポルタージュ"}, {"ndc": "917", "subject": "日本文学--箴言．アフォリズム．寸言"}, {"ndc": "918", "subject": "日本文学--作品集：全集，選集"}, {"ndc": "919", "subject": "漢詩文．日本漢文学"}, {"ndc": "920", "subject": "中国文学"}, {"ndc": "921", "subject": "中国文学--詩歌．韻文．詩文"}, {"ndc": "922", "subject": "中国文学--戯曲"}, {"ndc": "923", "subject": "中国文学--小説．物語"}, {"ndc": "924", "subject": "中国文学--評論．エッセイ．随筆"}, {"ndc": "925", "subject": "中国文学--日記．書簡．紀行"}, {"ndc": "926", "subject": "中国文学--記録．手記．ルポルタージュ"}, {"ndc": "927", "subject": "中国文学--箴言．アフォリズム．寸言"}, {"ndc": "928", "subject": "中国文学--作品集：全集，選集"}, {"ndc": "929", "subject": "その他の東洋文学"}, {"ndc": "930", "subject": "英米文学"}, {"ndc": "931", "subject": "英米文学--詩"}, {"ndc": "932", "subject": "英米文学--戯曲"}, {"ndc": "933", "subject": "英米文学--小説．物語"}, {"ndc": "934", "subject": "英米文学--評論．エッセイ．随筆"}, {"ndc": "935", "subject": "英米文学--日記．書簡．紀行"}, {"ndc": "936", "subject": "英米文学--記録．手記．ルポルタージュ"}, {"ndc": "937", "subject": "英米文学--箴言．アフォリズム．寸言"}, {"ndc": "938", "subject": "英米文学--作品集：全集，選集"}, {"ndc": "940", "subject": "ドイツ文学"}, {"ndc": "941", "subject": "ドイツ文学--詩"}, {"ndc": "942", "subject": "ドイツ文学--戯曲"}, {"ndc": "943", "subject": "ドイツ文学--小説．物語"}, {"ndc": "944", "subject": "ドイツ文学--評論．エッセイ．随筆"}, {"ndc": "945", "subject": "ドイツ文学--日記．書簡．紀行"}, {"ndc": "946", "subject": "ドイツ文学--記録．手記．ルポルタージュ"}, {"ndc": "947", "subject": "ドイツ文学--箴言．アフォリズム．寸言"}, {"ndc": "948", "subject": "ドイツ文学--作品集：全集，選集"}, {"ndc": "949", "subject": "その他のゲルマン文学"}, {"ndc": "950", "subject": "フランス文学"}, {"ndc": "951", "subject": "フランス文学--詩"}, {"ndc": "952", "subject": "フランス文学--戯曲"}, {"ndc": "953", "subject": "フランス文学--小説．物語"}, {"ndc": "954", "subject": "フランス文学--評論．エッセイ．随筆"}, {"ndc": "955", "subject": "フランス文学--日記．書簡．紀行"}, {"ndc": "956", "subject": "フランス文学--記録．手記．ルポルタージュ"}, {"ndc": "957", "subject": "フランス文学--箴言．アフォリズム．寸言"}, {"ndc": "958", "subject": "フランス文学--作品集：全集，選集"}, {"ndc": "959", "subject": "プロヴァンス文学"}, {"ndc": "960", "subject": "スペイン文学"}, {"ndc": "961", "subject": "スペイン文学--詩"}, {"ndc": "962", "subject": "スペイン文学--戯曲"}, {"ndc": "963", "subject": "スペイン文学--小説．物語"}, {"ndc": "964", "subject": "スペイン文学--評論．エッセイ．随筆"}, {"ndc": "965", "subject": "スペイン文学--日記．書簡．紀行"}, {"ndc": "966", "subject": "スペイン文学--記録．手記．ルポルタージュ"}, {"ndc": "967", "subject": "スペイン文学--箴言．アフォリズム．寸言"}, {"ndc": "968", "subject": "スペイン文学--作品集：全集，選集"}, {"ndc": "969", "subject": "ポルトガル文学"}, {"ndc": "970", "subject": "イタリア文学"}, {"ndc": "971", "subject": "イタリア文学--詩"}, {"ndc": "972", "subject": "イタリア文学--戯曲"}, {"ndc": "973", "subject": "イタリア文学--小説．物語"}, {"ndc": "974", "subject": "イタリア文学--評論．エッセイ．随筆"}, {"ndc": "975", "subject": "イタリア文学--日記．書簡．紀行"}, {"ndc": "976", "subject": "イタリア文学--記録．手記．ルポルタージュ"}, {"ndc": "977", "subject": "イタリア文学--箴言．アフォリズム．寸言"}, {"ndc": "978", "subject": "イタリア文学--作品集：全集，選集"}, {"ndc": "979", "subject": "その他のロマンス文学"}, {"ndc": "980", "subject": "ロシア・ソビエト文学"}, {"ndc": "981", "subject": "ロシア・ソビエト文学--詩"}, {"ndc": "982", "subject": "ロシア・ソビエト文学--戯曲"}, {"ndc": "983", "subject": "ロシア・ソビエト文学--小説．物語"}, {"ndc": "984", "subject": "ロシア・ソビエト文学--評論．エッセイ．随筆"}, {"ndc": "985", "subject": "ロシア・ソビエト文学--日記．書簡．紀行"}, {"ndc": "986", "subject": "ロシア・ソビエト文学--記録．手記．ルポルタージュ"}, {"ndc": "987", "subject": "ロシア・ソビエト文学--箴言．アフォリズム．寸言"}, {"ndc": "988", "subject": "ロシア・ソビエト文学--作品集：全集，選集"}, {"ndc": "989", "subject": "その他のスラヴ文学"}, {"ndc": "990", "subject": "その他の諸文学"}, {"ndc": "991", "subject": "ギリシア文学"}, {"ndc": "992", "subject": "ラテン文学"}, {"ndc": "993", "subject": "その他のヨーロッパ文学"}, {"ndc": "994", "subject": "アフリカ文学"}, {"ndc": "995", "subject": "アメリカ先住民語の文学"}, {"ndc": "997", "subject": "オーストラリア先住民語の文学"}, {"ndc": "999", "subject": "国際語による文学"}];
+const TUNING = {"version": 1, "enemies": {"wind": {"reactionMinMs": 3800, "reactionMaxMs": 6000, "mistakeRate": 0.3, "correctRate": 0.7}, "magician": {"reactionMinMs": 2100, "reactionMaxMs": 4000, "mistakeRate": 0.2, "correctRate": 0.8}, "digital": {"reactionMinMs": 1200, "reactionMaxMs": 2400, "mistakeRate": 0.15, "correctRate": 0.85}, "supreme": {"reactionMinMs": 1000, "reactionMaxMs": 2000, "mistakeRate": 0.1, "correctRate": 0.9}}, "damage": {"base": 14, "comboStep": 4, "max": 34}, "gauge": {"correctBase": 25, "fastBonus": 26, "min": 10, "max": 40, "opponentHit": 10, "playerMiss": 0, "enemyMiss": 0}, "lines": {"librarian": {"wind": {"win": "風は本が傷まない程度でお願いしますね", "lose": "いい風だったろ、次はもっと鮮やかに並べ替えてやるよ"}, "magician": {"win": "分類の魔法！目録を取るのにとっても便利そうですね！", "lose": "静かな知識ほど、深い魔法になるものだ"}, "digital": {"win": "最近のロボットはすごいですね！\nうちの図書館で一緒に働きたいです", "lose": "トウゼンデス アルゴリズム ガ チガイマスカラ"}, "supreme": {"win": "至高の司書…いつか私もなれるでしょうか…", "lose": "良い光だ、だが未だ至高には至らず"}}, "detective": {"wind": {"win": "風の行き先も、手がかりを追えば読めちゃうんですよ！", "lose": "その推理、風向きひとつで吹き飛ばしてやる"}, "magician": {"win": "謎も分類も、ひらめいた瞬間が\nいちばん楽しいんです！", "lose": "若き探偵よ、真実には静かに近づくものだ"}, "digital": {"win": "AIの推理もすごいけど、最後は現場のカンです！", "lose": "スイリ？コレ ソウイウ ゲーム ジャ アリマセンカラ"}, "supreme": {"win": "頂点の謎、ばっちり解き明かしました！", "lose": "その好奇心こそ、知の扉を開く鍵だ"}}, "lily": {"wind": {"win": "みんなの声が、正しい棚まで導いてくれました", "lose": "ひよっこでもいい風を読んだな、でも勝ちは俺のものだ"}, "magician": {"win": "なんだろう…とても懐かしい感じ…", "lose": "本の声を聞くその力、大切にするがいい"}, "digital": {"win": "本の声は、データにないことも教えてくれるんです", "lose": "モトノ セカイニ カエリナサイ アナタニモ カゾクガ イルデショウ"}, "supreme": {"win": "まだひよっこでも、みんなを大事にする気持ちは本物です", "lose": "小さな声に耳を澄ます者よ、いつか書架の頂に届くだろう"}}, "professor": {"wind": {"win": "ふふ、レポートなら再提出できますが、勝負はここまでです", "lose": "あんたの計算より、俺の風のほうが少しだけ速かったな"}, "magician": {"win": "分類も物理も、世界を\n理解するための美しい道具ですね", "lose": "知を分ける術を知らねば、真理の扉には届かない"}, "digital": {"win": "AIの答えも、最後は人が問い直すことが大切ですね", "lose": "ケンサク、スイロン、ジッコウ、ワタシノショリハカンリョウシマシタ"}, "supreme": {"win": "知を積み上げる者と、知へ導く者、そのどちらも学びには必要なのですね", "lose": "その知性、見事なり、だが万象を収めし我が目録の前では未完だ"}}, "fightingLibrarian": {"wind": {"win": "飛んでいった札も、あとで一緒に探しましょう！", "lose": "熱い司書だな、こっちまで楽しくなってきたぜ"}, "magician": {"win": "分類の知識もゲームにすると、\nこんなに楽しく覚えられるんですね！", "lose": "その試みは興味深い、だが知を編む魔法にはまだ及ばない"}, "digital": {"win": "最新AIと遊べるなんて、今日はいいイベントですね！", "lose": "アナタノ スキナ ゲームフウニイウト ジュウネン ハヤインダヨ デス"}, "supreme": {"win": "この楽しさ、次は図書館に来るみんなへ伝えたいです！", "lose": "汝の催し、神域の余興としては悪くない"}}}};
+
+const OPENING_COMMON_SCENES = [
+    {
+      lines: [
+        '世界には、あらゆる知識を分類し、',
+        '求める情報へ誰よりも早く辿り着く者たちがいる。',
+        '人は彼らを――「分類の達人（マスター・オブ・クラシフィケーション）」と呼ぶ。',
+        'その頂点を決める、年に一度の知の祭典。'
+      ]
+    },
+    {
+      lines: [
+        { text: '「日本十進分類カルタ大会」', emphasis: true }
+      ]
+    },
+    {
+      lines: [
+        '風のような速さ。',
+        'すべてを見抜く知識。',
+        'そして、一瞬の判断力。',
+        '世界中の司書たちが集う中、',
+        '今年もまた、新たな挑戦者が大会の扉を開く。'
+      ]
+    }
+  ];
+const OPENING_CHARACTER_SCENES = {
+    librarian: [
+      '利用者の質問に答え、本棚の間を歩き、必要な知識へと案内する。それが司書さんのいつもの仕事だった。',
+      'ある日、彼女のもとに一通の大会招待状が届く。',
+      'そこは、世界中の「分類の達人」が集う、年に一度の大舞台。',
+      '「私より、ふさわしい方がいるような気もしますが……」',
+      'しばらく考えた彼女は、書架に並ぶ本を見渡した。',
+      '「もっと本のことを知れるなら」――小さな決意とともに、司書さんの挑戦が始まった。'
+    ],
+    detective: [
+      '大学図書館に通う、明るく元気な学生探偵。',
+      'ある日、彼女は図書館で一枚の招待状を発見する。',
+      '「世界中の分類の達人が集まる大会……？」',
+      '難事件の気配を感じた探偵さんは、にやりと笑った。',
+      '「つまり、最後まで勝ち残れば、何かがわかるってことだね！」',
+      '事件かどうかは、まだ誰にもわからない。'
+    ],
+    lily: [
+      '本の声を聞くことができる、ひよっこ司書のリリー。',
+      '書架を整理していた彼女の耳に、一冊の本から小さな声が届いた。',
+      '――大会へ行って。そこで、きっと何かが見つかる。',
+      '「わたしにできるかな……？」',
+      '不安を抱えながらも、リリーは笑顔で一歩を踏み出す。',
+      '「うん。やってみなくちゃ、わからないよね！」'
+    ],
+    professor: [
+      '大学で物理学を研究する教授。',
+      '研究室には、分類しきれないほどの資料と、返却期限の近い本が積み上がっていた。',
+      '大会の案内を読んだ彼女は、少し考えてから眼鏡を上げる。',
+      '「知識を整理することも、立派な研究の一部です」',
+      'そして、ひとつだけ付け加えた。',
+      '「もちろん、参加するからには優勝を目指します」'
+    ],
+    fightingLibrarian: [
+      '図書館とゲームを愛する、格闘系司書。',
+      '彼が目指しているのは、誰もが楽しみながら図書館を知ることのできる場所だった。',
+      '日本十進分類カルタ大会の知らせを聞くと、彼は楽しそうに腕をまくる。',
+      '「分類とカルタと真剣勝負。これは盛り上がりそうですね！」',
+      '勝利の先に、新しい図書館イベントの姿を思い描きながら。'
+    ]
+  };
+
+const ENDINGS = {"司書さん": {"1": ["優勝直後、世界中の記者たちが司書さんの前に集まる。", "「勝因は何ですか？」 「特別な訓練をしていたのですか？」", "司書さんは少し考えたあと、にこっと答える。", "「ええと……返ってきた本を、毎日ちゃんと戻していたからでしょうか？」", "会場は一瞬静まり、次の瞬間、大きな拍手に包まれた。"], "2": ["司書さんは、いつもの大学図書館でカウンターに立っている。", "「この本でしたら、こちらの棚ですね」", "世界大会を制したあとでも、その声はいつもと同じように穏やかだった。", "ただ、本棚の間を歩く後ろ姿は、ほんの少しだけ誇らしげに見えた。"]}, "探偵さん": {"1": ["決勝戦が終わり、会場に拍手が響く。", "探偵さんは帽子を押さえ、得意げに笑った。", "「分類の謎、解明完了！」", "司書さんは隣でやさしく拍手をする。", "「すごかったですよ、探偵さん」"], "2": ["数日後、いつもの大学図書館。", "探偵さんは大学図書館で、借りた本を開いている。", "司書さんがそっと一冊の本を差し出した。", "「探していた本、返ってきましたよ」 探偵さんは目を輝かせる。", "「来たね、新たな手がかり！」", "今日も図書館には、小さな謎が眠っている。"]}, "格闘系司書": {"1": ["大会が終わり、格闘系司書は一枚の分類札を手に取った。", "札を見つめるうちに、試合で覚えた分類番号が次々とよみがえる。", "遊びに夢中になることが、そのまま学びにつながっていたのだ。", "「これは、次の図書館イベントにぴったりですね！」", "頭の中には早くも、子どもたちが札を囲む光景が広がっていた。"], "2": ["数日後、図書館の大きなテーブルには、分類札がずらりと並んでいた。", "格闘系司書は子どもたちの前で、次の読み札を勢いよく掲げる。", "「少し難しくなりますよ、よく聞いてくださいね！」", "問題が読まれると、子どもたちは一斉に正しい札を探し始めた。", "札を取る音と明るい笑い声が、いつもの図書館に響いていた。"]}, "教授": {"1": ["大きな拍手の中、教授は分類が書かれた札を手に取る。", "しばらく札を見つめたあと、観客席の司書さんへ目を向けた。", "「知識は、整理し、残し、見つけられるようにして初めて、人の役に立つのですね」", "司書さんは嬉しそうに拍手を送る。", "教授もまた、穏やかな笑顔で頭を下げた。"], "2": ["数日後、教授は大学で物理学の講義をしている。", "黒板に式を書き終えると、学生たちへ柔らかく微笑んだ。", "「では、この現象に関係する本を図書館で探してみましょう」", "今日も新しい知識への道が、静かに開かれていく。"]}, "リリー": {"1": ["リリーが優勝した瞬間、会場の本たちが一斉にページをぱたぱた鳴らす。司会者が高らかに宣言した。", "「新たな至高の司書、誕生です！」", "リリーはあわてて手を振る。", "「い、いえ！　まだひよっこです！　至高のひよっこくらいでお願いします！」", "会場は笑いに包まれ、拍手はいっそう大きくなった。"], "2": ["リリーは、自分の世界の図書館へ戻る。", "そこでは、声を持つ本たちが棚いっぱいに並んで待っていた。", "「ただいま、みんな！」 本たちがページをぱたぱたと鳴らして迎える。", "大会のきらびやかな舞台から戻っても、リリーの仕事はいつも通り。", "今日も本の声を聞きながら、リリーは元気に本棚へ向かった。"]}};
+
+/** Event-driven mixing; tick() follows the game's render clock, not its simulation. */
+class Sound {
+  constructor(settings) {
+    this.settings = settings; this.music = null; this.track = ''; this.voices = new Map();
+    this.active = new Set(); this.cues = new Map(); this.speech = new Set();
+    this.ducks = new Map(); this.gain = 1; this.lastMix = performance.now(); this.fade = null;
+  }
+  play(name, volume = .85, rate = 1) {
+    if (!this.settings.sound) return;
+    const audio = new Audio(`sound/${name}.mp3`);
+    audio.playbackRate = rate;
+    const duck = name === 'special' ? .22 : name === 'KO' || name === 'perfect' ? .3 : 1;
+    this.active.add(audio); this.cues.set(audio, { name, volume });
+    if (duck < 1) this.ducks.set(audio, duck);
+    const finish = () => { this.active.delete(audio); this.cues.delete(audio); this.ducks.delete(audio); };
+    audio.addEventListener('ended', finish, { once: true }); audio.addEventListener('error', finish, { once: true });
+    this.tick(); audio.play().catch(finish); return audio;
+  }
+  digit(value) {
+    if (!this.settings.sound) return;
+    let audio = this.voices.get(value);
+    if (!audio) {
+      audio = new Audio(`sound/${value}.mp3`); audio.preload = 'auto'; this.voices.set(value, audio);
+      const finish = () => { this.speech.delete(audio); this.ducks.delete(audio); };
+      audio.addEventListener('ended', finish); audio.addEventListener('error', finish);
+    }
+    audio.currentTime = 0; audio.volume = this.settings.volume;
+    this.speech.add(audio); this.ducks.set(audio, .58); this.tick();
+    audio.play().catch(() => { this.speech.delete(audio); this.ducks.delete(audio); });
+  }
+  bgm(track) {
+    this.fade = null;
+    if (this.track === track && this.music) { this.update(); return; }
+    this.music?.pause(); this.track = track; this.gain = 1; this.lastMix = performance.now();
+    this.music = new Audio(`sound/${track}.mp3`); this.music.loop = true; this.tick();
+    if (this.settings.sound) this.music.play().catch(() => {});
+  }
+  tick(now = performance.now()) {
+    const dt = Math.max(0, now - this.lastMix); this.lastMix = now;
+    const target = Math.min(1, ...this.ducks.values());
+    // A fast attack leaves the SE transient clear; a slower release retains its tail.
+    this.gain = target < this.gain ? target : Math.min(target, this.gain + dt / 380);
+    for (const [audio, cue] of this.cues) {
+      const priority = cue.name === 'special' && this.speech.size ? .28 : 1;
+      audio.volume = Math.min(1, cue.volume * this.settings.volume * priority);
+    }
+    for (const audio of this.speech) audio.volume = this.settings.volume;
+    if (this.music) {
+      const fadeGain = this.fade ? Math.max(0, Math.min(1, 1 - (now - this.fade.began) / this.fade.duration)) : 1;
+      const mixed = (this.track.startsWith('battle') ? .17 : .25) * this.settings.volume * this.gain;
+      this.music.volume = this.fade ? Math.min(mixed, this.fade.start * fadeGain) : mixed;
+      if (this.fade && fadeGain === 0) this.music.pause();
+    }
+  }
+  fadeOut(ms = 800) { if (this.music) this.fade = { began: performance.now(), duration: Math.max(1, ms), start: this.music.volume }; }
+  stopVoices() {
+    this.active.forEach(a => a.pause()); this.active.clear(); this.cues.clear();
+    this.voices.forEach(a => a.pause()); this.speech.clear(); this.ducks.clear();
+    this.gain = 1; this.lastMix = performance.now(); this.tick();
+  }
+  pause() { this.music?.pause(); this.stopVoices(); }
+  resume() { if (this.settings.sound && (!this.fade || this.music?.volume > 0)) this.music?.play().catch(() => {}); }
+  update() { this.tick(); if (this.settings.sound) this.resume(); else this.pause(); }
+}
+
+
+const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+function shuffle(items, random = Math.random) {
+  const a = [...items];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function uniqueDeal(pool, count, random = Math.random, excluded = new Set(), forbidden = new Set()) {
+  const seen = new Set(forbidden), result = [];
+  for (const card of shuffle(pool, random)) {
+    const prefix = card.ndc.slice(0, 2);
+    if (excluded.has(card.ndc) || seen.has(prefix)) continue;
+    seen.add(prefix); result.push({ ...card });
+    if (result.length === count) break;
+  }
+  return result;
+}
+const damageFor = combo => Math.min(TUNING.damage.max, TUNING.damage.base + Math.max(0, combo - 1) * TUNING.damage.comboStep);
+const gaugeFor = elapsed => clamp(Math.round(TUNING.gauge.correctBase + Math.max(0, 1 - elapsed / 6000) * TUNING.gauge.fastBonus), TUNING.gauge.min, TUNING.gauge.max);
+
+/** A DOM-free simulation. All timings use this clock, including CPU and cut-in pauses. */
+class Battle {
+  constructor({ player = players[0], stage = 0, difficulty = 'normal', mode = 'story', training = false, random = Math.random, onEvent = () => {} } = {}) {
+    this.player = player; this.stage = stage; this.difficulty = difficulties[difficulty] || difficulties.normal;
+    this.enemy = mode === 'versus' ? players[1] : enemies[stage]; this.mode = mode; this.training = training;
+    this.random = random; this.onEvent = onEvent; this.round = 0; this.wins = [0, 0]; this.gauge = [0, 0]; this.paused = false;
+    this.pool = CARDS.filter(c => difficulty !== 'easy' || mode === 'versus' || c.ndc.endsWith('0'));
+    this.startRound();
+  }
+  emit(type, detail = {}) { this.onEvent({ type, ...detail }); }
+  startRound() {
+    this.round++; this.hp = [this.mode === 'versus' ? 100 : this.difficulty.playerHp, 100]; this.maxHp = [...this.hp];
+    const deal = uniqueDeal(this.pool, 11, this.random);
+    this.deck = deal.slice(0, 10); this.field = shuffle(deal, this.random); this.turn = 0; this.digits = ['', '', ''];
+    this.combo = [0, 0]; this.lastOwner = -1; this.disabled = [false, false]; this.hints = []; this.reveal = 0; this.candidates = 0; this.skip = 0;
+    this.rush = 0; this.rushActive = false; this.rushStreak = 0; this.reverse = 0; this.reverseActive = false; this.supremeUsed = false;
+    this.cutin = null; this.phase = 'intro'; this.phaseTime = 3700; this.emit('round', { round: this.round });
+  }
+  beginTurn() {
+    if (this.turn >= 10 || this.hp.some(h => h <= 0)) { this.endRound(); return; }
+    this.turn++; this.target = this.deck[this.turn - 1]; this.phase = 'turn'; this.elapsed = 0; this.digits = ['', '', ''];
+    this.readCount = 0; this.cpuAt = null; this.cpuCursor = null; this.cpuInitialVisible = 0; this.disabled = [false, this.training || this.skip > 0];
+    if (this.skip > 0) this.skip--;
+    this.reverseActive = this.reverse > 0; if (this.reverse > 0) this.reverse--;
+    this.rushActive = this.rush > 0; if (this.rush > 0) this.rush--; else this.rushStreak = 0;
+    this.hints = []; this.hintKind = '';
+    // Enemy mutations happen before digit reading or hints, preserving a valid answer deck.
+    if (this.mode === 'story' && !this.training && this.gauge[1] >= 100) this.enemySkill();
+    if (this.reveal > 0) { this.hints = [this.target.ndc]; this.hintKind = 'correct'; this.reveal--; }
+    if (this.candidates > 0) {
+      const other = shuffle(this.field.filter(c => c && c.ndc !== this.target.ndc), this.random)[0];
+      this.hints = [this.target.ndc, ...(other ? [other.ndc] : [])]; this.hintKind = 'candidate'; this.candidates--;
+    }
+    this.emit('turn');
+  }
+  step(dt) {
+    if (this.paused || this.phase === 'matchOver' || this.phase === 'trainingEnd') return;
+    // Small slices make simultaneous timeout / digit / CPU events deterministic after frame stalls.
+    let left = Math.max(0, dt);
+    while (left > 0) {
+      const slice = Math.min(left, 20); left -= slice;
+      if (this.cutin) { this.cutin.remaining -= slice; if (this.cutin.remaining <= 0) { this.cutin = null; this.emit('cutinEnd'); } continue; }
+      if (this.phase !== 'turn') {
+        this.phaseTime -= slice;
+        if (this.phaseTime <= 0) {
+          if (this.phase === 'intro' || this.phase === 'hit') this.beginTurn();
+          else if (this.phase === 'roundOver') {
+            this.phase = 'roundWinner'; this.phaseTime = 2300; this.emit('roundWinner', { owner: this.roundOwner });
+          } else if (this.phase === 'roundWinner') {
+            if (this.wins[this.roundOwner] >= 2) { this.phase = 'matchOver'; this.emit('matchOver', { owner: this.roundOwner }); }
+            else this.startRound();
+          }
+        }
+        continue;
+      }
+      this.elapsed += slice;
+      while (this.readCount < 3 && this.elapsed >= 1000 + this.readCount * 2000) {
+        const index = this.reverseActive ? 2 - this.readCount : this.readCount;
+        this.digits[index] = this.target.ndc[index]; this.readCount++;
+        this.emit('digit', { index, value: this.digits[index] }); this.planCpu();
+      }
+      if (this.cpuAt !== null && this.elapsed >= this.cpuAt && !this.disabled[1]) {
+        if (!this.cpuCursor) {
+          let card = this.target;
+          const tune = TUNING.enemies[this.enemy.id];
+          if (this.random() > clamp(tune.correctRate + this.difficulty.cpuCorrectDelta, .1, .995)) {
+            card = shuffle(this.field.filter(c => c && c.ndc !== this.target.ndc), this.random)[0] || card;
+          }
+          this.cpuCursor = card.ndc; this.cpuAt = this.elapsed + 230; this.emit('cpuAim', { ndc: card.ndc });
+        } else this.answer(this.field.findIndex(c => c?.ndc === this.cpuCursor), 1);
+      }
+      if (this.phase === 'turn' && this.elapsed >= 15000 && !this.training) this.noAnswer();
+    }
+  }
+  planCpu() {
+    if (this.mode === 'versus' || this.training || this.disabled[1]) return;
+    const shown = this.reverseActive ? this.digits.filter(Boolean).join('') : this.digits.join('');
+    const candidates = this.field.filter(c => c && (this.reverseActive ? c.ndc.endsWith(shown) : c.ndc.startsWith(shown)));
+    if (candidates.length !== 1) return;
+    const count = this.field.filter(Boolean).length, tune = TUNING.enemies[this.enemy.id];
+    this.cpuInitialVisible = Math.max(this.cpuInitialVisible, count);
+    const speed = .1 + .9 * (count - 1) / Math.max(1, this.cpuInitialVisible - 1);
+    let delay = (tune.reactionMinMs + this.random() * (tune.reactionMaxMs - tune.reactionMinMs)) * speed * this.difficulty.cpuSpeed;
+    if (count <= 3) delay *= .82;
+    const at = this.elapsed + delay;
+    if (this.cpuAt === null || at < this.cpuAt) { this.cpuAt = at; this.cpuCursor = null; }
+  }
+  answer(slot, owner = 0) {
+    const card = this.field[slot];
+    if (this.paused || this.phase !== 'turn' || this.cutin || this.disabled[owner] || !card) return false;
+    if (card.ndc !== this.target.ndc) {
+      if (!this.training) this.disabled[owner] = true;
+      this.combo[owner] = 0; if (owner === 0) this.rushStreak = 0;
+      if (owner === 1) { this.cpuAt = null; this.cpuCursor = null; }
+      this.emit('miss', { owner, slot, ndc: card.ndc });
+      if (this.disabled.every(Boolean)) this.noAnswer();
+      return false;
+    }
+    if (this.training) { this.phase = 'trainingEnd'; this.emit('trainingComplete', { slot }); return true; }
+    this.combo[owner] = this.lastOwner === owner && this.elapsed < 6050 ? this.combo[owner] + 1 : 1;
+    this.combo[1 - owner] = 0; this.lastOwner = owner;
+    let damage = damageFor(this.combo[owner]);
+    if (this.mode === 'story') {
+      damage *= owner === 0 ? this.player.damageDealtMultiplier : this.player.damageTakenMultiplier;
+      if (owner === 0 && this.rushActive) { damage *= 1.3; this.rushStreak++; }
+      if (owner === 1) this.rushStreak = 0;
+    }
+    damage = Math.max(1, Math.round(damage));
+    if (owner === 0 && this.rushActive && this.rushStreak >= 3) damage = Math.max(damage, this.hp[1]);
+    this.hp[1 - owner] = Math.max(0, this.hp[1 - owner] - damage);
+    if (this.mode === 'story') {
+      const gain = gaugeFor(this.elapsed);
+      this.gauge[owner] = clamp(this.gauge[owner] + Math.round(gain * (owner === 1 ? this.difficulty.cpuGauge : 1)), 0, 100);
+      this.gauge[1 - owner] = clamp(this.gauge[1 - owner] + Math.round(TUNING.gauge.opponentHit * (owner === 0 ? this.difficulty.cpuGauge : 1)), 0, 100);
+    }
+    this.field[slot] = null; this.cpuAt = null; this.cpuCursor = null; this.phase = 'hit'; this.phaseTime = 1500;
+    this.emit('hit', { owner, slot, damage, combo: this.combo[owner], card });
+    return true;
+  }
+  noAnswer() {
+    this.cpuAt = null; this.cpuCursor = null; this.combo = [0, 0]; this.lastOwner = -1; this.rushStreak = 0;
+    this.phase = 'hit'; this.phaseTime = 1500; this.emit('noAnswer');
+  }
+  special() {
+    if (this.mode !== 'story' || this.training || this.phase !== 'turn' || this.paused || this.cutin || this.gauge[0] < 100) return false;
+    switch (this.player.skillType) {
+      case 'revealNext': this.reveal = 1; break;
+      case 'removeDecoy': {
+        const upcoming = new Set(this.deck.slice(this.turn - 1).map(c => c.ndc));
+        const index = this.field.findIndex(c => c && !upcoming.has(c.ndc));
+        if (index < 0) return false;
+        this.field[index] = null; break;
+      }
+      case 'skipCpu': this.skip = 2; break;
+      case 'revealTwoCandidatesNextTwo': this.candidates = 2; break;
+      case 'fightingPowerRush': if (this.rush > 0 || this.rushActive) return false; this.rush = 3; this.rushStreak = 0; break;
+      default: return false;
+    }
+    this.gauge[0] = 0; this.showCutin(0); return true;
+  }
+  showCutin(owner) {
+    this.cutin = { owner, remaining: 1300 }; this.emit('cutin', { owner, fighter: owner === 0 ? this.player : this.enemy });
+  }
+  enemySkill() {
+    const present = this.field.filter(Boolean), existing = new Set(this.field.filter(Boolean).map(c => c.ndc));
+    switch (this.enemy.skillType) {
+      case 'shuffle': this.field = [...shuffle(present, this.random), ...Array(11 - present.length).fill(null)]; break;
+      case 'decimalIllusion': {
+        const forbidden = new Set(this.deck.slice(this.turn - 1).map(c => c.ndc.slice(0, 2)));
+        const count = Math.min(3, 11 - present.length); if (!count) return false;
+        const extra = uniqueDeal(this.pool, count, this.random, existing, forbidden);
+        this.field = [...shuffle([...present, ...extra], this.random), ...Array(11 - present.length - extra.length).fill(null)]; break;
+      }
+      case 'glitchIndex': {
+        const deal = uniqueDeal(this.pool, present.length, this.random, existing);
+        if (deal.length !== present.length) return false;
+        const answers = deal.slice(0, 11 - this.turn);
+        this.deck.splice(this.turn - 1, answers.length, ...answers); this.target = this.deck[this.turn - 1];
+        this.field = [...shuffle(deal, this.random), ...Array(11 - deal.length).fill(null)]; break;
+      }
+      case 'reverseRead': if (this.supremeUsed) return false; this.reverse = 2; this.supremeUsed = true; break;
+      default: return false;
+    }
+    this.gauge[1] = 0; this.showCutin(1); return true;
+  }
+  endRound() {
+    this.roundOwner = this.hp[0] >= this.hp[1] ? 0 : 1; this.wins[this.roundOwner]++;
+    this.perfect = this.hp[1] === 0 && this.hp[0] === this.maxHp[0];
+    this.finishLabel = this.hp.some(h => h === 0) ? 'K.O.' : 'TIME UP';
+    this.phase = 'roundOver'; this.phaseTime = this.perfect ? 3800 : 2400;
+    this.emit('roundOver', { owner: this.roundOwner, label: this.finishLabel, perfect: this.perfect });
+  }
+}
+
+/** Reconcile the field by card identity. Ordinary turns leave its DOM untouched. */
+function syncField(grid, field, createCard, updateCard) {
+  const previous = Array.from(grid.children);
+  const byNdc = new Map(previous.filter(node => node.dataset.ndc).map(node => [node.dataset.ndc, node]));
+  const used = new Set();
+  const next = field.map((card, slot) => {
+    let node = card ? byNdc.get(card.ndc) : previous[slot];
+    if (!node || used.has(node) || (!card && field.some(c => c?.ndc === node.dataset.ndc))) node = createCard(card, slot);
+    used.add(node); updateCard(node, card, slot); return node;
+  });
+  if (next.length !== previous.length || next.some((node, slot) => node !== previous[slot])) grid.replaceChildren(...next);
+  return next;
+}
+
+/** Keep a readable portrait arena and the original landscape arena. */
+function arenaLayout(width, height) {
+  const portrait = width < height && width <= 900;
+  const arenaWidth = portrait ? 480 : 1366;
+  const arenaHeight = portrait ? Math.max(800, Math.min(1120, Math.round(height * 480 / width))) : 768;
+  return { portrait, width: arenaWidth, height: arenaHeight, scale: Math.min(width / arenaWidth, height / arenaHeight) };
+}
+
+/** Paths match the original game's dedicated portrait illustrations. */
+function portraitAsset(path) {
+  if (/^opening\/op_(common|lib|det|lily|prof|flib)\.webp$/.test(path)) return path.replace('.webp', '_tate.webp');
+  if (/^vs\/vs_[1-4]_(lib|det|lily|prof|flib)\.webp$/.test(path)) return path.replace('vs/', 'vs_tate/').replace('.webp', '_tate.webp');
+  if (/^victory\/win_(lib|det|lily|prof|flib|enemy[1-4])\.webp$/.test(path)) return path.replace('victory/', 'victory_tate/').replace('.webp', '_tate.webp');
+  if (/^ending\/ending_(lib|det|lily|prof|flib)[12]\.webp$/.test(path)) return path.replace('ending/', 'ending_tate/').replace('.webp', '_tate.webp');
+  return null;
+}
+
+
+const SAVE_KEY = 'ndc_karuta_heroes2_v1';
+const LEGACY_KEYS = {
+  gallery: 'karutaGalleryProgressV1',
+  story: 'karutaStoryProgressV1',
+  tutorial: 'karutaTutorialProgressV1'
+};
+const isSaveRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+const galleryAssetSets = {
+  cutins: new Set([...players, ...enemies].map(f => f.cutin)),
+  victories: new Set([...players.map(p => p.vsCode), ...enemies.map((_, i) => `enemy${i + 1}`)]
+    .flatMap(code => [`victory/win_${code}.webp`, `round/round_${code}.webp`])),
+  endings: new Set(['opening/op_common.webp', ...players.flatMap(p => [
+    `opening/op_${p.vsCode}.webp`, `ending/ending_${p.vsCode}1.webp`, `ending/ending_${p.vsCode}2.webp`
+  ])])
+};
+function readSaveRecord(storage, key) {
+  try {
+    const value = JSON.parse(storage?.getItem(key) || 'null');
+    return isSaveRecord(value) ? value : null;
+  } catch { return null; }
+}
+function validSaveProgress(progress) {
+  if (!isSaveRecord(progress) || !players.some(p => p.id === progress.player)
+    || !Object.hasOwn(difficulties, progress.difficulty)
+    || !Number.isInteger(progress.stage) || progress.stage < 0 || progress.stage >= enemies.length
+    || !['opening', 'battle', 'ending'].includes(progress.phase)) return false;
+  const limit = progress.phase === 'opening' ? 3 : 1;
+  return Number.isInteger(progress.scene) && progress.scene >= 0 && progress.scene <= limit;
+}
+function legacyStoryProgress(story) {
+  if (!story || story.version !== 1) return null;
+  if (story.phase === 'ending' && ![1, 2].includes(story.endingSceneNumber)) return null;
+  const scene = story.phase === 'opening' ? story.openingSceneIndex
+    : story.phase === 'ending' ? story.endingSceneNumber - 1 : 0;
+  const progress = { player: story.playerId, difficulty: story.difficulty,
+    stage: story.stageIndex, phase: story.phase, scene };
+  return validSaveProgress(progress) ? progress : null;
+}
+function legacyAssetPath(value) {
+  if (typeof value !== 'string') return '';
+  // Both orientations represent the same gallery unlock in the new game.
+  return value.split(/[?#]/)[0].replace(/^\.\//, '').replace(/\.png$/i, '.webp')
+    .replace(/_tate(?=\.webp$)/, '').replace(/^(victory|ending)_tate\//, '$1/');
+}
+
+/** Import once from the same browser origin; never modify any legacy key. */
+function loadSave(storage, defaults) {
+  const currentSave = readSaveRecord(storage, SAVE_KEY);
+  const saved = { ...defaults, ...currentSave,
+    settings: { ...defaults.settings, ...(isSaveRecord(currentSave?.settings) ? currentSave.settings : {}) },
+    unlocked: [...new Set(Array.isArray(currentSave?.unlocked) ? currentSave.unlocked.filter(x => typeof x === 'string') : [])],
+    artworks: [...new Set(Array.isArray(currentSave?.artworks) ? currentSave.artworks.filter(x => Number.isInteger(x) && x >= 1 && x <= 25) : [])]
+  };
+  saved.settings.volume = Number.isFinite(saved.settings.volume) ? Math.max(0, Math.min(1, saved.settings.volume)) : defaults.settings.volume;
+  if (!validSaveProgress(saved.progress)) {
+    // Older saves from this new edition can omit the scene counter.
+    const withScene = isSaveRecord(saved.progress) ? { ...saved.progress, scene: 0 } : null;
+    saved.progress = validSaveProgress(withScene) ? withScene : null;
+  }
+  if (saved.legacyImported === true) return saved;
+
+  const gallery = readSaveRecord(storage, LEGACY_KEYS.gallery);
+  const story = legacyStoryProgress(readSaveRecord(storage, LEGACY_KEYS.story));
+  const tutorial = readSaveRecord(storage, LEGACY_KEYS.tutorial);
+  const hasGallery = gallery && ['cutins', 'victories', 'endings', 'artworks'].some(key => Array.isArray(gallery[key]));
+  const hasTutorial = tutorial?.version === 1;
+  if (!hasGallery && !story && !hasTutorial) return saved;
+
+  for (const [category, allowed] of Object.entries(galleryAssetSets)) {
+    for (const value of Array.isArray(gallery?.[category]) ? gallery[category] : []) {
+      const path = legacyAssetPath(value);
+      if (allowed.has(path) && !saved.unlocked.includes(path)) saved.unlocked.push(path);
+    }
+  }
+  for (const value of Array.isArray(gallery?.artworks) ? gallery.artworks : []) {
+    const match = /^artwork\/artwork(\d{2})\.webp$/.exec(legacyAssetPath(value));
+    const number = match ? Number(match[1]) : 0;
+    if (number >= 1 && number <= 25 && !saved.artworks.includes(number)) saved.artworks.push(number);
+  }
+  // A completed new-edition story has progress=null: do not resurrect an old run.
+  if (!currentSave && story) saved.progress = story;
+  saved.tutorialSeen = saved.tutorialSeen === true || (hasTutorial && tutorial.completed === true);
+  saved.legacyImported = true;
+  try { storage.setItem(SAVE_KEY, JSON.stringify(saved)); } catch { /* Retry on the next launch if saving is unavailable. */ }
+  return saved;
+}
+
+/** Decorative vocabulary shares the palettes already present in the artwork. */
+const specialLooks = {
+  librarian: { motif: 'pages', color: '#73dcff', focus: '32%' },
+  detective: { motif: 'reticle', color: '#ffe287', focus: '45%' },
+  lily: { motif: 'stars', color: '#e5a0ff', focus: '38%' },
+  professor: { motif: 'orbits', color: '#f0cca0', focus: '76%' },
+  fightingLibrarian: { motif: 'shock', color: '#83caff', focus: '44%' },
+  wind: { motif: 'wind', color: '#bce7b3', focus: '50%' },
+  magician: { motif: 'orbits', color: '#d6a1ff', focus: '57%' },
+  digital: { motif: 'scan', color: '#78efff', focus: '42%' },
+  supreme: { motif: 'celestial', color: '#ffe2a4', focus: '52%' },
+};
+function specialDecor(fighter) {
+  const look = specialLooks[fighter.id] || specialLooks.librarian;
+  return { ...look, html: `<div class="special-motif motif-${look.motif}" aria-hidden="true">${Array.from({length: 12}, (_, i) => `<i style="--n:${i};--row:${i%4};--col:${i%3};--pair:${i%2}"></i>`).join('')}</div>` };
+}
+/** Stage-local coordinates remain aligned when the arena is scaled for phones. */
+function strikeGeometry(card, life, arena, width) {
+  const scale = arena.width / width;
+  const source = { x: (card.left + card.width / 2 - arena.left) / scale, y: (card.top + card.height / 2 - arena.top) / scale };
+  const target = { x: (life.left + life.width / 2 - arena.left) / scale, y: (life.top + life.height / 2 - arena.top) / scale };
+  return { source, target, left: (card.left-arena.left)/scale, top: (card.top-arena.top)/scale, width: card.width/scale, height: card.height/scale,
+    path: `M ${source.x} ${source.y} Q ${source.x} ${target.y + 90} ${target.x} ${target.y}` };
+}
+
+const wordSegmenter = typeof Intl.Segmenter === 'function' ? new Intl.Segmenter('ja', { granularity: 'word' }) : null;
+const labelEscape = text => text.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/** Keep short classification phrases intact; longer phrases break only at word boundaries. */
+function classificationTerms(text) {
+  const chunks = text.match(/[^．。，、：:]+[．。，、：:]*|[．。，、：:]+/gu) || [text];
+  return chunks.flatMap(chunk => {
+    if (chunk.length <= 8) return [chunk];
+    const words = wordSegmenter ? [...wordSegmenter.segment(chunk)].map(s => s.segment)
+      : chunk.match(/[A-Za-z0-9]+|[ァ-ヺー]+|[一-龯々]+|[ぁ-ゖ]+|./gu);
+    const terms = []; let pending = '';
+    for (const word of words) {
+      // Punctuation and particles remain attached, so a line cannot begin with them.
+      const attached = /^[．。，、：:・\s］）＞】]+$/u.test(word) || /^[のにをとやへがはで]+$/u.test(word);
+      if (pending && !attached && pending.length + word.length > 8) { terms.push(pending); pending = ''; }
+      pending += word;
+    }
+    if (pending) terms.push(pending);
+    return terms;
+  });
+}
+
+function classificationParts(subject) {
+  const divider = subject.indexOf('--');
+  if (divider >= 0) return { main: subject.slice(0, divider), detail: subject.slice(divider + 2) };
+  const colon = subject.search(/[：:]/u);
+  return colon >= 0 ? { main: subject.slice(0, colon + 1), detail: subject.slice(colon + 1) } : { main: subject, detail: '' };
+}
+function classificationLine(text) {
+  const output = [];
+  for (let run of text.split(/([［（＜【][^］）＞】]*[］）＞】])/u).filter(Boolean)) {
+    // A separator after an annotation belongs to that annotation's closing word.
+    const leading = run.match(/^[．。，、：:]+/u)?.[0];
+    if (leading && output.length) {
+      output[output.length-1] = output.at(-1).replace(/((?:<\/span>)+)$/, `${labelEscape(leading)}$1`);
+      run = run.slice(leading.length); if (!run) continue;
+    }
+    const note = /^[［（＜【]/u.test(run);
+    const terms = classificationTerms(run).map(term => `<span class="subject-term">${labelEscape(term)}</span>`).join('<wbr>');
+    output.push(note ? `<span class="subject-note">${terms}</span>` : terms);
+  }
+  return output.join('<wbr>');
+}
+function cardLabel(subject) {
+  const {main, detail} = classificationParts(subject);
+  return `<span class="subject-main">${classificationLine(main)}</span>${detail ? `<span class="subject-detail">${classificationLine(detail)}</span>` : ''}`;
+}
+
+/** Fit to the actual card, after insertion. Existing labels need no work on ordinary turns. */
+function fitCardLabels(grid, force = false) {
+  if (!grid) return;
+  for (const card of grid.children) {
+    if (!card.dataset.ndc || (!force && card.dataset.labelFit !== 'pending')) continue;
+    const label = card.querySelector('.card-subject'); if (!label) continue;
+    label.style.removeProperty('font-size');
+    const style = getComputedStyle(card), height = card.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+    const maximum = parseFloat(getComputedStyle(label).fontSize);
+    for (let size = maximum; size >= 12; size -= .5) {
+      label.style.fontSize = `${size}px`;
+      if (label.scrollHeight <= height + 1 && label.scrollWidth <= label.clientWidth + 1) break;
+    }
+    card.dataset.labelFit = 'done';
+  }
+}
+
+
+const $ = (s, root = document) => root.querySelector(s);
+// Reuse icons within a session, but fetch replacements on the next page load.
+const iconRevision = Date.now().toString(36);
+function iconAsset(path) { return `${path}?v=${iconRevision}`; }
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const screen = $('#screen'), stage = $('#stage'), effects = $('#effects'), modal = $('#modal');
+const defaults = { settings: { sound: true, volume: .8, motion: !matchMedia('(prefers-reduced-motion: reduce)').matches }, unlocked: [], artworks: [], progress: null, tutorialSeen: false };
+let saveStorage = null;
+try { saveStorage = localStorage; } catch { /* The game remains playable without browser storage. */ }
+let saved = loadSave(saveStorage, defaults);
+let saveWarning = false;
+function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(saved)); } catch { if (!saveWarning) { toast('このブラウザでは保存できません。現在のプレイは続けられます。'); saveWarning = true; } } }
+const sound = new Sound(saved.settings);
+let current = 'title', hero = players[0], difficulty = 'normal', mode = 'story', stageIndex = 0, storyScene = 0, battle = null;
+let controls = ['mouse', 'keyboardA'], galleryTab = 'cutin', reward = null;
+let timers = new Set(), overlaySignature = '', toastTimer = 0, lastFrame = performance.now(), modalPausesAudio = true;
+let particleList = [], modalPreviousFocus = null;
+const ctx = $('#particles').getContext('2d');
+function later(fn, ms) { const t = setTimeout(() => { timers.delete(t); fn(); }, ms); timers.add(t); return t; }
+function toast(message) { clearTimeout(toastTimer); $('#toast').textContent = message; $('#toast').classList.add('show'); toastTimer = setTimeout(() => $('#toast').classList.remove('show'), 3200); }
+function saveProgress(phase, extra = {}) { if (mode !== 'story') return; saved.progress = { player: hero.id, difficulty, stage: stageIndex, phase, scene: storyScene, ...extra }; persist(); }
+function unlock(path) { if (!saved.unlocked.includes(path)) { saved.unlocked.push(path); persist(); } }
+function artwork(path, className, alt, lazy = false) {
+  const portrait = portraitAsset(path);
+  const image = `<img class="${className}" src="${esc(path)}" alt="${esc(alt)}"${lazy ? ' loading="lazy"' : ''}>`;
+  return portrait ? `<picture class="responsive-art"><source media="(orientation: portrait) and (max-width: 900px)" srcset="${esc(portrait)}">${image}</picture>` : image;
+}
+function top(kicker, title) { return `<header class="screen-top"><div class="eyebrow">${kicker}</div><h1 class="section-title">${title}</h1></header>`; }
+function setScreen(name, html) {
+  timers.forEach(clearTimeout); timers.clear(); sound.stopVoices(); effects.innerHTML = ''; modal.innerHTML = ''; modalPausesAudio = true; particleList = [];
+  stage.classList.remove('screen-impact', 'finish-impact'); stage.scrollTop = 0; stage.scrollLeft = 0; current = name; document.body.dataset.screen = name; screen.innerHTML = html; screen.classList.remove('page-enter'); void screen.offsetWidth; screen.classList.add('page-enter');
+  overlaySignature = ''; $('#announcer').textContent = '';
+  if (name !== 'battle') battle = null;
+  if (name !== 'title' && name !== 'battle') later(() => screen.querySelector('button:not(:disabled)')?.focus({ preventScroll: true }), 400);
+}
+function wipe(fn) { const el = $('#transition'); el.classList.remove('wipe'); void el.offsetWidth; el.classList.add('wipe'); later(fn, saved.settings.motion ? 240 : 0); }
+function applySettings() { document.body.classList.toggle('reduced-motion', !saved.settings.motion); $('#sound-toggle').textContent = saved.settings.sound ? 'SOUND ON' : 'SOUND OFF'; $('#sound-toggle').setAttribute('aria-pressed', String(saved.settings.sound)); sound.update(); }
+function resize() {
+  const viewport = $('#viewport'), padding = getComputedStyle(viewport);
+  const width = viewport.clientWidth - parseFloat(padding.paddingLeft) - parseFloat(padding.paddingRight);
+  const height = viewport.clientHeight - parseFloat(padding.paddingTop) - parseFloat(padding.paddingBottom);
+  const layout = arenaLayout(Math.max(1,width), Math.max(1,height));
+  document.body.classList.toggle('portrait', layout.portrait);
+  document.body.classList.toggle('compact-portrait', layout.portrait && layout.height < 920);
+  stage.style.width = `${layout.width}px`; stage.style.height = `${layout.height}px`;
+  stage.style.transform = `scale(${layout.scale})`;
+  const canvas = $('#particles');
+  if (canvas.width !== layout.width || canvas.height !== layout.height) { canvas.width = layout.width; canvas.height = layout.height; particleList = []; }
+  fitCardLabels($('.card-grid'), true);
+}
+window.addEventListener('resize', resize); window.visualViewport?.addEventListener('resize', resize); resize(); applySettings();
+function title() {
+  setScreen('title', `<section class="title-scene ${saved.progress ? 'has-progress' : ''}"><h1 class="sr-only">NDC KARUTA HEROES</h1><div class="title-art"><img src="image/ogp.png" width="1672" height="941" alt="壁に描かれたタイトルと4人の英雄" fetchpriority="high"></div><div class="title-dock">${saved.progress ? `<button class="btn continue-title" data-action="continue">CONTINUE → ${esc(players.find(p => p.id === saved.progress.player).name)} / ${saved.progress.phase === 'ending' ? 'ENDING' : `STAGE ${saved.progress.stage + 1}`}</button>` : ''}<div class="title-menu"><button class="btn gold primary" data-action="story">STORY MODE</button><button class="btn secondary" data-action="versus">2P BATTLE</button><button class="btn secondary" data-action="gallery">GALLERY</button></div><footer class="title-footer"><div class="title-credits"><span>NDC9：日本図書館協会 / 作成：やわらか図書館学</span><a class="title-site-link" href="https://yawatosho.github.io/" target="_blank" rel="noopener noreferrer">YAWATOSHO GAMES</a></div><button class="btn title-help" data-action="help" aria-label="遊び方">?</button></footer></div></section>`);
+  sound.bgm('select');
+}
+function stats(name, value) { return `<div class="stat">${name}${Array.from({length:5}, (_,i) => `<i class="${i < value ? 'on' : ''}"></i>`).join('')}</div>`; }
+function select() {
+  mode = 'story';
+  setScreen('select', `<div class="magic-circle"></div><div class="ghost-name">${esc(hero.englishName)}</div><img class="select-portrait" src="${hero.selectImage}" alt="${esc(hero.name)}"><div class="select-shadow"></div>${top('CHOOSE YOUR CHAMPION', 'SELECT <em>FIGHTER</em>')}<section class="select-info"><div class="fighter-number">0${players.indexOf(hero)+1} / HERO FILE</div><h2 class="fighter-name">${hero.name}</h2><div class="fighter-english">${hero.englishName}</div><div class="fighter-skill"><small>SPECIAL ART</small><strong>${hero.skillName}</strong><p>${hero.skillEffect}</p></div><div class="stats">${stats('ATK',hero.stats.atk)}${stats('DEF',hero.stats.def)}</div></section><div class="fighter-roster" role="group" aria-label="ファイター選択">${players.map(p => `<button class="roster-icon ${p === hero ? 'active' : ''}" data-action="hero" data-id="${p.id}" aria-label="${p.name}" aria-pressed="${p === hero}"><img src="${iconAsset(p.icon)}" alt="">${p === hero ? '<span class="p1-tag">P1</span>' : ''}</button>`).join('')}</div><div class="difficulty" role="group" aria-label="難易度"><span>DIFFICULTY</span>${Object.entries(difficulties).map(([id,d]) => `<button class="${difficulty === id ? 'active' : ''}" data-action="difficulty" data-id="${id}" aria-pressed="${difficulty === id}">${d.label}</button>`).join('')}</div><div class="bottom-nav select-bottom"><div><button class="btn" data-action="title">← BACK</button><span class="bottom-note">5 HEROES / 4 STAGES / FIRST TO 2 ROUNDS</span></div><button class="btn gold" data-action="launch">FIGHT WITH THIS HERO →</button></div>`);
+  for (const fighter of players) { const preload = new Image(); preload.src = fighter.selectImage; }
+  sound.bgm('select');
+}
+function updateDifficulty() {
+  for (const button of screen.querySelectorAll('.difficulty button')) {
+    const active = button.dataset.id === difficulty;
+    button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active));
+  }
+}
+function updateSelect() {
+  if (current !== 'select') return;
+  $('.ghost-name').textContent = hero.englishName;
+  $('.select-info').innerHTML = `<div class="fighter-number">0${players.indexOf(hero)+1} / HERO FILE</div><h2 class="fighter-name">${hero.name}</h2><div class="fighter-english">${hero.englishName}</div><div class="fighter-skill"><small>SPECIAL ART</small><strong>${hero.skillName}</strong><p>${hero.skillEffect}</p></div><div class="stats">${stats('ATK',hero.stats.atk)}${stats('DEF',hero.stats.def)}</div>`;
+  for (const button of screen.querySelectorAll('.roster-icon')) {
+    const active = button.dataset.id === hero.id;
+    button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active));
+    if (active && !button.querySelector('.p1-tag')) button.insertAdjacentHTML('beforeend', '<span class="p1-tag">P1</span>');
+    if (!active) button.querySelector('.p1-tag')?.remove();
+  }
+  const chosen = hero, image = new Image();
+  const swap = () => {
+    if (current !== 'select' || hero !== chosen) return;
+    const portrait = $('.select-portrait'); portrait.src = chosen.selectImage; portrait.alt = chosen.name;
+    if (saved.settings.motion) portrait.animate([{opacity:.55,translate:'18px 0'},{opacity:1,translate:'0 0'}],{duration:220,easing:'ease-out'});
+  };
+  image.onload = swap; image.src = chosen.selectImage;
+  if (image.complete && image.naturalWidth) { image.onload = null; swap(); }
+}
+function opening(index = 0) {
+  storyScene = Math.max(0, Math.min(3, index));
+  const common = storyScene < 3, path = `opening/op_${common ? 'common' : hero.vsCode}.webp`;
+  const lines = common ? OPENING_COMMON_SCENES[storyScene].lines : OPENING_CHARACTER_SCENES[hero.id]; unlock(path); saveProgress('opening');
+  const caption = `<div class="eyebrow">PROLOGUE / ${common ? 'THE TOURNAMENT' : hero.englishName.toUpperCase()}</div>${lines.map(l => `<p>${esc(typeof l === 'string' ? l : l.text)}</p>`).join('')}`;
+  if (current === 'opening') {
+    // Keep the artwork node, shade and controls mounted across story pages.
+    const art = $('.cinema-art');
+    if (art.getAttribute('src') !== path) art.src = path;
+    const source = art.parentElement.querySelector('source'), portrait = portraitAsset(path);
+    if (source && source.getAttribute('srcset') !== portrait) source.srcset = portrait;
+    $('.cinema-caption').innerHTML = caption;
+    $('.cinema-caption').scrollTop = 0;
+    $('.cinema-bottom small').textContent = `${storyScene + 1} / 4`;
+    return;
+  }
+  setScreen('opening', `${artwork(path, 'cinema-art', '大会へ向かう物語')}<div class="cinema-shade"></div><section class="cinema-caption">${caption}</section><div class="cinema-bottom"><button class="btn small" data-action="skip-story">SKIP PROLOGUE</button><small>${storyScene + 1} / 4</small><button class="btn gold small" data-action="next-story">NEXT →</button></div>`);
+  const preload = new Image(); const nextPath = `opening/op_${hero.vsCode}.webp`;
+  preload.src = document.body.classList.contains('portrait') ? portraitAsset(nextPath) : nextPath;
+  sound.bgm('opening');
+}
+function versus() {
+  mode = 'versus'; hero = players[0]; stageIndex = 0;
+  const controlPanel = (owner, fighter) => `<section class="setup-panel"><div class="setup-fighter"><img src="${iconAsset(fighter.icon)}" alt=""><div><small>PLAYER ${owner+1}</small><h3>${fighter.name}</h3><span class="fighter-english">${fighter.englishName}</span></div></div><div class="control-options" aria-label="P${owner+1}の操作方法">${twoPlayer.controlOrder.map(id => `<button class="${controls[owner] === id ? 'active' : ''}" ${controls[1-owner] === id ? 'disabled' : ''} data-action="control" data-owner="${owner}" data-id="${id}">${twoPlayer.controlTypes[id].label}</button>`).join('')}</div>${controls[owner] === 'mouse' ? '<p>場札をクリック・タップして回答します。<br>同じ端末で、キーボードの相手と対戦できます。</p>' : `<div class="keyboard-map">${twoPlayer.keyboardLayouts[controls[owner]].map(k => `<kbd>${k.label}</kbd>`).join('')}</div>`}<p>体力100・必殺技なし。先に2ラウンドを取れば勝利。</p></section>`;
+  setScreen('setup', `${top('LOCAL VERSUS / SAME DEVICE', '2P <em>BATTLE</em>')}<div class="content-area"><div class="setup-sides">${controlPanel(0,players[0])}${controlPanel(1,players[1])}</div></div><div class="bottom-nav"><button class="btn" data-action="title">← BACK</button><span class="bottom-note">同じ操作方法を2人で使用することはできません</span><button class="btn gold" data-action="start-versus">START BATTLE →</button></div>`); sound.bgm('select');
+}
+function vs() {
+  const path = `vs/vs_${stageIndex + 1}_${hero.vsCode}.webp`;
+  if (mode === 'versus') { beginBattle(); return; }
+  saveProgress('battle');
+  setScreen('vs', `${artwork(path, 'cinema-art', `${hero.name} VS ${enemies[stageIndex].name}`)}<div class="vs-stage">STAGE 0${stageIndex+1} / ${difficulty.toUpperCase()} / FIRST TO 2</div><div class="vs-bar"><i></i></div><button class="btn small vs-skip" data-action="skip-vs">SKIP →</button>`);
+  sound.fadeOut(700); sound.play('vs'); later(beginBattle, 4800);
+  const preload = new Image(); preload.src = iconAsset(enemies[stageIndex].icon);
+}
+function guide() {
+  setScreen('guide', `${top('HOW TO PLAY / CLASSIFICATION BATTLE', 'BATTLE <em>GUIDE</em>')}<div class="content-area"><div class="guide-grid"><section class="guide-block"><div class="step">01</div><h3>番号を聞く</h3><p>NDCは本の内容を表す3桁の分類記号。2秒ごとに1桁ずつ読み上げられます。</p><div class="guide-example"><b>547</b><span>→ 電気工学</span></div><p>場札には分類名のみが表示されます。音と数字から、対応する札を見つけよう。</p></section><section class="guide-block"><div class="step">02</div><h3>札を取って、連撃</h3><p>相手より先に正しい札を取るとダメージ。3桁目の読み上げ完了前の連続正解でコンボが増えます。</p><div class="guide-example"><b>2</b><span>HIT COMBO / DAMAGE UP</span></div><p>お手つきすると、そのターンの解答権を失います。双方が誤答するとダメージなし。</p></section><section class="guide-block"><div class="step">03</div><h3>必殺技で逆転</h3><p>速い正解ほどSUPERゲージが上昇。満タンになったらSPACEかSPECIALボタンで発動！</p><div class="guide-example"><b>2</b><span>ROUNDS TO WIN</span></div><p>1ターン15秒、1ラウンド10ターン。体力0または残り体力で決着。2ラウンド先取で勝利。</p></section></div><div class="guide-controls"><p><b>操作</b>　札：クリック／タップ／上段 1–6・下段 Q W E R T　　必殺技：SPACE　　一時停止：ESC</p><p><b>EASY</b>　1の位が0の分類だけで練習できます。</p></div></div><div class="bottom-nav"><button class="btn" data-action="title">← BACK</button><span class="bottom-note">残り体力が同じ場合はP1の勝利。SUPERゲージはラウンド間で引き継ぎ。</span><button class="btn gold" data-action="training">TRY TRAINING →</button></div>`); sound.bgm('select');
+}
+function beginBattle(training = false) {
+  // First story battle doubles as the original game's interactive tutorial.
+  const train = training === true || (mode === 'story' && !saved.tutorialSeen);
+  battle = new Battle({ player: hero, stage: stageIndex, difficulty, mode, training: train });
+  battle.onEvent = onBattleEvent; renderBattle(); sound.bgm(stageIndex === 3 ? 'battle2' : 'battle1');
+  if (!train) saveProgress('battle');
+  sound.play('roundcall'); syncOverlay(); lastFrame = performance.now();
+}
+function face(f, owner) {
+  const name = esc(f.englishName.toUpperCase());
+  const controlsLabel = mode === 'versus' ? twoPlayer.controlTypes[controls[owner]].shortLabel : '';
+  return `<div class="combatant ${owner ? 'right' : ''}" id="fighter-${owner}"><div class="face"><img id="face-${owner}" src="${iconAsset(f.icon)}" alt="${f.name}"></div><div class="life-panel"><div class="combatant-name">${owner ? `<span>${mode === 'versus' ? 'P2' : 'CPU'}</span><b>${name}</b>` : `<b>${name}</b><span>P1</span>`}</div><div class="life-track" role="progressbar" aria-label="${f.name}の体力" id="life-${owner}"><div class="life-trail"></div><div class="life-fill"></div></div><div class="combatant-meta"><div class="round-markers">${[0,1].map(() => '<i></i>').join('')}</div><span>${controlsLabel}</span></div></div></div>`;
+}
+function superPanel(owner) { return `<div class="super-panel ${owner ? 'right' : ''}"><div class="super-info"><div class="super-label"><strong>SUPER</strong><span id="gauge-label-${owner}">CHARGE</span></div><div class="super-track" role="progressbar" aria-label="${owner ? '敵' : 'プレイヤー'}の必殺技ゲージ" id="gauge-${owner}"><i class="super-fill"></i></div></div>${owner ? '' : '<div><button class="special-btn" id="special-btn" data-action="special" disabled>SPECIAL</button><div class="special-key">SPACE / TAP</div></div>'}</div>`; }
+function renderBattle() {
+  const b = battle;
+  setScreen('battle', `<div class="battle-floor"></div><img class="battle-bg-fighter left" src="${hero.selectImage}" alt=""><img class="battle-bg-fighter right" src="${iconAsset(b.enemy.icon)}" alt=""><div class="battle-hud">${face(hero,0)}<div class="clock"><small id="stage-round"></small><strong id="clock"><span>1</span><span>5</span><span class="clock-dot">.</span><span>0</span></strong><span id="turn-label"></span></div>${face(b.enemy,1)}</div><div class="reading"><div class="reading-label">NDC / READ THE CODE <span id="reverse-label"></span></div><div class="digits">${[0,1,2].map(i=>`<div class="digit" id="digit-${i}"></div>`).join('')}</div></div><div class="turn-progress">${Array.from({length:10},()=>'<i></i>').join('')}</div><div class="card-grid" aria-label="分類札"></div><div class="battle-message" role="status"><b>READY</b><span>数字から分類札を見極めよう</span></div><div class="super-row ${b.training ? 'training' : ''}">${mode === 'story' && !b.training ? superPanel(0)+superPanel(1) : `<div class="bottom-note">${mode === 'versus' ? `P1: ${twoPlayer.controlTypes[controls[0]].shortLabel} / P2: ${twoPlayer.controlTypes[controls[1]].shortLabel} ・ 必殺技なし` : '上段 1–6 / 下段 Q W E R T'} ・ ESCで一時停止</div>`}</div>${b.training ? '<aside class="battle-training"><b>TRAINING / 01</b>数字に対応する分類札を取ろう。<br>練習中は相手が札を取りません。<br>間違えても、もう一度挑戦できます。<button class="btn small" data-action="skip-training">SKIP TRAINING</button></aside>' : ''}<div id="core-overlay"></div>`);
+  renderCards({ deal: true }); updateHud();
+}
+function keyLabel(owner, slot) { const type = mode === 'versus' ? controls[owner] : owner === 0 ? 'keyboardA' : 'mouse'; return twoPlayer.keyboardLayouts[type]?.[slot]?.label || ''; }
+function createCard(card, slot) {
+  const node = document.createElement('button'); node.type = 'button'; node.className = 'card';
+  if (card) node.classList.add('deal');
+  return node;
+}
+function updateCard(node, card, slot) {
+  const changed = node.dataset.ndc !== (card?.ndc || ''), wasHint = node.classList.contains('hint');
+  node.dataset.slot = slot; node.style.setProperty('--i',slot);
+  node.classList.toggle('empty', !card); node.classList.remove('cpu-aim','miss','hint','correct');
+  if (!card) { node.dataset.ndc = ''; node.disabled = true; node.setAttribute('aria-hidden','true'); return; }
+  node.removeAttribute('aria-hidden'); node.dataset.action = 'card'; node.dataset.ndc = card.ndc;
+  node.setAttribute('aria-label',card.subject);
+  if (changed) {
+    node.dataset.labelFit = 'pending';
+    node.innerHTML = `<span class="card-subject">${cardLabel(card.subject)}</span><span class="key-badge"></span>${mode === 'versus' ? '<span class="key-badge p2"></span>' : ''}`;
+  }
+  const p1 = node.querySelector('.key-badge'), p2 = node.querySelector('.key-badge.p2');
+  p1.textContent = keyLabel(0,slot) ? `${mode === 'versus' ? 'P1 ' : ''}${keyLabel(0,slot)}` : '';
+  if (p2) p2.textContent = keyLabel(1,slot) ? `P2 ${keyLabel(1,slot)}` : '';
+  if (battle.hints.includes(card.ndc)) { node.classList.add('hint'); node.classList.toggle('correct',battle.hintKind === 'correct'); }
+  if (wasHint !== node.classList.contains('hint')) node.dataset.labelFit = 'pending';
+}
+function renderCards({ deal = false } = {}) {
+  if (!battle || current !== 'battle') return;
+  const grid = $('.card-grid');
+  if (deal) grid.replaceChildren();
+  else for (const node of grid.children) node.classList.remove('deal');
+  syncField(grid, battle.field, createCard, updateCard);
+  fitCardLabels(grid);
+}
+function message(main, sub) { const el = $('.battle-message'); if (el) { el.innerHTML = `<b>${esc(main)}</b><span>${esc(sub)}</span>`; $('#announcer').textContent = `${main} ${sub}`; } }
+function updateHud() {
+  const b = battle; if (!b || current !== 'battle') return;
+  $('#stage-round').textContent = b.training ? 'TRAINING' : mode === 'versus' ? `ROUND ${b.round}` : `ST ${stageIndex+1} / RD ${b.round}`;
+  $('#turn-label').textContent = `TURN ${Math.max(1,b.turn)} / 10`;
+  for (let owner = 0; owner < 2; owner++) {
+    const life = $(`#life-${owner}`), percent = b.hp[owner] / b.maxHp[owner] * 100;
+    life.setAttribute('aria-valuenow',b.hp[owner]); life.setAttribute('aria-valuemin',0); life.setAttribute('aria-valuemax',b.maxHp[owner]);
+    life.querySelector('.life-fill').style.width = `${Math.max(0,percent-1)}%`; life.querySelector('.life-trail').style.width = `${Math.max(0,percent-1)}%`;
+    $(`#fighter-${owner}`).classList.toggle('locked',b.disabled[owner]);
+    $(`#fighter-${owner} .round-markers`).innerHTML = [0,1].map(i=>`<i class="${i < b.wins[owner] ? 'won' : ''}"></i>`).join('');
+    const gauge = $(`#gauge-${owner}`);
+    if (gauge) { gauge.setAttribute('aria-valuenow', b.gauge[owner]); gauge.setAttribute('aria-valuemin',0); gauge.setAttribute('aria-valuemax',100); gauge.querySelector('i').style.width = `${b.gauge[owner]}%`; $(`#gauge-label-${owner}`).textContent = b.gauge[owner] >= 100 ? 'READY' : owner === 0 && b.rushActive ? `POWER ${b.rushStreak}/3` : 'CHARGE'; }
+  }
+  const special = $('#special-btn'); if (special) { const ready = b.gauge[0] >= 100 && !(b.rushActive || b.rush > 0); special.disabled = !ready || b.phase !== 'turn' || !!b.cutin || b.paused; special.classList.toggle('ready',ready); }
+  [...$('.turn-progress').children].forEach((el,i) => el.className = i < b.turn-1 ? 'past' : i === b.turn-1 ? 'current' : '');
+  $('.reading').classList.toggle('reverse',b.reverseActive); $('#reverse-label').textContent = b.reverseActive ? '← REVERSE' : '';
+  $('.reading').style.visibility = b.phase === 'intro' ? 'hidden' : 'visible';
+  [...$('.card-grid').children].forEach((el,i) => { if(el.tagName === 'BUTTON') { const owner = mode === 'versus' ? controls.indexOf('mouse') : 0; el.disabled = b.phase !== 'turn' || b.paused || !!b.cutin || owner < 0 || b.disabled[owner]; } });
+}
+function fighterIcon(owner, state = '') { const f = owner ? battle.enemy : hero; return iconAsset(f.icon.replace('.webp',state ? `_${state}.webp` : '.webp')); }
+function syncOverlay() {
+  const b = battle, root = $('#core-overlay'); if (!b || !root) return;
+  let sig = b.phase;
+  if (b.cutin) sig = `cutin-${b.cutin.owner}`;
+  else if (b.phase === 'intro') sig = b.phaseTime > 1700 ? 'round-call' : 'fight-call';
+  else if (b.phase === 'roundOver') sig = b.perfect && b.phaseTime < 1600 ? 'perfect' : b.finishLabel;
+  if (sig === overlaySignature) return; overlaySignature = sig;
+  root.innerHTML = '';
+  if (sig.startsWith('cutin-')) {
+    const owner = b.cutin.owner, f = owner ? b.enemy : hero, look = specialDecor(f);
+    root.innerHTML = `<div class="cutin cinematic-special ${owner ? 'enemy' : ''}" style="--special-color:${look.color};--art-focus:${look.focus}">${look.html}<div class="special-entry" aria-hidden="true"></div><img src="${f.cutin}" alt=""><div class="cutin-caption"><small>${owner ? 'CPU' : 'PLAYER 1'} / SPECIAL ART</small>${f.skillName}</div></div>`;
+  } else if (sig === 'round-call') root.innerHTML = `<div class="fight-call"><small>PROVE YOUR CLASSIFICATION SKILL</small><b>${b.training ? 'TRAINING' : `ROUND ${b.round}`}</b></div>`;
+  else if (sig === 'fight-call') root.innerHTML = '<div class="fight-call"><small>KNOWLEDGE IS YOUR WEAPON</small><b>FIGHT</b></div>';
+  else if (b.phase === 'roundOver') {
+    const label = sig === 'perfect' ? 'PERFECT' : b.finishLabel;
+    root.innerHTML = `<div class="fight-call ${sig === 'perfect' ? 'perfect' : sig === 'K.O.' ? 'ko' : 'timeup'}">${sig === 'K.O.' ? '<div class="ko-strike" aria-hidden="true"></div>' : ''}<small>${sig === 'perfect' ? 'FLAWLESS CLASSIFICATION' : `ROUND ${b.round} FINISH`}</small><b>${label}</b></div>`;
+    if (sig === 'perfect') sound.play('perfect');
+  } else if (b.phase === 'roundWinner') {
+    const f = b.roundOwner ? b.enemy : hero, code = b.roundOwner && mode === 'story' ? `enemy${stageIndex+1}` : f.vsCode;
+    const path = `round/round_${code}.webp`; unlock(path);
+    root.innerHTML = `<div class="round-winner"><img class="round-winner-backdrop" src="${path}" alt=""><img class="round-winner-art" src="${path}" alt="${f.name}のラウンド勝利"><div class="round-winner-text"><small>ROUND ${b.round}</small>${f.englishName.toUpperCase()}<span>WINS</span></div></div>`;
+  }
+}
+function addEffect(html, duration = 1000) { const e = document.createElement('div'); e.innerHTML = html; while (e.firstChild) { const child = e.firstChild; effects.appendChild(child); later(()=>child.remove(),duration); } }
+function burst(slot, owner, combo, finishing = false) {
+  const card = $('.card-grid').children[slot], life = $(`#life-${1-owner}`);
+  if (!saved.settings.motion) return;
+  const g = strikeGeometry(card.getBoundingClientRect(), life.getBoundingClientRect(), stage.getBoundingClientRect(), stage.clientWidth);
+  const color = finishing || combo >= 3 ? '#ffe1a0' : owner ? '#ff8498' : '#b0edff';
+  const ghost = card.cloneNode(true);
+  ghost.removeAttribute('id'); ghost.removeAttribute('data-action'); ghost.removeAttribute('data-slot'); ghost.removeAttribute('data-ndc');
+  ghost.className = 'card pickup-ghost'; ghost.disabled = true; ghost.tabIndex = -1; ghost.setAttribute('aria-hidden','true');
+  Object.assign(ghost.style, { left:`${g.left}px`, top:`${g.top}px`, width:`${g.width}px`, height:`${g.height}px`, '--strike-color':color });
+  effects.appendChild(ghost); later(()=>ghost.remove(),550);
+  addEffect(`<svg class="strike-flight ${finishing ? 'final' : combo >= 3 ? 'combo' : ''}" viewBox="0 0 ${stage.clientWidth} ${stage.clientHeight}" style="--strike-color:${color}" aria-hidden="true"><path d="${g.path}" pathLength="100"/></svg><div class="impact-spark ${finishing ? 'final' : ''}" style="left:${g.target.x}px;top:${g.target.y}px;--strike-color:${color}"></div>`,800);
+  addEffect(`<div class="hit-ring ${owner ? 'enemy' : ''}" style="left:${g.source.x}px;top:${g.source.y}px"></div>`,500);
+  const count = finishing ? 48 : combo >= 3 ? 30 : 16;
+  for(let i=0;i<count;i++) { const angle=Math.random()*Math.PI*2, speed=60+Math.random()*(finishing?430:220); particleList.push({x:g.source.x,y:g.source.y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:.25+Math.random()*.35,max:.6,color,size:1+Math.random()*2}); }
+  later(()=>{
+    life.classList.remove('life-struck'); void life.offsetWidth; life.classList.add('life-struck');
+    later(()=>life.classList.remove('life-struck'),450);
+    if(combo >= 3 || finishing) { stage.classList.remove('screen-impact','finish-impact'); void stage.offsetWidth; stage.classList.add(finishing?'finish-impact':'screen-impact'); }
+    if(finishing) addEffect(`<div class="finish-focus" style="--finish-x:${g.target.x}px;--finish-y:${g.target.y}px"></div><div class="finish-burst" style="left:${g.target.x}px;top:${g.target.y}px">${Array.from({length:12},(_,i)=>`<i style="--n:${i}"></i>`).join('')}</div>`,1100);
+  },180);
+}
+function onBattleEvent(e) {
+  if (!battle || current !== 'battle') return;
+  const b = battle;
+  if (e.type === 'digit') { const el = $(`#digit-${e.index}`); el.textContent = e.value; el.classList.add('revealed'); sound.digit(e.value); }
+  else if (e.type === 'turn' || e.type === 'round') {
+    renderCards({ deal: e.type === 'round' }); [0,1,2].forEach(i=>{ $(`#digit-${i}`).textContent=''; $(`#digit-${i}`).classList.remove('revealed'); });
+    [0,1].forEach(i=>$(`#face-${i}`).src=fighterIcon(i));
+    message(b.reverseActive ? 'REVERSE' : `TURN ${b.turn || 1}`, b.disabled[1] && !b.training ? '相手はこのターン解答できない' : b.rushActive ? 'POWER RUSH — 3連続正解でK.O.!' : '番号に対応する分類札を取れ');
+    if(e.type === 'round') sound.play('roundcall');
+  } else if (e.type === 'cpuAim') {
+    const slot = b.field.findIndex(c=>c?.ndc===e.ndc); if(slot>=0) $('.card-grid').children[slot]?.classList.add('cpu-aim');
+  } else if (e.type === 'miss') {
+    sound.play('ng'); const el = $('.card-grid').children[e.slot]; el.classList.remove('miss'); void el.offsetWidth; el.classList.add('miss');
+    $(`#face-${e.owner}`).src=fighterIcon(e.owner,'damage');
+    message('MISS', b.training ? '違う分類です。数字を見て、もう一度挑戦しよう' : `${e.owner ? b.enemy.name : hero.name}はこのターン解答できない`);
+  } else if (e.type === 'hit') {
+    burst(e.slot,e.owner,e.combo,b.hp[1-e.owner] === 0); sound.play('correct', e.combo >= 3 ? .95 : .85, 1 + Math.min(4,Math.max(0,e.combo-1)) * .025);
+    const el=$('.card-grid').children[e.slot]; el.classList.add('empty');
+    $(`#face-${e.owner}`).src=fighterIcon(e.owner,'get'); $(`#face-${1-e.owner}`).src=fighterIcon(1-e.owner,'damage');
+    message(e.owner ? 'CPU STRIKE' : 'GOOD HIT', `${e.card.ndc} / ${e.card.subject} — ${e.damage} DAMAGE`);
+    addEffect(`<div class="damage-pop ${e.owner === 0 ? 'enemy' : ''}">−${e.damage}</div>`,900);
+    if(e.combo>=2) { effects.querySelectorAll('.combo-pop').forEach(el=>el.remove()); addEffect(`<div class="combo-pop ${e.owner ? 'right' : ''}"><b>${e.combo}</b><span>HIT COMBO</span><small>${e.damage} DAMAGE</small></div>`,1400); }
+  } else if(e.type === 'cutin') { unlock(e.fighter.cutin); renderCards(); sound.stopVoices(); sound.play('special'); message('SPECIAL ART',e.fighter.skillName); }
+  else if(e.type === 'noAnswer') message('NO ANSWER','ダメージなし。次のターンへ');
+  else if(e.type === 'roundOver') { sound.stopVoices(); sound.play(e.label === 'K.O.' ? 'KO' : 'timeup'); }
+  else if(e.type === 'roundWinner') sound.play(`win_${e.owner && mode === 'story' ? 'enemy' : (e.owner ? b.enemy.vsCode : hero.vsCode)}`);
+  else if(e.type === 'matchOver') { result(e.owner,b.wins); return; }
+  else if(e.type === 'trainingComplete') {
+    sound.play('correct'); $('.card-grid').children[e.slot].classList.add('hint','correct');
+    showModal(`<h2>GOOD HIT!</h2><p>正解です。早めの連続正解でコンボが増え、ダメージも上昇します。SUPERゲージが満タンになったら、SPACEかSPECIALで必殺技を発動しましょう。</p><div class="modal-actions"><button class="btn gold" data-action="finish-training">${mode === 'training' ? 'BACK TO GUIDE' : 'START BATTLE →'}</button></div>`,false);
+  }
+  updateHud(); syncOverlay();
+}
+function result(owner, wins) {
+  const won = owner === 0, f = won ? hero : mode === 'versus' ? players[1] : enemies[stageIndex];
+  const code = won || mode === 'versus' ? f.vsCode : `enemy${stageIndex+1}`, path = `victory/win_${code}.webp`; unlock(path); reward = null;
+  const line = mode === 'versus' ? twoPlayer.victoryLines[won?'player':'enemy'][Math.floor(Math.random()*3)] : TUNING.lines[hero.id]?.[enemies[stageIndex].id]?.[won?'win':'lose'];
+  if (won && mode === 'story') {
+    if(stageIndex===3) { saveProgress('ending',{scene:0}); const locked = Array.from({length:25},(_,i)=>i+1).filter(n=>!saved.artworks.includes(n)); reward = shuffle(locked)[0] || null; if(reward) {saved.artworks.push(reward);persist();} }
+    else saveProgress('battle',{stage:stageIndex+1});
+  }
+  setScreen('result', `${artwork(path, 'result-art', `${f.name}の勝利`)}<h1 class="sr-only">${f.name}の勝利。ラウンドスコア ${wins[0]} 対 ${wins[1]}</h1><div class="result-quote"><span>${esc(line || f.winLine)}</span></div>${reward ? `<div class="result-reward">✦ NEW ARTWORK UNLOCKED — No. ${String(reward).padStart(2,'0')}</div>` : ''}<div class="result-actions">${mode === 'versus' ? '<button class="btn" data-action="title">TITLE</button><button class="btn gold" data-action="rematch">REMATCH →</button>' : won ? `<button class="btn gold" data-action="${stageIndex === 3 ? 'ending' : 'next-stage'}">${stageIndex === 3 ? 'ENDING →' : 'NEXT STAGE →'}</button>` : '<button class="btn" data-action="title">TITLE</button><button class="btn gold" data-action="retry">CONTINUE →</button>'}</div>`); sound.bgm('victory');
+}
+function ending(index = 0) {
+  storyScene = Math.max(0,Math.min(1,index)); const path=`ending/ending_${hero.vsCode}${storyScene+1}.webp`; unlock(path); saveProgress('ending');
+  setScreen('ending', `${artwork(path, 'cinema-art', `${hero.name}のエンディング`)}<div class="cinema-shade"></div><section class="cinema-caption"><div class="eyebrow">EPILOGUE / ${hero.englishName.toUpperCase()}</div>${(ENDINGS[hero.name]?.[String(storyScene+1)] || []).map(l=>`<p>${esc(l)}</p>`).join('')}</section><div class="cinema-bottom"><small>${storyScene+1} / 2 — THE STORY CONTINUES</small><button class="btn gold small" data-action="next-ending">${storyScene ? 'CREDITS →' : 'NEXT →'}</button></div>`); sound.bgm('ending');
+}
+function credits() {
+  saved.progress=null;persist();
+  setScreen('credits', `<div class="credits-window"><div class="credits-roll"><h2>NDC KARUTA HEROES</h2>${[['STORY','ChatGPT'],['ILLUSTRATION','ChatGPT'],['PROGRAMMING','Codex'],['BGM','Suno'],['SE / VOICE','効果音ラボ・ElevenLabs'],['NDC','日本図書館協会'],['PRODUCE','やわらか図書館学']].map(([k,v])=>`<p><small>${k}</small>${v}</p>`).join('')}</div></div><div class="bottom-nav"><button class="btn" data-action="title">TITLE</button><button class="btn small" data-action="credits-end">SKIP ROLL →</button></div>`); sound.bgm('ending'); later(creditsEnd, 38000);
+}
+function creditsEnd() { if(current!=='credits')return; $('.credits-window')?.remove(); screen.insertAdjacentHTML('beforeend','<div class="credits-end"><div class="eyebrow" style="justify-content:center">SPECIAL THANKS</div><p>すべての図書館を愛するプレイヤーへ</p><h2>THANK YOU FOR PLAYING</h2></div>'); $('[data-action="credits-end"]')?.remove(); }
+const tracks = [['select','CHARACTER SELECT'],['opening','PROLOGUE'],['battle1','BATTLE / I–III'],['battle2','THE FINAL BATTLE'],['victory','VICTORY'],['ending','EPILOGUE']];
+function galleryItems() {
+  if(galleryTab === 'cutin') return [...players,...enemies].map(f=>({path:f.cutin,label:f.name}));
+  if(galleryTab === 'victory') return [...players,...enemies].flatMap(f=>{const code=f.vsCode || `enemy${enemies.indexOf(f)+1}`;return [{path:`victory/win_${code}.webp`,label:`${f.name} / WIN`},{path:`round/round_${code}.webp`,label:`${f.name} / ROUND`}];});
+  if(galleryTab === 'story') return [{path:'opening/op_common.webp',label:'PROLOGUE'},...players.flatMap(f=>[{path:`opening/op_${f.vsCode}.webp`,label:`${f.name} / OPENING`},...[1,2].map(n=>({path:`ending/ending_${f.vsCode}${n}.webp`,label:`${f.name} / ENDING ${n}`,lines:ENDINGS[f.name]?.[String(n)]}))])];
+  if(galleryTab === 'artwork') return Array.from({length:25},(_,i)=>({path:`artwork/artwork${String(i+1).padStart(2,'0')}.webp`,label:`ARTWORK ${String(i+1).padStart(2,'0')}`,number:i+1}));
+  return [];
+}
+function gallery() {
+  const items=galleryItems(), isOpen=i=>i.number?saved.artworks.includes(i.number):saved.unlocked.includes(i.path);
+  setScreen('gallery', `${top('ARCHIVE / YOUR JOURNEY', 'HEROES <em>GALLERY</em>')}<div class="gallery-tabs" role="group" aria-label="ギャラリー分類">${[['cutin','SPECIAL ART'],['victory','VICTORY'],['story','STORY'],['artwork','ARTWORK'],['sound','SOUND TEST']].map(([id,name])=>`<button class="${galleryTab===id?'active':''}" data-action="gallery-tab" data-id="${id}" aria-pressed="${galleryTab===id}">${name}</button>`).join('')}</div><div class="content-area"><div class="gallery-grid">${galleryTab==='sound'?tracks.map(([id,name])=>`<button class="gallery-item sound-item" data-action="track" data-id="${id}"><small>ORIGINAL SOUNDTRACK</small><b>♫ ${id.toUpperCase()}</b><span>${name}</span></button>`).join(''):items.map((item,i)=>`<button class="gallery-item ${isOpen(item)?'':'locked'}" ${isOpen(item)?`data-action="view-art" data-index="${i}"`:'disabled'}>${isOpen(item)?artwork(item.path, '', item.label, true):'<div class="lock">◇ LOCKED</div>'}<span>${item.label}</span></button>`).join('')}</div></div><div class="bottom-nav"><button class="btn" data-action="title">← BACK</button><span class="bottom-note">見た演出を記録。STORYクリアで新しいアートワークを獲得。</span><span class="bottom-note">${galleryTab==='sound'?`${tracks.length} TRACKS`:`${items.filter(isOpen).length} / ${items.length} UNLOCKED`}</span></div>`); sound.bgm('select');
+}
+function showModal(html, dismissible = true, pauseAudio = true) {
+  modalPreviousFocus = document.activeElement; modalPausesAudio = pauseAudio; if(battle) battle.paused=true; if(pauseAudio) sound.pause(); else sound.stopVoices();
+  modal.innerHTML=`<div class="modal-shade"><section class="modal-panel" role="dialog" aria-modal="true" aria-label="${current==='battle'?'バトルメニュー':'設定'}">${dismissible?'<button class="modal-close" data-action="close-modal" aria-label="閉じる">×</button>':''}${html}</section></div>`;
+  modal.querySelector('button,input')?.focus({preventScroll:true}); updateHud();
+}
+function closeModal() { if(current==='gallery')sound.stopVoices(); modal.innerHTML=''; modalPausesAudio=true; if(battle)battle.paused=document.hidden; if(!document.hidden)sound.resume(); modalPreviousFocus?.focus?.({preventScroll:true}); updateHud(); }
+function analyticsNotice() {
+  const active = window.karutaAnalyticsEnabled === true;
+  return `<details class="privacy-notice"><summary>アクセス解析について</summary><p>${active ? '本ゲームでは、利用状況の把握と改善のためGoogle Analyticsを使用しています。Cookie等を利用し、アクセス状況、セッション、概算地域、ブラウザ・端末情報などがGoogleへ送信されます。ゲームから氏名・メールアドレスやセーブデータを送信することはありません。' : 'このローカル版・確認用画面ではアクセス解析を行いません。公開版では、利用状況の把握と改善のためGoogle Analyticsを使用します。'}進行状況とギャラリーの開放状況は、このブラウザ内に保存されます。</p><p>公開版の計測にはGoogleの規約とプライバシーポリシーが適用されます。計測を無効にしたい場合は、Googleのオプトアウトアドオンをご利用ください。</p><p><a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener noreferrer">Googleのプライバシーポリシー</a> · <a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener noreferrer">オプトアウト</a></p></details>`;
+}
+function settings() {
+  showModal(`<h2>${current==='battle'?'PAUSE':'SETTINGS'}</h2><div class="settings-row"><span>サウンド</span><button data-action="sound">${saved.settings.sound?'ON':'OFF'}</button></div><label class="settings-row"><span>音量</span><input type="range" min="0" max="1" step="0.05" value="${saved.settings.volume}" aria-label="音量"></label><div class="settings-row"><span>画面揺れ・エフェクト <small> / REDUCED MOTION</small></span><button data-action="motion">${saved.settings.motion?'ON':'OFF'}</button></div><p>${current==='battle'?'ゲームは一時停止しています。必殺技の演出中も、読み上げとCPUは停止します。':'進行状況とギャラリーは、このブラウザに自動保存されます。'}</p>${analyticsNotice()}<div class="modal-actions">${current==='battle'?'<button class="btn" data-action="quit">TITLE</button>':''}<button class="btn gold" data-action="close-modal">${current==='battle'?'RESUME →':'CLOSE'}</button></div>`);
+}
+function continueStory() {
+  const p=saved.progress;if(!p)return;hero=players.find(h=>h.id===p.player);difficulty=p.difficulty;stageIndex=p.stage;mode='story';
+  if(p.phase==='ending')ending(p.scene||0);else if(p.phase==='opening')opening(p.scene||0);else vs();
+}
+function training() { mode='training';hero=players[0];stageIndex=0;difficulty='normal';beginBattle(true); }
+function finishTraining() {
+  const guideOnly=mode==='training';saved.tutorialSeen=true;persist();closeModal();if(guideOnly)guide();else beginBattle(false);
+}
+function viewArt(index) {
+  const item=galleryItems()[index];if(!item)return;
+  showModal('', true, false);modal.innerHTML=`<div class="modal-shade"><section class="gallery-view" role="dialog" aria-modal="true" aria-label="${item.label}">${artwork(item.path, '', item.label)}${item.lines?`<div class="ending-lines">${item.lines.map(l=>`<div>${esc(l)}</div>`).join('')}</div>`:''}<div class="gallery-view-footer"><span>${item.label}</span><button class="btn small" data-action="close-modal">CLOSE ×</button></div></section></div>`;
+  modal.querySelector('button').focus();if(item.number)sound.play('artwork');
+}
+async function fullscreen() { try { if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen(); } catch { toast('全画面に対応していないブラウザです。通常表示でプレイできます。'); } }
+document.addEventListener('click', event=>{
+  const el=event.target.closest('[data-action]');if(!el||el.disabled)return;const action=el.dataset.action;
+  if(action==='card'){ if(modal.children.length)return;const owner=mode==='versus'?controls.indexOf('mouse'):0;if(owner>=0)battle?.answer(Number(el.dataset.slot),owner);return; }
+  if(action==='special'){battle?.special();updateHud();return;}
+  if(action==='sound'){saved.settings.sound=!saved.settings.sound;persist();applySettings();if(modal.children.length)settings();return;}
+  if(action==='motion'){saved.settings.motion=!saved.settings.motion;persist();applySettings();settings();return;}
+  if(action==='fullscreen'){fullscreen();return;}
+  if(action==='settings'){settings();return;}
+  if(action==='close-modal'){closeModal();return;}
+  if(action==='title'||action==='quit'){closeModal();wipe(title);return;}
+  if(action==='story'){wipe(()=>{select();later(()=>sound.play('character'),500);});}
+  else if(action==='hero'){hero=players.find(p=>p.id===el.dataset.id)||hero;updateSelect();}
+  else if(action==='difficulty'){difficulty=el.dataset.id;updateDifficulty();}
+  else if(action==='launch'){stageIndex=0;storyScene=0;mode='story';sound.fadeOut();wipe(()=>opening());}
+  else if(action==='next-story'){if(storyScene<3)opening(storyScene+1);else wipe(vs);}
+  else if(action==='skip-story')wipe(vs);
+  else if(action==='skip-vs')beginBattle();
+  else if(action==='versus')wipe(versus);
+  else if(action==='control'){controls[Number(el.dataset.owner)]=el.dataset.id;versus();}
+  else if(action==='start-versus'||action==='rematch')wipe(()=>beginBattle(false));
+  else if(action==='help')wipe(guide);
+  else if(action==='training')wipe(training);
+  else if(action==='finish-training'||action==='skip-training')finishTraining();
+  else if(action==='retry')wipe(vs);
+  else if(action==='next-stage'){stageIndex++;wipe(vs);}
+  else if(action==='ending')wipe(()=>ending());
+  else if(action==='next-ending'){if(storyScene===0)ending(1);else credits();}
+  else if(action==='credits-end')creditsEnd();
+  else if(action==='gallery')wipe(gallery);
+  else if(action==='gallery-tab'){galleryTab=el.dataset.id;gallery();}
+  else if(action==='view-art')viewArt(Number(el.dataset.index));
+  else if(action==='track'){sound.bgm(el.dataset.id);toast(`♫ ${el.dataset.id.toUpperCase()}`);}
+  else if(action==='continue')wipe(continueStory);
+});
+document.addEventListener('input',event=>{if(event.target.matches('input[type="range"]')){saved.settings.volume=Number(event.target.value);persist();sound.update();if(battle)sound.pause();}});
+document.addEventListener('keydown',event=>{
+  if(event.metaKey||event.ctrlKey||event.altKey||event.repeat)return;
+  if(modal.children.length){
+    if(event.key==='Escape' && modal.querySelector('[data-action="close-modal"]')){event.preventDefault();closeModal();}
+    if(event.key==='Tab'){const list=[...modal.querySelectorAll('button:not(:disabled),input,a[href]')];if(list.length){const first=list[0],last=list.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}}return;
+  }
+  if(current==='battle' && battle){
+    if(event.key==='Escape'){event.preventDefault();settings();return;}
+    if(event.code==='Space'){event.preventDefault();battle.special();updateHud();return;}
+    for(let owner=0;owner<2;owner++){
+      if(owner===1&&mode!=='versus')continue;
+      const layout=twoPlayer.keyboardLayouts[mode==='versus'?controls[owner]:'keyboardA'];
+      const slot=layout?.findIndex(k=>k.codes.includes(event.code)||k.keys.includes(event.key.toLowerCase()));
+      if(slot>=0){event.preventDefault();battle.answer(slot,owner);return;}
+    }
+  }else if(current==='select' && ['ArrowLeft','ArrowRight'].includes(event.key)){event.preventDefault();hero=players[(players.indexOf(hero)+(event.key==='ArrowRight'?1:4))%5];updateSelect();}
+});
+document.addEventListener('visibilitychange',()=>{
+  lastFrame=performance.now();if(document.hidden){sound.pause();if(battle){battle.paused=true;if(!modal.children.length)settings();}}
+  else if(!modal.children.length || !modalPausesAudio)sound.resume();
+});
+function frame(now){
+  const dt=Math.min(1000,Math.max(0,now-lastFrame));lastFrame=now;
+  if(battle&&current==='battle'){
+    battle.step(dt);if(battle){const clock=$('#clock'), timeText=battle.phase==='turn'?Math.max(0,(15000-battle.elapsed)/1000).toFixed(1).padStart(4,'0'):'15.0';if(clock.textContent!==timeText)[...clock.children].forEach((digit,i)=>{if(digit.textContent!==timeText[i])digit.textContent=timeText[i];});clock.classList.toggle('danger',battle.phase==='turn'&&battle.elapsed>12000);syncOverlay();}
+  }
+  sound.tick(now);
+  ctx.clearRect(0,0,stage.clientWidth,stage.clientHeight);
+  if(saved.settings.motion){
+    particleList=particleList.filter(p=>p.life>0);for(const p of particleList){const s=dt/1000;p.life-=s;p.x+=p.vx*s;p.y+=p.vy*s;p.vy+=350*s;ctx.globalAlpha=Math.max(0,p.life/p.max);ctx.fillStyle=p.color;ctx.fillRect(p.x,p.y,p.size*3,p.size);}
+    ctx.globalAlpha=1;
+    if(current==='title'||current==='select'){ctx.fillStyle='#e5c87c';for(let i=0;i<23;i++){const x=(i*149.3+now*.003*(i%3+1))%stage.clientWidth,y=stage.clientHeight-((i*61+now*.012)%(stage.clientHeight+12));ctx.globalAlpha=.15+.2*Math.sin(now*.0008+i)**2;ctx.fillRect(x,y,1.5,1.5);}ctx.globalAlpha=1;}
+  }
+  requestAnimationFrame(frame);
+}
+title();requestAnimationFrame(frame);
+// A deliberate read-only diagnostic snapshot for reproducible browser QA.
+window.karutaHeroes = Object.freeze({ version:VERSION, snapshot:()=>({screen:current,mode,stage:stageIndex,hero:hero.id,phase:battle?.phase,turn:battle?.turn,round:battle?.round,hp:battle?[...battle.hp]:null,wins:battle?[...battle.wins]:null,paused:battle?.paused}) });
+
+})();</script>
+</body>
+</html>

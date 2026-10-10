@@ -1,8 +1,4 @@
-(function () {
-  'use strict';
-
-  // Characters shown in STORY MODE. Add new playable characters here.
-  const players = [
+export const players = [
     {
       id: 'librarian',
       name: '司書さん',
@@ -106,7 +102,7 @@
   ];
 
   // STORY MODE opponents, ordered by stage.
-  const enemies = [
+export const enemies = [
     {
       id: 'wind',
       name: '風の目録使い',
@@ -161,13 +157,13 @@
     }
   ];
 
-  const difficulties = {
+export const difficulties = {
     easy: { label: 'EASY', playerHp: 120, cpuSpeed: 1.16, cpuGauge: 0.86, cpuCorrectDelta: -0.04 },
     normal: { label: 'NORMAL', playerHp: 100, cpuSpeed: 1, cpuGauge: 1, cpuCorrectDelta: 0 },
     hard: { label: 'HARD', playerHp: 90, cpuSpeed: 0.86, cpuGauge: 1.18, cpuCorrectDelta: 0.025 }
   };
 
-  const twoPlayer = {
+export const twoPlayer = {
     controlOrder: ['mouse', 'keyboardA', 'keyboardB'],
     controlTypes: {
       mouse: { label: 'マウス', shortLabel: 'MOUSE' },
@@ -216,7 +212,7 @@
     }
   };
 
-  const fallbackCards = [
+export const fallbackCards = [
     { ndc: '000', subject: '総記' },
     { ndc: '010', subject: '図書館. 図書館情報学' },
     { ndc: '020', subject: '図書. 書誌学' },
@@ -239,59 +235,5 @@
     { ndc: '913', subject: '小説. 物語' }
   ];
 
-  // Public update history. Add the newest entry to the beginning of this array.
-  const patchNotes = [
-    {
-      date: '2026.08.27',
-      isoDate: '2026-08-27',
-      items: [
-        '「STORY MODE」クリア時に獲得できるアートワークを追加しました'
-      ]
-    },
-    {
-      date: '2026.08.15',
-      isoDate: '2026-08-15',
-      items: [
-        '「STORY MODE」クリア時にアートワークを獲得できるコレクション機能を追加しました'
-      ]
-    },
-    {
-      date: '2026.07.23',
-      isoDate: '2026-07-23',
-      items: [
-        '「STORY MODE」の進行状況を自動保存し、タイトルから再開できる「CONTINUE」機能を追加しました',
-        '初回バトルで基本操作を学べるチュートリアルを追加し、「HELP」から再体験できるようにしました'
-      ]
-    },
-    {
-      date: '2026.07.22',
-      isoDate: '2026-07-22',
-      items: [
-        '「STORY MODE」に、各ファイターの物語へつながるオープニングデモを追加しました',
-        '新たなプレイアブルキャラクター「格闘系司書」を追加しました'
-      ]
-    },
-    {
-      date: '2026.07.19',
-      isoDate: '2026-07-19',
-      items: [
-        'これまでに出会った演出や楽曲を鑑賞できる「GALLERY MODE」を追加しました',
-        '新たなプレイアブルキャラクター「教授」を追加しました'
-      ]
-    },
-    {
-      date: '2026.06.12',
-      isoDate: '2026-06-12',
-      items: ['NDC KARUTA HEROESをリリースしました']
-    }
-  ];
 
-  window.karutaFightersConfig = {
-    players,
-    enemies,
-    difficulties,
-    twoPlayer,
-    fallbackCards,
-    patchNotes
-  };
-})();
+export const VERSION = "2.0.1";

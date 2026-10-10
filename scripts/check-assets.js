@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import { players, enemies } from '../src/config.js';
+import { portraitAsset } from '../src/layout.js';
+import { CARDS } from '../src/data.js';
+const files = [...players.flatMap(p=>[p.icon,p.selectImage,p.cutin,`vs/vs_1_${p.vsCode}.webp`,`victory/win_${p.vsCode}.webp`,`round/round_${p.vsCode}.webp`,`opening/op_${p.vsCode}.webp`,...['1','2'].map(n=>`ending/ending_${p.vsCode}${n}.webp`)]),...enemies.flatMap(p=>[p.icon,p.cutin]),'image/ancient-library-bg.png','image/ogp.png','sound/0.mp3','sound/roundcall.mp3','sound/special.mp3'];
+for(const p of players)for(let n=1;n<=4;n++)files.push(`vs/vs_${n}_${p.vsCode}.webp`);
+for(let n=1;n<=4;n++)files.push(`round/round_enemy${n}.webp`,`victory/win_enemy${n}.webp`);
+for(let n=1;n<=25;n++)files.push(`artwork/artwork${String(n).padStart(2,'0')}.webp`);
+files.push('opening/op_common.webp');
+files.push(...new Set(files.map(portraitAsset).filter(Boolean)));
+const missing=files.filter(f=>!fs.existsSync(f));
+if(missing.length)throw Error(`Missing assets: ${missing.join(', ')}`);
+if(CARDS.some(c=>!/^[0-9]{3}$/.test(c.ndc)||!c.subject))throw Error('Invalid NDC data');
+for(const file of ['index.html','styles.css',...fs.readdirSync('src').map(f=>`src/${f}`)])if(fs.readFileSync(file,'utf8').includes('../NDC_Karuta_Heroes'))throw Error('External source-folder dependency');
+console.log(`${files.length} asset references, ${CARDS.length} NDC records, standalone paths: OK`);
