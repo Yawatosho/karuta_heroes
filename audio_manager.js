@@ -23,11 +23,11 @@
   };
   const DIGIT_SOURCES = Array.from({ length: 10 }, (_, digit) => ({
     [`digitA${digit}`]: `sound/${digit}.mp3`,
-    [`digitB${digit}`]: `sound/q_${digit}.mp3`
+    [`digitB${digit}`]: `sound/${digit}.mp3`
   })).reduce((map, entry) => Object.assign(map, entry), {});
   const VOICE_SAMPLE_SOURCES = {
-    voiceA: 'sound/voice.mp3',
-    voiceB: 'sound/q_voice.mp3'
+    voiceA: 'sound/0.mp3',
+    voiceB: 'sound/0.mp3'
   };
   const MUSIC_SOURCES = {
     select: 'sound/select.mp3',
@@ -90,23 +90,20 @@
   let currentMusicVolume = 0;
   let musicFadeFrame = 0;
 
-  function normalizeVoiceVariant(value) {
-    const normalized = String(value || '').trim().toLowerCase();
-    return normalized === 'b' || normalized === 'voiceb' || normalized === 'voice-b' ? 'b' : 'a';
+  function normalizeVoiceVariant() {
+    // Keep the legacy API compatible while always using the available A voice.
+    return 'a';
   }
 
   function getInitialVoiceVariant() {
-    try {
-      return normalizeVoiceVariant(localStorage.getItem(VOICE_STORAGE_KEY));
-    } catch (e) {
-      return 'a';
-    }
+    try { localStorage.setItem(VOICE_STORAGE_KEY, 'a'); } catch (e) {}
+    return 'a';
   }
 
   function getDigitKey(digit, variant = voiceVariant) {
     const normalized = Number(digit);
     if (!Number.isInteger(normalized) || normalized < 0 || normalized > 9) return null;
-    return `digit${variant === 'b' ? 'B' : 'A'}${normalized}`;
+    return `digitA${normalized}`;
   }
 
   function getDigitKeys(variant = voiceVariant) {
@@ -114,13 +111,13 @@
   }
 
   function getVoiceSampleKey(variant = voiceVariant) {
-    return variant === 'b' ? 'voiceB' : 'voiceA';
+    return 'voiceA';
   }
 
   function syncVoiceControls() {
     document.documentElement.dataset.voiceVariant = voiceVariant;
     document.querySelectorAll('input[name="voiceVariant"]').forEach(input => {
-      input.checked = normalizeVoiceVariant(input.value) === voiceVariant;
+      input.checked = input.value === 'a';
     });
   }
 
@@ -526,7 +523,7 @@
     if (!('serviceWorker' in navigator)) return;
     if (location.protocol === 'file:') return;
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=bgm6').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=bgm7').catch(() => {});
     });
   }
 
@@ -561,7 +558,7 @@
   document.documentElement.dataset.audioManager = 'ready';
   syncVoiceControls();
 
-  preparePromise = prepare([...getDigitKeys(), 'voiceA', 'voiceB'])
+  preparePromise = prepare([...getDigitKeys(), 'voiceA'])
     .catch(() => false);
   registerAudioCacheWorker();
 })();

@@ -1294,12 +1294,7 @@
   }
 
   function getSelectedVoiceVariant() {
-    if (karutaAudio && typeof karutaAudio.getVoiceVariant === 'function') {
-      return karutaAudio.getVoiceVariant();
-    }
-    const checked = document.querySelector('input[name="voiceVariant"]:checked');
-    if (checked && checked.value === 'b') return 'b';
-    try { return localStorage.getItem('karutaVoiceVariant') === 'b' ? 'b' : 'a'; } catch (e) { return 'a'; }
+    return 'a';
   }
 
   function getFallbackDigitSound(digit) {
@@ -1308,7 +1303,7 @@
     const voiceVariant = getSelectedVoiceVariant();
     const key = `${voiceVariant}-${normalized}`;
     if (digitSounds.has(key)) return digitSounds.get(key);
-    const audio = new Audio(voiceVariant === 'b' ? `sound/q_${normalized}.mp3` : `sound/${normalized}.mp3`);
+    const audio = new Audio(`sound/${normalized}.mp3`);
     audio.preload = 'auto';
     digitSounds.set(key, audio);
     return audio;
